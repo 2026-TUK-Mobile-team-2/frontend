@@ -8,10 +8,10 @@ import retrofit2.http.POST
 
 interface ApiService {
     // 모든 제보 목록 가져오기
-    @GET("reports")
+    @GET("api/complaints")
     fun getAllReports(): Call<List<Report>>
 
     // 새로운 제보 등록하기
-    @POST("reports")
+    @POST("api/complaints")
     fun postReport(@Body report: Report): Call<Report>
 }
