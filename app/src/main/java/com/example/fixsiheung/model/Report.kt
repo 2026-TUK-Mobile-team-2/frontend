@@ -1,4 +1,4 @@
-package com.example.fix_siheung.model
+package com.example.fixsiheung.model
 
 // 제보 데이터를 정의하는 데이터 클래스
 data class Report(
