@@ -1,6 +1,6 @@
-package com.example.fix_siheung.network
+package com.example.fixsiheung.network
 
-import com.example.fix_siheung.model.Report
+import com.example.fixsiheung.model.Report
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
