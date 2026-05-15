@@ -27,15 +27,6 @@ android {
             abiFilters.add("armeabi-v7a")
         }
     }
-    //해시코드 통일
-    /*signingConfigs {
-        getByName("debug") {
-            storeFile = file("debug.keystore")
-            storePassword = "android"
-            keyAlias = "androiddebugkey"
-            keyPassword = "android"
-        }
-    }*/
 
     buildTypes {
         debug {

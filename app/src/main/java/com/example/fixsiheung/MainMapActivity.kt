@@ -40,6 +40,8 @@ class MainMapActivity : AppCompatActivity() {
     private var myLocationLabel: Label? = null
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
+
+    // 위치 권환
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -60,6 +62,7 @@ class MainMapActivity : AppCompatActivity() {
         initKakaoMap()
         initChipFilter()
 
+
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -67,6 +70,8 @@ class MainMapActivity : AppCompatActivity() {
         }
     }
 
+
+    //원하는 마커만 보이기
     private fun initChipFilter() {
         binding.chipGroupFilter.setOnCheckedStateChangeListener { _, checkedIds ->
             when (checkedIds.firstOrNull()) {
@@ -79,6 +84,7 @@ class MainMapActivity : AppCompatActivity() {
         }
     }
 
+    // 현재위치 표시
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             val location = locationResult.lastLocation ?: return
@@ -101,10 +107,12 @@ class MainMapActivity : AppCompatActivity() {
                 kakaoMap?.moveCamera(CameraUpdateFactory.newCenterPosition(myPosition))
             } else {
                 myLocationLabel?.moveTo(myPosition)
+                kakaoMap?.moveCamera(CameraUpdateFactory.newCenterPosition(myPosition))
             }
         }
     }
 
+    // 위치 추적 시작
     private fun startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED
@@ -124,6 +132,7 @@ class MainMapActivity : AppCompatActivity() {
         )
     }
 
+    // 마커 표시
     private fun vectorToBitmap(drawableId: Int): Bitmap {
         val drawable = ContextCompat.getDrawable(this, drawableId)!!
         return Bitmap.createBitmap(
