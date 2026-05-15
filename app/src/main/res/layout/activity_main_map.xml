@@ -79,52 +79,6 @@
     </com.google.android.material.chip.ChipGroup>
 
 
-    <LinearLayout
-        android:id="@+id/button_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent">
 
-        <Button
-            android:id="@+id/btn_map"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:text="지도" />
-
-        <Button
-            android:id="@+id/btn_list"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:text="목록" />
-
-        <Button
-            android:id="@+id/btn_report"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:text="제보" />
-
-        <Button
-            android:id="@+id/btn_null"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:text="null" />
-
-        <Button
-            android:id="@+id/btn_info"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:text="내 정보" />
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
