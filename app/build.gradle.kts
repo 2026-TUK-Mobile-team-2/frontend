@@ -26,6 +26,8 @@ android {
             abiFilters.add("arm64-v8a")
             abiFilters.add("armeabi-v7a")
         }
+
+        vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {
@@ -47,6 +49,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
