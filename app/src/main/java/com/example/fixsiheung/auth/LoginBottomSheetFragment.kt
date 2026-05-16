@@ -1,4 +1,4 @@
-package com.example.fixsiheung.login
+package com.example.fixsiheung.auth
 
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -41,18 +41,26 @@ class LoginBottomSheetFragment : BottomSheetDialogFragment() {
         super.onViewCreated(view, tastes)
         setButtonState(false)
 
+        // 회원가입
+        binding.tvBottomSignup.setOnClickListener {
+            /*val intent = Intent(requireContext(), MainMapActivity::class.java)
+            startActivity(intent)*/
+        }
 
-        binding.etId.addTextChangedListener {
+        // id 입력 확인
+        binding.etEmail.addTextChangedListener {
             checkInputs()
         }
 
+        // 비밀번호 입력 확인
         binding.etPassword.addTextChangedListener {
             checkInputs()
         }
-        // 바텀 시트 내부의 로그인 버튼 클릭 이벤트 처리
+
+        // 내부 로그인 버튼 처리
         binding.btnBottomSheetLogin.setOnClickListener {
-            //val email = binding.etEmail.text.toString()
-            // 백엔드 로그인 API 호출 로직 연결부
+            //val id = binding.etId.text.toString()
+            // 백엔드 로그인 API 호출 로직 연결부 추가예정
             val intent = Intent(requireContext(), MainMapActivity::class.java)
             startActivity(intent)
             activity?.finish()
@@ -61,9 +69,9 @@ class LoginBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
 
-    // 아이디, 비입력 체크
+    // 아이디, 비밀번호 입력 체크
     private fun checkInputs() {
-        val id = binding.etId.text.toString().trim()
+        val id = binding.etEmail.text.toString().trim()
         val password = binding.etPassword.text.toString().trim()
 
         val isBothFilled = id.isNotEmpty() && password.isNotEmpty()

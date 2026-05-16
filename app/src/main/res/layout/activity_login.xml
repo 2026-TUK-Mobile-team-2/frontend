@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".login.LoginActivity">
+    tools:context=".auth.LoginActivity">
 
     <ImageView
         android:id="@+id/logo"
@@ -36,7 +36,7 @@
         android:layout_marginStart="50dp"
         android:layout_marginEnd="50dp"
         app:cornerRadius="10dp"
-        android:text="아이디로 로그인"
+        android:text="이메일로 로그인"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

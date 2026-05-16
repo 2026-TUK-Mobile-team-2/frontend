@@ -70,8 +70,8 @@ class MainMapActivity : AppCompatActivity() {
         }
     }
 
-
-    //원하는 마커만 보이기
+    // 코드 추가 필요
+    // 원하는 마커만 보기
     private fun initChipFilter() {
         binding.chipGroupFilter.setOnCheckedStateChangeListener { _, checkedIds ->
             when (checkedIds.firstOrNull()) {
@@ -132,7 +132,7 @@ class MainMapActivity : AppCompatActivity() {
         )
     }
 
-    // 마커 표시
+    // 내 위치 마커 (벡터 -> 비트맵)
     private fun vectorToBitmap(drawableId: Int): Bitmap {
         val drawable = ContextCompat.getDrawable(this, drawableId)!!
         return Bitmap.createBitmap(

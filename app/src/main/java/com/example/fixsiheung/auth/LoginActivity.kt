@@ -1,4 +1,4 @@
-package com.example.fixsiheung.login
+package com.example.fixsiheung.auth
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
