@@ -43,8 +43,8 @@ class LoginBottomSheetFragment : BottomSheetDialogFragment() {
 
         // 회원가입
         binding.tvBottomSignup.setOnClickListener {
-            /*val intent = Intent(requireContext(), MainMapActivity::class.java)
-            startActivity(intent)*/
+            val intent = Intent(requireContext(), SignupActivity::class.java)
+            startActivity(intent)
         }
 
         // id 입력 확인

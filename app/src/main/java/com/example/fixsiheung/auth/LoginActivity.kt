@@ -1,5 +1,6 @@
 package com.example.fixsiheung.auth
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -21,6 +22,11 @@ class LoginActivity : AppCompatActivity() {
 
             // 화면에 띄우기 (supportFragmentManager 관리)
             bottomSheet.show(supportFragmentManager, bottomSheet.tag)
+        }
+
+        binding.textSignup.setOnClickListener {
+            val intent = Intent(this, SignupActivity::class.java)
+            startActivity(intent)
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->

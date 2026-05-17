@@ -16,7 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FixSiheung"
         android:usesCleartextTraffic="true">
-
+        <activity
+            android:name=".auth.SignupActivity"
+            android:exported="false" />
         <activity
             android:name=".auth.LoginActivity"
             android:exported="true">
@@ -33,9 +35,7 @@
 
         <activity
             android:name=".MainMapActivity"
-            android:exported="false">
-
-        </activity>
+            android:exported="false" />
     </application>
 
 </manifest>
