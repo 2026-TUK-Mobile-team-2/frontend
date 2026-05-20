@@ -1,14 +1,20 @@
 package com.example.fixsiheung.model
 
-// 제보 데이터를 정의하는 데이터 클래스
+import com.google.gson.annotations.SerializedName
+
 data class Report(
-    val id: Int,               // 제보 ID
-    val title: String,         // 제목
-    val content: String,       // 상세 내용
-    val category: String,      // 카테고리 (쓰레기, 파손 등)
-    val latitude: Double,      // 위치 위도
-    val longitude: Double,     // 위치 경도
-    val author: String,        // 작성자 (우수 민원인 체크용)
-    val likeCount: Int = 0,    // 공감 수 (기본값 0)
-    val status: String = "접수" // 처리 상태 (접수, 처리중, 해결)
+    @SerializedName("complaint_id")
+    val complaintId: Int = 0, // 서버에서 자동 생성
+
+    @SerializedName("user_id")
+    val userId: String,
+
+    @SerializedName("category_id")
+    val categoryId: Int,
+
+    val title: String,
+    val description: String,
+    val latitude: Double,
+    val longitude: Double,
+    val address: String? = ""
 )
