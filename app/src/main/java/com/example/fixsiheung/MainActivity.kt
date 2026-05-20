@@ -19,9 +19,10 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
+        //통신테스트
+        sendReport()
         // 앱이 켜지면 서버에 데이터를 요청하는 함수 실행
-        fetchReports()
+        //fetchReports()
     }
 
     // 서버에 제보 목록을 요청하는 함수
