@@ -1,0 +1,21 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- 1. 바깥쪽 부드러운 그림자 (반투명 파랑) -->
+    <path
+        android:fillColor="#40007AFF"
+        android:pathData="M12,12 m-10,0 a10,10 0 1,1 20,0 a10,10 0 1,1 -20,0"/>
+
+    <!-- 2. 하얀색 테두리 (지도와 분리되어 보이게 함) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,12 m-7,0 a7,7 0 1,1 14,0 a7,7 0 1,1 -14,0"/>
+
+    <!-- 3. 안쪽 진한 파란색 점 (내 위치 코어) -->
+    <path
+        android:fillColor="#007AFF"
+        android:pathData="M12,12 m-5,0 a5,5 0 1,1 10,0 a5,5 0 1,1 -10,0"/>
+</vector>
