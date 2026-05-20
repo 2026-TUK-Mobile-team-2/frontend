@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.os.Bundle
 import android.os.Looper
+import android.util.Base64
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -32,6 +33,7 @@ import com.kakao.vectormap.label.Label
 import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelStyles
+import java.security.MessageDigest
 
 class MainMapActivity : AppCompatActivity() {
 
@@ -63,6 +65,20 @@ class MainMapActivity : AppCompatActivity() {
         initChipFilter()
 
 
+        // 해시값 찾는코드
+        try {
+            val info = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
+            for (signature in info.signatures!!) {
+                val md = MessageDigest.getInstance("SHA")
+                md.update(signature.toByteArray())
+                val myKeyHash = Base64.encodeToString(md.digest(), Base64.DEFAULT).trim()
+                Log.d("KakaoKeyHash", "해시값: $myKeyHash")
+            }
+        } catch (e: Exception) {
+            Log.e("KakaoKeyHash", "해시코드를 가져오는 중 에러 발생", e)
+        }
+
+
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -91,7 +107,7 @@ class MainMapActivity : AppCompatActivity() {
             val myPosition = LatLng.from(location.latitude, location.longitude)
 
             val labelManager = kakaoMap?.labelManager ?: return
-            val layer = labelManager.layer ?: return
+            val layer = labelManager.layer ?: labelManager.getLayer() ?: return
 
             if (myLocationLabel == null) {
                 val styles = labelManager.addLabelStyles(
@@ -159,6 +175,8 @@ class MainMapActivity : AppCompatActivity() {
         }, object : KakaoMapReadyCallback() {
             override fun onMapReady(kakaoMap: KakaoMap) {
                 this@MainMapActivity.kakaoMap = kakaoMap
+
+                // 기본값 : 학교 위치
                 kakaoMap.moveCamera(
                     CameraUpdateFactory.newCenterPosition(
                         LatLng.from(
@@ -180,5 +198,13 @@ class MainMapActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // 지도가 이미 준비되었고 위치 권한이 획득된 상태라면 백그라운드에서 복귀 시 업데이트 재시작
+        if (kakaoMap != null && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            startLocationUpdates()
+        }
     }
 }

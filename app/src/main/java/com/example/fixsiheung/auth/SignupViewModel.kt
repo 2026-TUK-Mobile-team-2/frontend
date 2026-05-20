@@ -11,6 +11,8 @@ import com.example.fixsiheung.R
 
 class SignupViewModel : ViewModel() {
     val nickname = MutableLiveData<String>("")
+
+    val id = MutableLiveData<String>("")
     val email = MutableLiveData<String>("")
     val password = MutableLiveData<String>("")
 
