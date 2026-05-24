@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -49,9 +50,36 @@ class SignupActivity : AppCompatActivity() {
                     .addToBackStack(null) // 뒤로가기 누르면 1단계로 리턴 가능하게 함
                     .commit()
             } else {
-                // 서버에 아이디, 비밀번호 넘겨야함
-                val finalNickname = viewModel.nickname.value
-                Toast.makeText(this, "${finalNickname}님 회원가입 완료!", Toast.LENGTH_SHORT).show()
+                val finalId = viewModel.id.value ?: ""
+                val finalPassword = viewModel.password.value ?: ""
+                val finalEmail = viewModel.email.value ?: ""
+                val finalNickname = viewModel.nickname.value ?: ""
+
+                // name 없음
+                val signupRequest = com.example.fixsiheung.model.SignupRequest(
+                    userId = finalId,
+                    password = finalPassword,
+                    email = finalEmail,
+                    nickname = finalNickname
+                )
+
+                com.example.fixsiheung.network.RetrofitClient.apiService.signup(signupRequest)
+                    .enqueue(object : retrofit2.Callback<Any> {
+                        override fun onResponse(call: retrofit2.Call<Any>, response: retrofit2.Response<Any>) {
+                            if (response.isSuccessful) {
+                                Toast.makeText(this@SignupActivity, "${finalNickname}님 회원가입 완료!", Toast.LENGTH_SHORT).show()
+                                val intent = Intent(this@SignupActivity, MainMapActivity::class.java)
+                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                startActivity(intent)
+                            } else {
+                                viewModel.idErrorMsg.value = "이미 사용 중이거나 가입된 아이디입니다."
+                            }
+                        }
+
+                        override fun onFailure(call: retrofit2.Call<Any>, t: Throwable) {
+                            Toast.makeText(this@SignupActivity, "서버 네트워크 통신 오류", Toast.LENGTH_SHORT).show()
+                        }
+                    })
 
                 val intent = Intent(this, MainMapActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

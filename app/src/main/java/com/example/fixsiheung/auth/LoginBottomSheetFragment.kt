@@ -4,14 +4,22 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import com.example.fixsiheung.MainMapActivity
 import com.example.fixsiheung.databinding.ActivityLoginBottomBinding
+import com.example.fixsiheung.model.LoginRequest
+import com.example.fixsiheung.model.LoginResponse
+import com.example.fixsiheung.network.RetrofitClient
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import kotlin.jvm.java
 
 // TODO: Rename parameter arguments, choose names that match
@@ -57,14 +65,34 @@ class LoginBottomSheetFragment : BottomSheetDialogFragment() {
             checkInputs()
         }
 
-        // 내부 로그인 버튼 처리
         binding.btnBottomSheetLogin.setOnClickListener {
-            //val id = binding.etId.text.toString()
-            // 백엔드 로그인 API 호출 로직 연결부 추가예정
-            val intent = Intent(requireContext(), MainMapActivity::class.java)
-            startActivity(intent)
-            activity?.finish()
-            dismiss()
+            val userId = binding.etEmail.text.toString().trim()
+            val password = binding.etPassword.text.toString().trim()
+
+            val loginRequest = LoginRequest(userId = userId, password = password)
+
+            RetrofitClient.apiService.login(loginRequest).enqueue(object : Callback<LoginResponse> {
+                override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                    if (response.isSuccessful && response.body() != null) {
+                        // 로그인 성공! (200 OK)
+                        val userName = response.body()?.name ?: "시민"
+                        Toast.makeText(requireContext(), "${userName}님 환영합니다!", Toast.LENGTH_SHORT).show()
+
+                        val intent = Intent(requireContext(), MainMapActivity::class.java)
+                        startActivity(intent)
+                        activity?.finish()
+                        dismiss()
+                    } else {
+                        // 아이디나 비밀번호가 틀렸을 때 (401 에러)
+                        Toast.makeText(requireContext(), "아이디 또는 비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                    Toast.makeText(requireContext(), "서버 네트워크 에러가 발생했습니다.", Toast.LENGTH_SHORT).show()
+                    Log.e("API_TEST", "로그인 통신 실패: ${t.message}")
+                }
+            })
         }
     }
 

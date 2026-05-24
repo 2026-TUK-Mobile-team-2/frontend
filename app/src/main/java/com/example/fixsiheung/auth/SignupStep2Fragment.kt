@@ -32,6 +32,8 @@ class SignupStep2Fragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: SignupViewModel by activityViewModels()
 
+    private var isIdAvailable = false
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -46,7 +48,7 @@ class SignupStep2Fragment : Fragment() {
 
         binding.etSignupId.setText(viewModel.id.value)
         binding.etSignupPassword.setText(viewModel.password.value)
-        validateId(binding.etSignupId.text.toString().trim())
+        validateIdAndCheckDuplicate(binding.etSignupId.text.toString().trim())
         validatePassword(binding.etSignupPassword.text.toString().trim())
         validatePasswordMatch(
             binding.etSignupPassword.text.toString().trim(),
@@ -54,11 +56,24 @@ class SignupStep2Fragment : Fragment() {
         )
         checkValidation()
 
+        // 추가: 서버 에러 메시지가 도착하면 화면에 띄움
+        viewModel.idErrorMsg.observe(viewLifecycleOwner) { errorMsg ->
+            if (errorMsg.isNotEmpty()) {
+                binding.tvIdStatus.visibility = View.VISIBLE
+                binding.tvIdStatus.text = errorMsg
+                binding.tvIdStatus.setTextColor(Color.parseColor("#EF4444")) // 빨간색
+                binding.layoutSignupId.endIconDrawable = null // 초록색 체크마크 숨김
+            }
+        }
 
         binding.etSignupId.addTextChangedListener {
             val id = it.toString().trim()
             viewModel.id.value = id
-            validateId(id)
+
+            // 사용자가 새 아이디를 다시 타이핑하기 시작하면 에러를 지움
+            viewModel.idErrorMsg.value = ""
+            isIdAvailable = false
+            validateIdAndCheckDuplicate(id)
             checkValidation()
         }
 
@@ -71,6 +86,7 @@ class SignupStep2Fragment : Fragment() {
             validatePasswordMatch(password, passwordConfirm)
             checkValidation()
         }
+
         binding.etSignupPassword2.addTextChangedListener {
             val password2 = it.toString().trim()
             val password = binding.etSignupPassword.text.toString().trim()
@@ -79,37 +95,58 @@ class SignupStep2Fragment : Fragment() {
         }
     }
 
-    private fun validateId(id: String) {
+    private fun validateIdAndCheckDuplicate(id: String) {
         when {
             id.isEmpty() -> {
                 binding.tvIdStatus.visibility = View.GONE
                 binding.layoutSignupId.endIconDrawable = null
+                isIdAvailable = false
             }
 
             id.length in 2..10 -> {
                 binding.tvIdStatus.visibility = View.VISIBLE
-                binding.tvIdStatus.text = "사용 가능한 아이디입니다."
-                binding.tvIdStatus.setTextColor(Color.parseColor("#10B981")) //초록색
+                binding.tvIdStatus.text = "중복 확인 중..."
+                binding.tvIdStatus.setTextColor(Color.parseColor("#8E94A0"))
+                binding.layoutSignupId.endIconDrawable = null
 
-                // 우측에 체크마크 아이콘 주입 및 색상 부여
-                binding.layoutSignupId.endIconDrawable =
-                    ContextCompat.getDrawable(requireContext(), R.drawable.ic_check_circle)
-                binding.layoutSignupId.setEndIconTintList(
-                    ColorStateList.valueOf(
-                        Color.parseColor(
-                            "#10B981"
-                        )
-                    )
-                )
+                val requestMap = mapOf("user_id" to id)
+                com.example.fixsiheung.network.RetrofitClient.apiService.checkId(requestMap)
+                    .enqueue(object : retrofit2.Callback<Map<String, Any>> {
+                        override fun onResponse(call: retrofit2.Call<Map<String, Any>>, response: retrofit2.Response<Map<String, Any>>) {
+                            if (response.isSuccessful && response.body() != null) {
+                                val isAvailable = response.body()?.get("isAvailable") as? Boolean ?: false
+                                val message = response.body()?.get("message") as? String ?: ""
+
+                                if (isAvailable) {
+                                    isIdAvailable = true
+                                    binding.tvIdStatus.text = message
+                                    binding.tvIdStatus.setTextColor(Color.parseColor("#10B981"))
+                                    binding.layoutSignupId.endIconDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.ic_check_circle)
+                                    binding.layoutSignupId.setEndIconTintList(ColorStateList.valueOf(Color.parseColor("#10B981")))
+                                } else {
+                                    isIdAvailable = false
+                                    binding.tvIdStatus.text = message
+                                    binding.tvIdStatus.setTextColor(Color.parseColor("#EF4444"))
+                                    binding.layoutSignupId.endIconDrawable = null
+                                }
+                                checkValidation()
+                            }
+                        }
+                        override fun onFailure(call: retrofit2.Call<Map<String, Any>>, t: Throwable) {
+                            isIdAvailable = false
+                            binding.tvIdStatus.text = "서버 통신 오류"
+                            binding.tvIdStatus.setTextColor(Color.parseColor("#EF4444"))
+                            checkValidation()
+                        }
+                    })
             }
 
             else -> {
                 binding.tvIdStatus.visibility = View.VISIBLE
                 binding.tvIdStatus.text = "아이디는 2글자 이상 10글자 이하로 입력해주세요."
-                binding.tvIdStatus.setTextColor(Color.parseColor("#EF4444")) // 경고 빨간색
-
-                // 에러일 때는 우측 아이콘을 지워버립니다.
+                binding.tvIdStatus.setTextColor(Color.parseColor("#EF4444"))
                 binding.layoutSignupId.endIconDrawable = null
+                isIdAvailable = false
             }
         }
     }
@@ -174,12 +211,11 @@ class SignupStep2Fragment : Fragment() {
         }
     }
 
+    // checkValidation 함수 교체 (단순 글자 수 검사가 아닌 서버 승인 여부로 판별)
     private fun checkValidation() {
-        val id = binding.etSignupId.text.toString().trim()
         val password = binding.etSignupPassword.text.toString().trim()
         val password2 = binding.etSignupPassword2.text.toString().trim()
 
-        val isIdValid = id.length in 2..10
         val isPasswordComplexValid = password.length >= 8 &&
                 password.contains(Regex("[a-zA-Z]")) &&
                 password.contains(Regex("[0-9]")) &&
@@ -187,7 +223,7 @@ class SignupStep2Fragment : Fragment() {
 
         val isPasswordValid = isPasswordComplexValid && password == password2
 
-        (activity as? SignupActivity)?.setNextButtonState(isIdValid && isPasswordValid)
+        (activity as? SignupActivity)?.setNextButtonState(isIdAvailable && isPasswordValid)
     }
 
     override fun onDestroyView() {

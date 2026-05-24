@@ -17,6 +17,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.fixsiheung.databinding.ActivityMainMapBinding
+import com.example.fixsiheung.model.Report
+import com.example.fixsiheung.network.RetrofitClient
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -30,10 +32,15 @@ import com.kakao.vectormap.LatLng
 import com.kakao.vectormap.MapLifeCycleCallback
 import com.kakao.vectormap.camera.CameraUpdateFactory
 import com.kakao.vectormap.label.Label
+import com.kakao.vectormap.label.LabelLayerOptions
 import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelStyles
+import retrofit2.Call
+import retrofit2.Response
+import retrofit2.Callback
 import java.security.MessageDigest
+import com.kakao.vectormap.label.LabelTextBuilder
 
 class MainMapActivity : AppCompatActivity() {
 
@@ -41,6 +48,9 @@ class MainMapActivity : AppCompatActivity() {
     private var kakaoMap: KakaoMap? = null
     private var myLocationLabel: Label? = null
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    // 💡 추가됨: 서버에서 받아온 제보 목록을 저장해둘 리스트 (필터링할 때 원본이 필요함)
+    private var allReports: List<Report> = listOf()
 
 
     // 위치 권환
@@ -99,6 +109,59 @@ class MainMapActivity : AppCompatActivity() {
             }
         }
     }
+
+    // 추가됨: 서버에서 민원 데이터 가져오기
+    private fun fetchReportsFromServer() {
+        RetrofitClient.apiService.getAllReports().enqueue(object : Callback<List<Report>> {
+            override fun onResponse(call: Call<List<Report>>, response: Response<List<Report>>) {
+                if (response.isSuccessful) {
+                    response.body()?.let { reports ->
+                        allReports = reports // 원본 저장
+                        drawMarkers(allReports) // 지도에 마커 쫙 뿌리기
+                        Log.d("API_TEST", "제보 ${reports.size}개 마커 생성 완료!")
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<List<Report>>, t: Throwable) {
+                Log.e("API_TEST", "서버 통신 실패: ${t.message}")
+            }
+        })
+    }
+
+    // 추가됨: 위도/경도를 바탕으로 카카오맵에 마커(Label) 그리기
+    private fun drawMarkers(reports: List<Report>) {
+        val labelManager = kakaoMap?.labelManager ?: return
+
+        // 1. 제보용 마커들을 담을 전용 레이어 만들기 (내 위치 마커랑 안 섞이게)
+        var reportLayer = labelManager.getLayer("reportLayer")
+        if (reportLayer == null) {
+            reportLayer = labelManager.addLayer(LabelLayerOptions.from("reportLayer"))
+        } else {
+            reportLayer.removeAll() // 필터링될 때 기존 마커 싹 지우기
+        }
+
+        // 2. 제보 마커 스타일 설정 (임시로 my_marker 사용. 나중에 report_marker로 바꾸세요)
+        val styles = labelManager.addLabelStyles(
+            LabelStyles.from(
+                "reportStyle",
+                LabelStyle.from(vectorToBitmap(R.drawable.my_marker)).setAnchorPoint(0.5f, 1.0f)
+            )
+        )
+
+        // 3. 리스트를 돌면서 지도에 마커 추가
+        reports.forEach { report ->
+            val pos = LatLng.from(report.latitude, report.longitude)
+
+            val textBuilder = LabelTextBuilder().setTexts(report.title)
+            reportLayer?.addLabel(
+                LabelOptions.from(report.complaintId.toString(), pos)
+                    .setStyles(styles)
+                    .setTexts(textBuilder) // 마커 옆에 민원 제목 띄우기
+            )
+        }
+    }
+
 
     // 현재위치 표시
     private val locationCallback = object : LocationCallback() {
