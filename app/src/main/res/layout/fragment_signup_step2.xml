@@ -26,13 +26,13 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="이메일 *"
+        android:text="아이디 *"
         android:textStyle="bold"
         android:textColor="#555555"
         android:layout_marginTop="32dp" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/layout_signup_email"
+        android:id="@+id/layout_signup_id"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -41,10 +41,10 @@
         app:endIconMode="custom">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/et_signup_email"
+            android:id="@+id/et_signup_id"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="이메일을 입력해주세요"
+            android:hint="아이디를 입력해주세요"
             android:background="@drawable/bg_login_edit_text"
             android:padding="16dp"
             android:inputType="textEmailAddress"
@@ -53,14 +53,14 @@
 
     </com.google.android.material.textfield.TextInputLayout>
     <TextView
-        android:id="@+id/tv_email_status"
+        android:id="@+id/tv_id_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginStart="4dp"
         android:textSize="13sp"
         android:textStyle="bold"
-        android:text="사용 가능한 이메일입니다."
+        android:text="사용 가능한 아이디입니다."
         android:textColor="#10B981"
         />
 
@@ -95,6 +95,56 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
+        android:id="@+id/tv_password_status1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="4dp"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:text="8자 이상"
+        android:textColor="#10B981"
+        android:drawableStart="@drawable/ic_cancel_circle"
+        android:drawablePadding="8dp"
+        />
+    <TextView
+        android:id="@+id/tv_password_status2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:text="영문 포함"
+        android:textColor="#10B981"
+        android:drawableStart="@drawable/ic_cancel_circle"
+        android:drawablePadding="8dp"
+        />
+    <TextView
+        android:id="@+id/tv_password_status3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:text="숫자 포함"
+        android:textColor="#10B981"
+        android:drawableStart="@drawable/ic_cancel_circle"
+        android:drawablePadding="8dp"
+        />
+    <TextView
+        android:id="@+id/tv_password_status4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:text="특수문자 포함"
+        android:textColor="#10B981"
+        android:drawableStart="@drawable/ic_cancel_circle"
+        android:drawablePadding="8dp"
+        />
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="비밀번호 확인 *"
@@ -124,7 +174,7 @@
 
     </com.google.android.material.textfield.TextInputLayout>
     <TextView
-        android:id="@+id/tv_password_status"
+        android:id="@+id/tv_password2_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"

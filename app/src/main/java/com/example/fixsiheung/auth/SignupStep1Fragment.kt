@@ -3,6 +3,7 @@ package com.example.fixsiheung.auth
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Patterns
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -40,27 +41,36 @@ class SignupStep1Fragment : Fragment() {
 
         // 복원 처리
         binding.etSignupNickname.setText(viewModel.nickname.value)
-        checkValidation(binding.etSignupNickname.text.toString().trim())
+        binding.etSignupEmail.setText(viewModel.email.value)
+        validateNicname(binding.etSignupNickname.text.toString().trim())
+        validateEmail(binding.etSignupEmail.text.toString().trim())
+        checkValidation()
 
         // 실시간 입력 감지기 변경
         binding.etSignupNickname.addTextChangedListener {
-            val text = it.toString().trim()
-            viewModel.nickname.value = text
-            checkValidation(text)
+            val nickname = it.toString().trim()
+            viewModel.nickname.value = nickname
+            validateNicname(nickname)
+            checkValidation()
+        }
+        binding.etSignupEmail.addTextChangedListener {
+            val email = it.toString().trim()
+            viewModel.email.value = email
+            validateEmail(email)
+            checkValidation()
         }
     }
 
-    private fun checkValidation(text: String) {
+    private fun validateNicname(nickname: String) {
         when {
             // 1. 아무것도 입력하지 않았을 때는 메시지와 아이콘을 모두 숨김
-            text.isEmpty() -> {
+            nickname.isEmpty() -> {
                 binding.tvNicknameStatus.visibility = View.GONE
                 binding.layoutSignupNickname.endIconDrawable = null
-                (activity as? SignupActivity)?.setNextButtonState(false)
             }
 
             // 2. 조건 만족 (2자 이상 10자 이하) -> 초록색 성공 UI 세팅
-            text.length in 2..10 -> {
+            nickname.length in 2..10 -> {
                 binding.tvNicknameStatus.visibility = View.VISIBLE
                 binding.tvNicknameStatus.text = "사용 가능한 닉네임입니다."
                 binding.tvNicknameStatus.setTextColor(Color.parseColor("#10B981")) // 에메랄드 초록색
@@ -75,22 +85,59 @@ class SignupStep1Fragment : Fragment() {
                         )
                     )
                 )
-
-                (activity as? SignupActivity)?.setNextButtonState(true)
             }
 
             // 3. 조건 불만족 -> 빨간색 경고 UI 세팅 (체크마크 제거)
             else -> {
                 binding.tvNicknameStatus.visibility = View.VISIBLE
-                binding.tvNicknameStatus.text = "닉네임은 2자 이상 10자 이하로 입력해주세요."
+                binding.tvNicknameStatus.text = "닉네임은 2글자 이상 10글자 이하로 입력해주세요."
                 binding.tvNicknameStatus.setTextColor(Color.parseColor("#EF4444")) // 경고 빨간색
 
                 // 에러일 때는 우측 아이콘을 지워버립니다.
                 binding.layoutSignupNickname.endIconDrawable = null
-
-                (activity as? SignupActivity)?.setNextButtonState(false)
             }
         }
+    }
+
+    private fun validateEmail(email: String) {
+        when {
+            email.isEmpty() -> {
+                binding.tvEmailStatus.visibility = View.GONE
+                binding.layoutSignupEmail.endIconDrawable = null
+            }
+            // 안드로이드 내장 시스템 이메일 정규식 패턴 검사
+            Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
+                binding.tvEmailStatus.visibility = View.VISIBLE
+                binding.tvEmailStatus.text = "사용 가능한 이메일입니다."
+                binding.tvEmailStatus.setTextColor(Color.parseColor("#10B981")) // 초록색
+
+                binding.layoutSignupEmail.endIconDrawable =
+                    ContextCompat.getDrawable(requireContext(), R.drawable.ic_check_circle)
+                binding.layoutSignupEmail.setEndIconTintList(
+                    ColorStateList.valueOf(
+                        Color.parseColor(
+                            "#10B981"
+                        )
+                    )
+                )
+            }
+
+            else -> {
+                binding.tvEmailStatus.visibility = View.VISIBLE
+                binding.tvEmailStatus.text = "올바른 이메일 형식이 아닙니다."
+                binding.tvEmailStatus.setTextColor(Color.parseColor("#EF4444")) // 빨간색
+                binding.layoutSignupEmail.endIconDrawable = null
+            }
+        }
+    }
+
+    private fun checkValidation() {
+        val nickname = binding.etSignupNickname.text.toString().trim()
+        val email = binding.etSignupEmail.text.toString().trim()
+
+        val isNicknameValid= nickname.isNotEmpty()
+        val isEmailValid = email.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        (activity as? SignupActivity)?.setNextButtonState(isNicknameValid && isEmailValid )
     }
 
     override fun onDestroyView() {

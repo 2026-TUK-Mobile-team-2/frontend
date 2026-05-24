@@ -1,5 +1,6 @@
 package com.example.fixsiheung.auth
 
+import android.R.attr.text
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
@@ -8,6 +9,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.activityViewModels
@@ -42,21 +44,28 @@ class SignupStep2Fragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.etSignupEmail.setText(viewModel.email.value)
+        binding.etSignupId.setText(viewModel.id.value)
         binding.etSignupPassword.setText(viewModel.password.value)
+        validateId(binding.etSignupId.text.toString().trim())
+        validatePassword(binding.etSignupPassword.text.toString().trim())
+        validatePasswordMatch(
+            binding.etSignupPassword.text.toString().trim(),
+            binding.etSignupPassword2.text.toString().trim()
+        )
         checkValidation()
-        validateEmail(binding.etSignupEmail.text.toString().trim())
-        validatePasswordMatch(binding.etSignupPassword.text.toString().trim(), binding.etSignupPassword2.text.toString().trim())
 
-        binding.etSignupEmail.addTextChangedListener {
-            val email = it.toString().trim()
-            viewModel.email.value = email
-            validateEmail(email)
+
+        binding.etSignupId.addTextChangedListener {
+            val id = it.toString().trim()
+            viewModel.id.value = id
+            validateId(id)
             checkValidation()
         }
+
         binding.etSignupPassword.addTextChangedListener {
             val password = it.toString().trim()
             viewModel.password.value = password
+            validatePassword(password)
 
             val passwordConfirm = binding.etSignupPassword2.text.toString().trim()
             validatePasswordMatch(password, passwordConfirm)
@@ -69,57 +78,116 @@ class SignupStep2Fragment : Fragment() {
             checkValidation()
         }
     }
-    private fun validateEmail(email: String) {
-        when {
-            email.isEmpty() -> {
-                binding.tvEmailStatus.visibility = View.GONE
-                binding.layoutSignupEmail.endIconDrawable = null
-            }
-            // 안드로이드 내장 시스템 이메일 정규식 패턴 검사
-            Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
-                binding.tvEmailStatus.visibility = View.VISIBLE
-                binding.tvEmailStatus.text = "사용 가능한 이메일입니다."
-                binding.tvEmailStatus.setTextColor(Color.parseColor("#10B981")) // 초록색
 
-                binding.layoutSignupEmail.endIconDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.ic_check_circle)
-                binding.layoutSignupEmail.setEndIconTintList(ColorStateList.valueOf(Color.parseColor("#10B981")))
+    private fun validateId(id: String) {
+        when {
+            id.isEmpty() -> {
+                binding.tvIdStatus.visibility = View.GONE
+                binding.layoutSignupId.endIconDrawable = null
             }
+
+            id.length in 2..10 -> {
+                binding.tvIdStatus.visibility = View.VISIBLE
+                binding.tvIdStatus.text = "사용 가능한 아이디입니다."
+                binding.tvIdStatus.setTextColor(Color.parseColor("#10B981")) //초록색
+
+                // 우측에 체크마크 아이콘 주입 및 색상 부여
+                binding.layoutSignupId.endIconDrawable =
+                    ContextCompat.getDrawable(requireContext(), R.drawable.ic_check_circle)
+                binding.layoutSignupId.setEndIconTintList(
+                    ColorStateList.valueOf(
+                        Color.parseColor(
+                            "#10B981"
+                        )
+                    )
+                )
+            }
+
             else -> {
-                binding.tvEmailStatus.visibility = View.VISIBLE
-                binding.tvEmailStatus.text = "올바른 이메일 형식이 아닙니다."
-                binding.tvEmailStatus.setTextColor(Color.parseColor("#EF4444")) // 빨간색
-                binding.layoutSignupEmail.endIconDrawable = null
+                binding.tvIdStatus.visibility = View.VISIBLE
+                binding.tvIdStatus.text = "아이디는 2글자 이상 10글자 이하로 입력해주세요."
+                binding.tvIdStatus.setTextColor(Color.parseColor("#EF4444")) // 경고 빨간색
+
+                // 에러일 때는 우측 아이콘을 지워버립니다.
+                binding.layoutSignupId.endIconDrawable = null
             }
+        }
+    }
+
+    private fun validatePassword(password: String) {
+        if (password.isEmpty()) {
+            binding.tvPasswordStatus1.visibility = View.GONE
+            binding.tvPasswordStatus2.visibility = View.GONE
+            binding.tvPasswordStatus3.visibility = View.GONE
+            binding.tvPasswordStatus4.visibility = View.GONE
+            return
+        }
+
+        // 4가지 조건 실시간 정규식 검증
+        val isLengthValid = password.length >= 8
+        val hasLetter = password.contains(Regex("[a-zA-Z]"))
+        val hasNumber = password.contains(Regex("[0-9]"))
+        val hasSpecial = password.contains(Regex("[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?~]"))
+
+        binding.tvPasswordStatus1.visibility = View.VISIBLE
+        binding.tvPasswordStatus2.visibility = View.VISIBLE
+        binding.tvPasswordStatus3.visibility = View.VISIBLE
+        binding.tvPasswordStatus4.visibility = View.VISIBLE
+
+        updateStatusUi(binding.tvPasswordStatus1, isLengthValid)
+        updateStatusUi(binding.tvPasswordStatus2, hasLetter)
+        updateStatusUi(binding.tvPasswordStatus3, hasNumber)
+        updateStatusUi(binding.tvPasswordStatus4, hasSpecial)
+    }
+
+    private fun updateStatusUi(textView: TextView, isValid: Boolean) {
+        if (isValid) {
+            // 조건 충족: 초록색 텍스트 + 체크 아이콘
+            textView.setTextColor(Color.parseColor("#10B981"))
+            textView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_check_circle, 0, 0, 0)
+            textView.compoundDrawableTintList = ColorStateList.valueOf(Color.parseColor("#10B981"))
+        } else {
+            // 조건 미충족: 회색 텍스트 + X 아이콘
+            textView.setTextColor(Color.parseColor("#8E94A0"))
+            textView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_cancel_circle, 0, 0, 0)
+            textView.compoundDrawableTintList = ColorStateList.valueOf(Color.parseColor("#8E94A0"))
         }
     }
 
     private fun validatePasswordMatch(password: String, password2: String) {
         when {
             password2.isEmpty() -> {
-                binding.tvPasswordStatus.visibility = View.GONE
+                binding.tvPassword2Status.visibility = View.GONE
             }
             // 두 비밀번호가 똑같을때
             password == password2 -> {
-                binding.tvPasswordStatus.visibility = View.VISIBLE
-                binding.tvPasswordStatus.text = "비밀번호가 일치합니다."
-                binding.tvPasswordStatus.setTextColor(Color.parseColor("#10B981")) // 초록색
+                binding.tvPassword2Status.visibility = View.VISIBLE
+                binding.tvPassword2Status.text = "비밀번호가 일치합니다."
+                binding.tvPassword2Status.setTextColor(Color.parseColor("#10B981")) // 초록색
             }
+
             password != password2 -> {
-                binding.tvPasswordStatus.visibility = View.VISIBLE
-                binding.tvPasswordStatus.text = "비밀번호가 일치하지 않습니다."
-                binding.tvPasswordStatus.setTextColor(Color.parseColor("#EF4444")) // 빨간색
+                binding.tvPassword2Status.visibility = View.VISIBLE
+                binding.tvPassword2Status.text = "비밀번호가 일치하지 않습니다."
+                binding.tvPassword2Status.setTextColor(Color.parseColor("#EF4444")) // 빨간색
             }
         }
     }
 
     private fun checkValidation() {
-        val email = binding.etSignupEmail.text.toString().trim()
+        val id = binding.etSignupId.text.toString().trim()
         val password = binding.etSignupPassword.text.toString().trim()
         val password2 = binding.etSignupPassword2.text.toString().trim()
 
-        val isEmailValid = email.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches()
-        val isPasswordValid = password.isNotEmpty() && password == password2
-        (activity as? SignupActivity)?.setNextButtonState(isEmailValid && isPasswordValid)
+        val isIdValid = id.length in 2..10
+        val isPasswordComplexValid = password.length >= 8 &&
+                password.contains(Regex("[a-zA-Z]")) &&
+                password.contains(Regex("[0-9]")) &&
+                password.contains(Regex("[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?~]"))
+
+        val isPasswordValid = isPasswordComplexValid && password == password2
+
+        (activity as? SignupActivity)?.setNextButtonState(isIdValid && isPasswordValid)
     }
 
     override fun onDestroyView() {
