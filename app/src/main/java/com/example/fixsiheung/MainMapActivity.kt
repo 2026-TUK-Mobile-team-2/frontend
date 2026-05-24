@@ -11,6 +11,11 @@ import android.graphics.RectF
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,6 +24,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.widget.addTextChangedListener
+import androidx.recyclerview.widget.RecyclerView
 import com.example.fixsiheung.databinding.ActivityMainMapBinding
 import com.example.fixsiheung.model.Report
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -32,6 +39,7 @@ import com.kakao.vectormap.KakaoMapReadyCallback
 import com.kakao.vectormap.KakaoMapSdk
 import com.kakao.vectormap.LatLng
 import com.kakao.vectormap.MapLifeCycleCallback
+import com.kakao.vectormap.camera.CameraAnimation
 import com.kakao.vectormap.camera.CameraUpdateFactory
 import com.kakao.vectormap.label.Label
 import com.kakao.vectormap.label.LabelOptions
@@ -48,6 +56,7 @@ class MainMapActivity : AppCompatActivity() {
     private val registeredLabels = mutableListOf<Label>()
     private var allMarkerItems = listOf<Report>()
     private val cachedStyles = mutableMapOf<String, LabelStyles>()
+    private lateinit var searchAdapter: SearchResultAdapter
 
     private val schoolLatLng = LatLng.from(37.340174, 126.733593)
 
@@ -79,6 +88,7 @@ class MainMapActivity : AppCompatActivity() {
         initKakaoMap()
         initChipFilter()
         initChipStyles()
+        initSearchBar()
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -110,10 +120,10 @@ class MainMapActivity : AppCompatActivity() {
         val oneDay  = 86_400_000L
 
         allMarkerItems = listOf(
-            Report(1, "a", 1, "쓰레기 무단투기",  "정왕역 앞 골목길에 쓰레기 무단투기가 너무 심합니다.",       "접수",  37.341500, 126.732500, "경기도 시흥시 정왕동 2321",        15, now - oneHour,       now - oneHour),
-            Report(2, "b", 2, "파손된 벤치 수리", "놀이터 옆 벤치 나무가 부서져 아이들이 다칠 위험이 있습니다.", "접수", 37.339500, 126.735000, "경기도 시흥시 정왕동 1700 공원내",  3,  now - oneDay * 2,    now - oneDay),
-            Report(3, "c", 3, "아스팔트 포트홀",  "서해안로 2차선 도로에 깊은 포트홀이 생겼습니다.",           "접수",  37.342000, 126.734000, "경기도 시흥시 정왕동 1284-4 도로", 24, now - oneDay * 3,    now - oneDay * 3),
-            Report(4, "d", 4, "가로등 소등 신고", "골목 가로등이 완전히 꺼졌습니다. 밤길이 너무 어둡습니다.",   "접수",  37.340000, 126.736500, "경기도 시흥시 정왕동 1502-1",      0,  now - oneHour / 2,   now - oneHour / 2),
+            Report(1, "a", 1, "쓰레기 무단투기",  "정왕역 앞 골목길에 쓰레기 무단투기가 너무 심합니다.",       "접수",  37.341500, 126.732500, "경기도 시흥시 정왕동 2321",        15, now - oneHour,     now - oneHour),
+            Report(2, "b", 2, "파손된 벤치 수리", "놀이터 옆 벤치 나무가 부서져 아이들이 다칠 위험이 있습니다.", "처리중", 37.339500, 126.735000, "경기도 시흥시 정왕동 1700 공원내",  3,  now - oneDay * 2,  now - oneDay),
+            Report(3, "c", 3, "아스팔트 포트홀",  "서해안로 2차선 도로에 깊은 포트홀이 생겼습니다.",           "접수",  37.342000, 126.734000, "경기도 시흥시 정왕동 1284-4 도로", 24, now - oneDay * 3,  now - oneDay * 3),
+            Report(4, "d", 4, "가로등 소등 신고", "골목 가로등이 완전히 꺼졌습니다. 밤길이 너무 어둡습니다.",   "해결",  37.340000, 126.736500, "경기도 시흥시 정왕동 1502-1",      0,  now - oneHour / 2, now - oneHour / 2),
         )
     }
 
@@ -155,10 +165,10 @@ class MainMapActivity : AppCompatActivity() {
         categoryDrawables.forEach { (id, drawableId) ->
             val base = vectorToBitmap(drawableId)
             mapOf(
-                "$id"          to createBadgeMarkerBitmap(base, isHot = false, isNew = false),
-                "${id}_hot"    to createBadgeMarkerBitmap(base, isHot = true,  isNew = false),
-                "${id}_new"    to createBadgeMarkerBitmap(base, isHot = false, isNew = true),
-                "${id}_hot_new" to createBadgeMarkerBitmap(base, isHot = true, isNew = true),
+                "$id"           to createBadgeMarkerBitmap(base, isHot = false, isNew = false),
+                "${id}_hot"     to createBadgeMarkerBitmap(base, isHot = true,  isNew = false),
+                "${id}_new"     to createBadgeMarkerBitmap(base, isHot = false, isNew = true),
+                "${id}_hot_new" to createBadgeMarkerBitmap(base, isHot = true,  isNew = true),
             ).forEach { (key, bitmap) ->
                 val style = LabelStyle.from(bitmap).setAnchorPoint(0.5f, 1.0f)
                 labelManager.addLabelStyles(LabelStyles.from("style_$key", style))
@@ -172,11 +182,16 @@ class MainMapActivity : AppCompatActivity() {
         registeredLabels.forEach { it.remove() }
         registeredLabels.clear()
 
-        val now            = System.currentTimeMillis()
+        val now             = System.currentTimeMillis()
         val twentyFourHours = 86_400_000L
 
+        val topHotIds = allMarkerItems
+            .sortedByDescending { it.empathyCount } // 공감수 높은 순 정렬
+            .take(2)                                // 상위 2개만 선택
+            .map { it.complaintId }
+
         items.forEach { report ->
-            val isHot = report.empathyCount >= 10
+            val isHot = report.complaintId in topHotIds
             val isNew = (now - report.createdAt) <= twentyFourHours
 
             val styleKey = when {
@@ -199,13 +214,12 @@ class MainMapActivity : AppCompatActivity() {
     private fun createBadgeMarkerBitmap(baseBitmap: Bitmap, isHot: Boolean, isNew: Boolean): Bitmap {
         if (!isHot && !isNew) return baseBitmap
 
-        val dp = resources.displayMetrics.density
-        val badgeH   = (12 * dp).toInt()
-        val badgeW   = (24 * dp).toInt()
-        val gap      = (2  * dp).toInt()
-        val overlap  = (-15 * dp).toInt()
-
-        val badgeCount  = listOf(isHot, isNew).count { it }
+        val dp         = resources.displayMetrics.density
+        val badgeH     = (12 * dp).toInt()
+        val badgeW     = (24 * dp).toInt()
+        val gap        = (2  * dp).toInt()
+        val overlap    = (-15 * dp).toInt()
+        val badgeCount = listOf(isHot, isNew).count { it }
         val totalBadgeH = badgeH * badgeCount + gap * (badgeCount - 1)
 
         val resultW = maxOf(baseBitmap.width, badgeW)
@@ -224,13 +238,11 @@ class MainMapActivity : AppCompatActivity() {
             isFakeBoldText = true
         }
 
-        val badgeLeft  = (resultW - badgeW) / 2f
-        val badges = buildList {
+        val badgeLeft = (resultW - badgeW) / 2f
+        buildList {
             if (isHot) add("#FF3B30" to "HOT")
             if (isNew) add("#3B82F6" to "NEW")
-        }
-
-        badges.forEachIndexed { i, (colorHex, label) ->
+        }.forEachIndexed { i, (colorHex, label) ->
             val top   = i * (badgeH + gap)
             val rectF = RectF(badgeLeft, top.toFloat(), badgeLeft + badgeW, (top + badgeH).toFloat())
             badgePaint.color = Color.parseColor(colorHex)
@@ -240,6 +252,60 @@ class MainMapActivity : AppCompatActivity() {
         }
 
         return result
+    }
+
+    // ─── 검색 ──────────────────────────────────────────────────────────────────
+
+    private fun initSearchBar() {
+        searchAdapter = SearchResultAdapter(emptyList()) { report ->
+            kakaoMap?.moveCamera(
+                CameraUpdateFactory.newCenterPosition(LatLng.from(report.latitude, report.longitude), 16),
+                CameraAnimation.from(500, true, true)
+            )
+            displayRegisteredMarkers(listOf(report))
+            binding.searchBar.setText(report.title)
+            binding.rvSearchResults.visibility = View.GONE
+            hideKeyboard()
+        }
+        binding.rvSearchResults.adapter = searchAdapter
+
+        binding.searchBar.addTextChangedListener { editable ->
+            val keyword = editable?.toString()?.trim() ?: ""
+            binding.icClearText.visibility = if (keyword.isNotEmpty()) View.VISIBLE else View.GONE
+
+            if (keyword.isEmpty()) {
+                binding.rvSearchResults.visibility = View.GONE
+                displayRegisteredMarkers(allMarkerItems)
+            } else {
+                // 검색어 위치에 따라 나열
+                val filtered = allMarkerItems
+                    .filter { it.title.contains(keyword, ignoreCase = true) }
+                    .sortedBy { it.title.indexOf(keyword) }
+
+                // 생성 시간 우선
+                /*val filtered = allMarkerItems
+                    .filter { it.title.contains(keyword, ignoreCase = true) }
+                    .sortedByDescending { it.createdAt } */
+
+                // 공감수 우선
+                /*val filtered = allMarkerItems
+                    .filter { it.title.contains(keyword, ignoreCase = true) }
+                    .sortedByDescending { it.empathyCount }*/
+                binding.rvSearchResults.visibility = if (filtered.isNotEmpty()) View.VISIBLE else View.GONE
+                if (filtered.isNotEmpty()) searchAdapter.updateList(filtered)
+            }
+        }
+
+        binding.icClearText.setOnClickListener {
+            binding.searchBar.text?.clear()
+            hideKeyboard()
+            binding.searchBar.clearFocus()
+        }
+    }
+
+    private fun hideKeyboard() {
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        currentFocus?.let { imm.hideSoftInputFromWindow(it.windowToken, 0) }
     }
 
     // ─── 현재 위치 ─────────────────────────────────────────────────────────────
@@ -326,5 +392,36 @@ class MainMapActivity : AppCompatActivity() {
             drawable.setBounds(0, 0, it.width, it.height)
             drawable.draw(Canvas(it))
         }
+    }
+}
+
+// ─── 검색 어댑터 ────────────────────────────────────────────────────────────
+
+class SearchResultAdapter(
+    private var items: List<Report>,
+    private val onItemClick: (Report) -> Unit
+) : RecyclerView.Adapter<SearchResultAdapter.ViewHolder>() {
+
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val textView: TextView = view.findViewById(android.R.id.text1)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(android.R.layout.simple_list_item_1, parent, false)
+        return ViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.textView.text = items[position].title
+        holder.textView.setTextSize(14f)
+        holder.itemView.setOnClickListener { onItemClick(items[position]) }
+    }
+
+    override fun getItemCount() = items.size
+
+    fun updateList(newItems: List<Report>) {
+        items = newItems
+        notifyDataSetChanged()
     }
 }

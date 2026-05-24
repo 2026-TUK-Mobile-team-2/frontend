@@ -13,7 +13,7 @@
         android:layout_marginStart="40dp"
         android:layout_marginEnd="40dp"
         android:layout_marginBottom="16dp"
-        android:text="임시버튼"
+        android:text="임시버튼 로그인 건너뛰기"
         android:backgroundTint="@color/primary"
         app:cornerRadius="10dp"
         app:layout_constraintBottom_toTopOf="@+id/layout_mascot"
@@ -73,7 +73,7 @@
             android:id="@+id/text1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="아직 회원이 아니신가요? "
+            android:text="아직 회원이 아니신가요?"
             android:textSize="15sp" />
 
         <TextView
@@ -85,6 +85,7 @@
             android:focusable="true"
             android:padding="8dp"
             android:text="회원가입"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textSize="15sp"
             android:textStyle="bold" />
     </LinearLayout>
