@@ -6,6 +6,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.fixsiheung.MainMapActivity
 import com.example.fixsiheung.databinding.ActivityLoginBinding
 
 class LoginActivity : AppCompatActivity() {
@@ -15,6 +16,13 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(binding.root)
+
+        //임시 버튼
+        binding.test.setOnClickListener {
+            val intent = Intent(this, MainMapActivity::class.java)
+            startActivity(intent)
+        }
+
 
         binding.btnLogin.setOnClickListener {
             // 바텀 시트 프래그먼트 객체 생성
