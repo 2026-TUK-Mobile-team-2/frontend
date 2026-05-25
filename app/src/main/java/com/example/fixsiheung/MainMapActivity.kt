@@ -8,6 +8,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import android.location.Location
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
@@ -15,6 +16,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -25,6 +27,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.fixsiheung.databinding.ActivityMainMapBinding
 import com.example.fixsiheung.model.Report
@@ -34,6 +37,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
 import com.kakao.vectormap.KakaoMapSdk
@@ -52,11 +56,12 @@ class MainMapActivity : AppCompatActivity() {
     private var kakaoMap: KakaoMap? = null
     private var myLocationLabel: Label? = null
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var searchAdapter: SearchResultAdapter
+    private lateinit var nearReportAdapter: NearReportAdapter
 
     private val registeredLabels = mutableListOf<Label>()
     private var allMarkerItems = listOf<Report>()
     private val cachedStyles = mutableMapOf<String, LabelStyles>()
-    private lateinit var searchAdapter: SearchResultAdapter
 
     private val schoolLatLng = LatLng.from(37.340174, 126.733593)
 
@@ -89,6 +94,7 @@ class MainMapActivity : AppCompatActivity() {
         initChipFilter()
         initChipStyles()
         initSearchBar()
+        initNearReports()
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -182,17 +188,13 @@ class MainMapActivity : AppCompatActivity() {
         registeredLabels.forEach { it.remove() }
         registeredLabels.clear()
 
-        val now             = System.currentTimeMillis()
-        val twentyFourHours = 86_400_000L
-
-        val topHotIds = allMarkerItems
-            .sortedByDescending { it.empathyCount } // 공감수 높은 순 정렬
-            .take(2)                                // 상위 2개만 선택
-            .map { it.complaintId }
+        val now         = System.currentTimeMillis()
+        val twentyFourH = 86_400_000L
+        val topHotIds   = allMarkerItems.sortedByDescending { it.empathyCount }.take(2).map { it.complaintId }
 
         items.forEach { report ->
             val isHot = report.complaintId in topHotIds
-            val isNew = (now - report.createdAt) <= twentyFourHours
+            val isNew = (now - report.createdAt) <= twentyFourH
 
             val styleKey = when {
                 isHot && isNew -> "${report.categoryId}_hot_new"
@@ -214,12 +216,12 @@ class MainMapActivity : AppCompatActivity() {
     private fun createBadgeMarkerBitmap(baseBitmap: Bitmap, isHot: Boolean, isNew: Boolean): Bitmap {
         if (!isHot && !isNew) return baseBitmap
 
-        val dp         = resources.displayMetrics.density
-        val badgeH     = (12 * dp).toInt()
-        val badgeW     = (24 * dp).toInt()
-        val gap        = (2  * dp).toInt()
-        val overlap    = (-15 * dp).toInt()
-        val badgeCount = listOf(isHot, isNew).count { it }
+        val dp          = resources.displayMetrics.density
+        val badgeH      = (12 * dp).toInt()
+        val badgeW      = (24 * dp).toInt()
+        val gap         = (2  * dp).toInt()
+        val overlap     = (-15 * dp).toInt()
+        val badgeCount  = listOf(isHot, isNew).count { it }
         val totalBadgeH = badgeH * badgeCount + gap * (badgeCount - 1)
 
         val resultW = maxOf(baseBitmap.width, badgeW)
@@ -277,20 +279,9 @@ class MainMapActivity : AppCompatActivity() {
                 binding.rvSearchResults.visibility = View.GONE
                 displayRegisteredMarkers(allMarkerItems)
             } else {
-                // 검색어 위치에 따라 나열
                 val filtered = allMarkerItems
                     .filter { it.title.contains(keyword, ignoreCase = true) }
-                    .sortedBy { it.title.indexOf(keyword) }
-
-                // 생성 시간 우선
-                /*val filtered = allMarkerItems
-                    .filter { it.title.contains(keyword, ignoreCase = true) }
-                    .sortedByDescending { it.createdAt } */
-
-                // 공감수 우선
-                /*val filtered = allMarkerItems
-                    .filter { it.title.contains(keyword, ignoreCase = true) }
-                    .sortedByDescending { it.empathyCount }*/
+                    .sortedBy { it.title.indexOf(keyword, ignoreCase = true) }
                 binding.rvSearchResults.visibility = if (filtered.isNotEmpty()) View.VISIBLE else View.GONE
                 if (filtered.isNotEmpty()) searchAdapter.updateList(filtered)
             }
@@ -298,14 +289,70 @@ class MainMapActivity : AppCompatActivity() {
 
         binding.icClearText.setOnClickListener {
             binding.searchBar.text?.clear()
-            hideKeyboard()
             binding.searchBar.clearFocus()
+            hideKeyboard()
         }
     }
 
     private fun hideKeyboard() {
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         currentFocus?.let { imm.hideSoftInputFromWindow(it.windowToken, 0) }
+    }
+
+    // ─── 바텀시트 (내 주변 소식) ────────────────────────────────────────────────
+
+    private fun initNearReports() {
+        nearReportAdapter = NearReportAdapter(allMarkerItems) { report ->
+            kakaoMap?.moveCamera(
+                CameraUpdateFactory.newCenterPosition(LatLng.from(report.latitude, report.longitude), 16),
+                CameraAnimation.from(500, true, true)
+            )
+            BottomSheetBehavior.from(binding.layoutBottomNews).state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+
+        binding.rvNearReports.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        binding.rvNearReports.adapter = nearReportAdapter
+
+        binding.rvNearReports.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                val maxScroll = recyclerView.computeHorizontalScrollRange() - recyclerView.computeHorizontalScrollExtent()
+                if (maxScroll <= 0) return
+                val ratio     = recyclerView.computeHorizontalScrollOffset().toFloat() / maxScroll
+                val maxMoveX  = (binding.layoutIndicator.width - binding.viewIndicatorBar.width).toFloat()
+                binding.viewIndicatorBar.translationX = ratio * maxMoveX
+            }
+        })
+
+        BottomSheetBehavior.from(binding.layoutBottomNews)
+            .addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    if (nearReportAdapter.itemCount == 0) {
+                        binding.rvNearReports.visibility   = View.GONE
+                        binding.layoutIndicator.visibility = View.GONE
+                        binding.tvNoReports.visibility     = View.VISIBLE
+                        return
+                    }
+                    when (newState) {
+                        BottomSheetBehavior.STATE_EXPANDED -> {
+                            binding.rvNearReports.layoutManager = LinearLayoutManager(this@MainMapActivity, LinearLayoutManager.VERTICAL, false)
+                            binding.rvNearReports.recycledViewPool.clear()
+                            nearReportAdapter.isVertical = true
+                            nearReportAdapter.notifyDataSetChanged()
+                            binding.layoutIndicator.visibility = View.GONE
+                            binding.tvNoReports.visibility     = View.GONE
+                        }
+                        BottomSheetBehavior.STATE_COLLAPSED -> {
+                            binding.rvNearReports.layoutManager = LinearLayoutManager(this@MainMapActivity, LinearLayoutManager.HORIZONTAL, false)
+                            binding.rvNearReports.recycledViewPool.clear()
+                            nearReportAdapter.isVertical = false
+                            nearReportAdapter.notifyDataSetChanged()
+                            binding.layoutIndicator.visibility = View.VISIBLE
+                            binding.tvNoReports.visibility     = View.GONE
+                        }
+                    }
+                }
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {}
+            })
     }
 
     // ─── 현재 위치 ─────────────────────────────────────────────────────────────
@@ -328,6 +375,32 @@ class MainMapActivity : AppCompatActivity() {
                 myLocationLabel?.moveTo(myPosition)
             }
             kakaoMap?.moveCamera(CameraUpdateFactory.newCenterPosition(myPosition))
+            updateNearReports(location)
+        }
+    }
+    private fun updateNearReports(location: Location) {
+        val results = FloatArray(1)
+        val nearReports = allMarkerItems
+            .map { report ->
+                Location.distanceBetween(location.latitude, location.longitude, report.latitude, report.longitude, results)
+                report to results[0]
+            }
+            .filter { (_, dist) -> dist <= 1000f }
+            .sortedBy { (_, dist) -> dist }
+            .map { (report, _) -> report }
+
+        if (nearReports.isEmpty()) {
+            binding.rvNearReports.visibility   = View.GONE
+            binding.layoutIndicator.visibility = View.GONE
+            binding.tvNoReports.visibility     = View.VISIBLE
+            nearReportAdapter.updateList(emptyList())
+        } else {
+            val behavior = BottomSheetBehavior.from(binding.layoutBottomNews)
+            binding.tvNoReports.visibility     = View.GONE
+            binding.rvNearReports.visibility   = View.VISIBLE
+            binding.layoutIndicator.visibility =
+                if (behavior.state == BottomSheetBehavior.STATE_EXPANDED) View.GONE else View.VISIBLE
+            nearReportAdapter.updateList(nearReports)
         }
     }
 
@@ -416,6 +489,62 @@ class SearchResultAdapter(
         holder.textView.text = items[position].title
         holder.textView.setTextSize(14f)
         holder.itemView.setOnClickListener { onItemClick(items[position]) }
+    }
+
+    override fun getItemCount() = items.size
+
+    fun updateList(newItems: List<Report>) {
+        items = newItems
+        notifyDataSetChanged()
+    }
+}
+
+// ─── 주변 소식 어댑터 ─────────────────────────────────────────────────────────
+
+class NearReportAdapter(
+    private var items: List<Report>,
+    private val onItemClick: (Report) -> Unit
+) : RecyclerView.Adapter<NearReportAdapter.ViewHolder>() {
+
+    var isVertical: Boolean = false
+
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val ivThumbnail: ImageView = view.findViewById(R.id.iv_report_thumbnail)
+        val tvTitle: TextView      = view.findViewById(R.id.tv_report_title)
+        val tvTag: TextView        = view.findViewById(R.id.tv_report_tag)
+        val tvEmpathy: TextView    = view.findViewById(R.id.tv_report_empathy)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_near_report, parent, false)
+        return ViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val item = items[position]
+        val dp   = holder.itemView.context.resources.displayMetrics.density
+        val lp   = holder.itemView.layoutParams
+
+        if (isVertical) {
+            lp.width = ViewGroup.LayoutParams.MATCH_PARENT
+            (lp as? ViewGroup.MarginLayoutParams)?.marginEnd = 0
+        } else {
+            lp.width = (240 * dp).toInt()
+            (lp as? ViewGroup.MarginLayoutParams)?.marginEnd = (12 * dp).toInt()
+        }
+        holder.itemView.layoutParams = lp
+
+        holder.tvTitle.text   = item.title
+        holder.tvEmpathy.text = "❤️ ${item.empathyCount}"
+        holder.tvTag.text     = when (item.categoryId) {
+            1    -> "쓰레기"
+            2    -> "시설"
+            3    -> "도로"
+            else -> "기타"
+        }
+        holder.ivThumbnail.setImageResource(android.R.drawable.ic_menu_gallery)
+        holder.ivThumbnail.setColorFilter(Color.parseColor("#9CA3AF"))
+        holder.itemView.setOnClickListener { onItemClick(item) }
     }
 
     override fun getItemCount() = items.size
