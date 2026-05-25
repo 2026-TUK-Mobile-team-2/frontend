@@ -126,10 +126,10 @@ class MainMapActivity : AppCompatActivity() {
         val oneDay  = 86_400_000L
 
         allMarkerItems = listOf(
-            Report(1, "a", 1, "쓰레기 무단투기",  "정왕역 앞 골목길에 쓰레기 무단투기가 너무 심합니다.",       "접수",  37.341500, 126.732500, "경기도 시흥시 정왕동 2321",        15, now - oneHour,     now - oneHour),
+            Report(1, "a", 1, "쓰레기 무단투기ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ",  "정왕역 앞 골목길에 쓰레기 무단투기가 너무 심합니다.",       "접수완료",  37.341500, 126.732500, "경기도 시흥시 정왕동 2321",        15, now - oneHour,     now - oneHour),
             Report(2, "b", 2, "파손된 벤치 수리", "놀이터 옆 벤치 나무가 부서져 아이들이 다칠 위험이 있습니다.", "처리중", 37.339500, 126.735000, "경기도 시흥시 정왕동 1700 공원내",  3,  now - oneDay * 2,  now - oneDay),
-            Report(3, "c", 3, "아스팔트 포트홀",  "서해안로 2차선 도로에 깊은 포트홀이 생겼습니다.",           "접수",  37.342000, 126.734000, "경기도 시흥시 정왕동 1284-4 도로", 24, now - oneDay * 3,  now - oneDay * 3),
-            Report(4, "d", 4, "가로등 소등 신고", "골목 가로등이 완전히 꺼졌습니다. 밤길이 너무 어둡습니다.",   "해결",  37.340000, 126.736500, "경기도 시흥시 정왕동 1502-1",      0,  now - oneHour / 2, now - oneHour / 2),
+            Report(3, "c", 3, "아스팔트 포트홀",  "서해안로 2차선 도로에 깊은 포트홀이 생겼습니다.",           "접수완료",  37.342000, 126.734000, "경기도 시흥시 정왕동 1284-4 도로", 24, now - oneDay * 3,  now - oneDay * 3),
+            Report(4, "d", 4, "가로등 소등 신고", "골목 가로등이 완전히 꺼졌습니다. 밤길이 너무 어둡습니다.",   "처리완료",  37.340000, 126.736500, "경기도 시흥시 정왕동 1502-1",      0,  now - oneHour / 2, now - oneHour / 2),
         )
     }
 
@@ -260,14 +260,23 @@ class MainMapActivity : AppCompatActivity() {
 
     private fun initSearchBar() {
         searchAdapter = SearchResultAdapter(emptyList()) { report ->
+            // 1. 카메라 이동
             kakaoMap?.moveCamera(
                 CameraUpdateFactory.newCenterPosition(LatLng.from(report.latitude, report.longitude), 16),
                 CameraAnimation.from(500, true, true)
             )
-            displayRegisteredMarkers(listOf(report))
+
+            // ★★★ [수정] 주변 소식 클릭과 동일하게 칩 필터를 '전체'로 초기화하고 모든 마커를 보여줍니다.
+            binding.chipAll.isChecked = true
+            displayRegisteredMarkers(allMarkerItems)
+
             binding.searchBar.setText(report.title)
             binding.rvSearchResults.visibility = View.GONE
-            hideKeyboard()
+
+            // 키보드 닫기 (이전 턴에서 수정한 안전한 코드로 적용)
+            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(binding.searchBar.windowToken, 0)
+            binding.searchBar.clearFocus()
         }
         binding.rvSearchResults.adapter = searchAdapter
 
@@ -289,8 +298,9 @@ class MainMapActivity : AppCompatActivity() {
 
         binding.icClearText.setOnClickListener {
             binding.searchBar.text?.clear()
+            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(binding.searchBar.windowToken, 0)
             binding.searchBar.clearFocus()
-            hideKeyboard()
         }
     }
 
@@ -307,6 +317,9 @@ class MainMapActivity : AppCompatActivity() {
                 CameraUpdateFactory.newCenterPosition(LatLng.from(report.latitude, report.longitude), 16),
                 CameraAnimation.from(500, true, true)
             )
+
+            binding.chipAll.isChecked = true             // 상단 칩 선택을 '전체'로 강제 변경
+            displayRegisteredMarkers(allMarkerItems)
             BottomSheetBehavior.from(binding.layoutBottomNews).state = BottomSheetBehavior.STATE_COLLAPSED
         }
 
@@ -513,6 +526,7 @@ class NearReportAdapter(
         val tvTitle: TextView      = view.findViewById(R.id.tv_report_title)
         val tvTag: TextView        = view.findViewById(R.id.tv_report_tag)
         val tvEmpathy: TextView    = view.findViewById(R.id.tv_report_empathy)
+        val tvStatus: TextView     = view.findViewById(R.id.tv_report_status)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -525,15 +539,18 @@ class NearReportAdapter(
         val dp   = holder.itemView.context.resources.displayMetrics.density
         val lp   = holder.itemView.layoutParams
 
+        // [폭 조절 로직]
         if (isVertical) {
             lp.width = ViewGroup.LayoutParams.MATCH_PARENT
             (lp as? ViewGroup.MarginLayoutParams)?.marginEnd = 0
         } else {
+            // 추천1(115dp 높이) 디자인 선택 시 폭을 250~260dp 정도로 넓혀주면 더 좋습니다.
             lp.width = (240 * dp).toInt()
             (lp as? ViewGroup.MarginLayoutParams)?.marginEnd = (12 * dp).toInt()
         }
         holder.itemView.layoutParams = lp
 
+        // [데이터 반영]
         holder.tvTitle.text   = item.title
         holder.tvEmpathy.text = "❤️ ${item.empathyCount}"
         holder.tvTag.text     = when (item.categoryId) {
@@ -542,6 +559,43 @@ class NearReportAdapter(
             3    -> "도로"
             else -> "기타"
         }
+
+        // ★★★ [신규 추가] 처리상태("접수", "처리중", "해결") 데이터 및 색상 실시간 매칭 알고리즘 ★★★
+
+        // 1. 데이터 세팅
+        // ※ Report 모델의 상태 변수명이 status가 아니면 complaintStatus 등으로 바꿔주세요!
+        holder.tvStatus.text = item.status
+
+        // 2. 상태별 배경 틴트(Tint) 및 글자 색상 세팅
+        when (item.status) {
+            // A. "접수완료": 차분한 회색 계열 (처음 단계)
+            "접수완료" -> {
+                // XML의 android:backgroundTint를 코드에서 바꾸는 방식
+                holder.tvStatus.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#E5E7EB"))
+                // 글자 색상 변경
+                holder.tvStatus.setTextColor(Color.parseColor("#4B5563"))
+            }
+
+            // B. "처리중": 활기찬 주황색/Brown 계열 (진행 중)
+            "처리중" -> {
+                holder.tvStatus.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FEF3C7"))
+                holder.tvStatus.setTextColor(Color.parseColor("#B45309"))
+            }
+
+            // C. "처리완료": 긍정적인 초록색 계열 (완료)
+            "처리완료" -> {
+                holder.tvStatus.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#D1FAE5"))
+                holder.tvStatus.setTextColor(Color.parseColor("#065F46"))
+            }
+
+            // D. 혹시 모를 예외 상태: 기본 회색으로 처리
+            else -> {
+                holder.tvStatus.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#F3F4F6"))
+                holder.tvStatus.setTextColor(Color.parseColor("#6B7280"))
+            }
+        }
+
+        // [기존 유틸 로직]
         holder.ivThumbnail.setImageResource(android.R.drawable.ic_menu_gallery)
         holder.ivThumbnail.setColorFilter(Color.parseColor("#9CA3AF"))
         holder.itemView.setOnClickListener { onItemClick(item) }
