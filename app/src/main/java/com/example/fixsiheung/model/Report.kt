@@ -13,11 +13,16 @@ data class Report(
     @SerializedName("category_id")
     val categoryId: Int,
 
+
     val title: String,
     val description: String,
     val latitude: Double,
     val longitude: Double,
-    val address: String? = ""
+    val address: String? = "",
+
+    // 공감 수
+    @SerializedName("empathy_count")
+    val empathyCount: Int = 0
 )
 
 
