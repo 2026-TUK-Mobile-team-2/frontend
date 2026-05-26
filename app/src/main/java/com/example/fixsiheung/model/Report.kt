@@ -41,3 +41,24 @@ data class ComplaintResponse(
     val message: String,
     @SerializedName("complaint_id") val complaintId: Int
 )
+
+// 마이페이지 프로필 정보 모델
+data class UserProfile(
+    val user_id: String,
+    val nickname: String,
+    val email: String
+)
+
+// 마이페이지 통합 응답 모델 (공감한 글 목록 추가)
+data class MyPageResponse(
+    val user: UserProfile,
+    val my_reports: List<Report>,
+    val empathized_reports: List<Report>
+)
+
+// 회원정보 수정 요청 모델
+data class UserUpdateRequest(
+    val password: String,
+    val nickname: String,
+    val neighborhood: String
+)

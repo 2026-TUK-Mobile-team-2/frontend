@@ -4,11 +4,14 @@ import com.example.fixsiheung.model.ComplaintRequest
 import com.example.fixsiheung.model.ComplaintResponse
 import com.example.fixsiheung.model.LoginRequest
 import com.example.fixsiheung.model.LoginResponse
+import com.example.fixsiheung.model.MyPageResponse
 import com.example.fixsiheung.model.Report
 import com.example.fixsiheung.model.SignupRequest
+import com.example.fixsiheung.model.UserUpdateRequest
 import okhttp3.MultipartBody
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.HTTP
 import retrofit2.http.Multipart
@@ -89,5 +92,22 @@ interface ApiService {
         @Path("complaint_id") complaintId: Int,
         @Body request: Map<String, String> // user_id만 담아서 보냄
     ): Call<Map<String, String>>
+
+
+    // 마이페이지 통합 조회 (내 정보 + 내 글 + 공감한 글)
+    @GET("api/users/{user_id}/mypage")
+    fun getMyPage(@Path("user_id") userId: String): Call<MyPageResponse>
+
+    // 회원정보 수정 (비밀번호, 닉네임 등)
+    @PUT("api/users/{user_id}")
+    fun updateUserInfo(
+        @Path("user_id") userId: String,
+        @Body request: UserUpdateRequest
+    ): Call<Map<String, String>>
+
+    // 회원 탈퇴
+    @DELETE("api/users/{user_id}")
+    fun deleteUser(@Path("user_id") userId: String): Call<Map<String, String>>
+
 
 }
