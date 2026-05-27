@@ -112,12 +112,12 @@ class LoginBottomSheetFragment : BottomSheetDialogFragment() {
         binding.btnBottomSheetLogin.isEnabled = isEnable
 
         if (isEnable) {
-            // 활성화 상태: 버튼 보라색, 글자 흰색
+            // 활성화 상태
             binding.btnBottomSheetLogin.backgroundTintList =
-                ColorStateList.valueOf(Color.parseColor("#8B00FF"))
+                ColorStateList.valueOf(Color.parseColor("#00696B"))
             binding.btnBottomSheetLogin.setTextColor(Color.WHITE)
         } else {
-            // 비활성화 상태: 버튼 연회색, 글자 어두운 회색
+            // 비활성화 상태
             binding.btnBottomSheetLogin.backgroundTintList =
                 ColorStateList.valueOf(Color.parseColor("#D1D5DB"))
             binding.btnBottomSheetLogin.setTextColor(Color.parseColor("#8E94A0"))

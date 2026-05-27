@@ -100,7 +100,7 @@ class SignupActivity : AppCompatActivity() {
         binding.btnSignupNext.isEnabled = isEnable
         if (isEnable) {
             binding.btnSignupNext.backgroundTintList =
-                ColorStateList.valueOf(Color.parseColor("#555BD4"))
+                ColorStateList.valueOf(Color.parseColor("#00696B"))
             binding.btnSignupNext.setTextColor(Color.WHITE)
         } else {
             binding.btnSignupNext.backgroundTintList =
