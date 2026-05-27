@@ -1,7 +1,9 @@
 package com.example.fixsiheung
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.fixsiheung.model.Report
 import com.example.fixsiheung.network.RetrofitClient
@@ -9,6 +11,7 @@ import com.example.fixsiheung.databinding.ActivityMainBinding
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import kotlin.jvm.java
 
 class MainActivity : AppCompatActivity() {
 
@@ -16,11 +19,59 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // ViewBinding 연결
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // 하단 네비 기본 선택
+        binding.bottomNavigation.selectedItemId = R.id.nav_home
+
+        // 하단 네비 클릭 이벤트
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
+
+            when (item.itemId) {
+
+                R.id.nav_home -> {
+                    true
+                }
+
+                R.id.nav_list -> {
+
+                    val intent = Intent(this, ListActivity::class.java)
+                    startActivity(intent)
+
+                    true
+                }
+
+                R.id.nav_report -> {
+
+                    val intent = Intent(this, ReportActivity::class.java)
+                    startActivity(intent)
+
+                    true
+                }
+
+                R.id.nav_mypage -> {
+
+                    val intent = Intent(this, MyPageActivity::class.java)
+                    startActivity(intent)
+
+                    true
+                }
+
+                else -> false
+            }
+        }
+
+        // FAB 버튼 클릭
+        binding.reportFab.setOnClickListener {
+            Toast.makeText(this, "제보하기 클릭", Toast.LENGTH_SHORT).show()
+        }
+
+
         // 앱이 켜지면 서버에 데이터를 요청하는 함수 실행
-        fetchReports()
+        //fetchReports()
     }
 
     // 서버에 제보 목록을 요청하는 함수
