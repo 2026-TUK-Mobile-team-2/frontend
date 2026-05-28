@@ -1,6 +1,7 @@
 package com.example.fixsiheung
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
@@ -101,6 +102,13 @@ class MainMapActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        //---------화면전환리스너---------------
+        binding.Reportbtn.setOnClickListener {
+            val intent = Intent(this, ReportListActivity::class.java)
+            startActivity(intent)
+        }
+        //--------------------
     }
 
     override fun onResume() {
@@ -125,12 +133,6 @@ class MainMapActivity : AppCompatActivity() {
         val oneHour = 3_600_000L
         val oneDay  = 86_400_000L
 
-        allMarkerItems = listOf(
-            Report(1, "a", 1, "쓰레기 무단투기",  "정왕역 앞 골목길에 쓰레기 무단투기가 너무 심합니다.",       "접수",  37.341500, 126.732500, "경기도 시흥시 정왕동 2321",        15, now - oneHour,     now - oneHour),
-            Report(2, "b", 2, "파손된 벤치 수리", "놀이터 옆 벤치 나무가 부서져 아이들이 다칠 위험이 있습니다.", "처리중", 37.339500, 126.735000, "경기도 시흥시 정왕동 1700 공원내",  3,  now - oneDay * 2,  now - oneDay),
-            Report(3, "c", 3, "아스팔트 포트홀",  "서해안로 2차선 도로에 깊은 포트홀이 생겼습니다.",           "접수",  37.342000, 126.734000, "경기도 시흥시 정왕동 1284-4 도로", 24, now - oneDay * 3,  now - oneDay * 3),
-            Report(4, "d", 4, "가로등 소등 신고", "골목 가로등이 완전히 꺼졌습니다. 밤길이 너무 어둡습니다.",   "해결",  37.340000, 126.736500, "경기도 시흥시 정왕동 1502-1",      0,  now - oneHour / 2, now - oneHour / 2),
-        )
     }
 
     // ─── 지도 초기화 ───────────────────────────────────────────────────────────

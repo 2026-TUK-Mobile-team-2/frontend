@@ -27,7 +27,7 @@ class ReportAdapter(private val reportList: List<Report>) :
                 val context = holder.itemView.context
                 val report = reportList[currentPosition]
 
-                report.viewCount += 1 //조회수 +1
+                //report.viewCount += 1 //조회수 +1
                 notifyItemChanged(currentPosition) // 리스트 화면의 조회수도 갱신 (필요 시)
 
                 // ReportDetailActivity를 목적지로 하는 인텐트 생성
@@ -35,12 +35,12 @@ class ReportAdapter(private val reportList: List<Report>) :
 
                 // 📦 택배 상자에 클릭된 민원의 상세 데이터들을 실어 보냅니다.
                 intent.putExtra("detail_title", report.title)
-                intent.putExtra("detail_content", report.content)
-                intent.putExtra("detail_category", report.category)
-                intent.putExtra("detail_status", report.status)
-                intent.putExtra("detail_writer", report.author)
-                intent.putExtra("detail_like", report.likeCount)
-                intent.putExtra("detail_view", report.viewCount)
+                intent.putExtra("detail_content", report.description)
+                intent.putExtra("detail_category", report.categoryId)
+                //intent.putExtra("detail_status", report.status)
+                intent.putExtra("detail_writer", report.userId)
+                intent.putExtra("detail_like", report.empathyCount)
+                //intent.putExtra("detail_view", report.viewCount)
 
                 context.startActivity(intent)
             }
@@ -55,11 +55,11 @@ class ReportAdapter(private val reportList: List<Report>) :
         fun bind(report: Report) {      //어댑터 본체
             //report에 이미지url 추가 되면 이미지 코드 추가하기
             binding.itemTitle.text = report.title
-            binding.itemCategory.text = report.category
-            binding.itemstatus.text = report.status
-            binding.itemlikeCount.text = "공감 ${report.likeCount}"  //리스트에 공감+숫자로 보이게함
+            binding.itemCategory.text = "카테고리 ${report.categoryId.toString()}"
+            //binding.itemstatus.text = report.status
+            binding.itemlikeCount.text = "공감 ${report.empathyCount}"  //리스트에 공감+숫자로 보이게함
             
-            binding.itemId.text = report.id.toString() //add잘 작동하는지 확인 용도
+            binding.itemcomplaintId.text = "민원 ${report.complaintId.toString()}" //add잘 작동하는지 확인 용도
         }
     }
 }

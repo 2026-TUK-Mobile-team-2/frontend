@@ -14,55 +14,85 @@ class ReportListActivity : AppCompatActivity() {
     private lateinit var binding: ActivityReportListBinding
     private lateinit var reportAdapter: ReportAdapter
 
-    //제보화면 데이터 추가
-    private lateinit var addReportLauncher: ActivityResultLauncher<Intent>
+    // 💡 [단일화] 바구니는 딱 이거 하나만 씁니다! 모든 데이터는 여기에만 담깁니다.
+    private val reportDataList = arrayListOf<Report>()
 
-    //민원데이터 저장하는 리스트
-    var reportDataList = mutableListOf<Report>()
+    private lateinit var addReportLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityReportListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // 1. [런처 등록] 새 제보 화면에서 들고 온 데이터를 처리하는 배달원
         addReportLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
                 val data = result.data
                 if (data != null) {
-                    val title = data.getStringExtra("intent_title") ?: "[무제]"
-                    val category = data.getStringExtra("intent_category") ?: "기타 일반"
-                    val location = data.getStringExtra("intent_location") ?: "한국공대"
-                    val content = data.getStringExtra("intent_content") ?: "내용 없음"
+                    val title = data.getStringExtra("intent_title") ?: ""
+                    val description = data.getStringExtra("intent_content") ?: ""
+                    val categoryId = data.getIntExtra("intent_category", 1)
+                    val userId = data.getStringExtra("intent_writer") ?: "익명"
 
-                    // 새 민원의 고유 ID 부여 (현재 개수 + 1)
-                    val newId = reportDataList.size + 1
+                    val newReport = Report(
+                        complaintId = (reportDataList.size + 1),
+                        userId = userId,
+                        categoryId = categoryId,
+                        title = title,
+                        description = description,
+                        latitude = 37.3,
+                        longitude = 126.7
+                    )
 
-                    // 새 Report 데이터 데이터 모델 포맷으로 생성 (초기 공감 0, 상태는 "접수")
-                    val newReport = Report(newId, title, content, category, 37.340, 126.733, "시민님", 0, "접수")
-
-                    // 🔥 중요: 최신 글이 맨 위에 와야 하므로 리스트의 0번(맨 앞) 인덱스에 추가합니다!
+                    // 통합된 진짜 바구니(reportDataList) 맨 앞에 추가합니다.
                     reportDataList.add(0, newReport)
 
-                    // 갱신 신호: 어댑터야 0번에 새 아이템 들어왔으니 화면에 그려줘!
-                    reportAdapter.notifyItemInserted(0)
-
-                    // 추가되자마자 리스트 맨 위로 자동 스크롤 이동
-                    binding.reportRecyclerView.scrollToPosition(0)
+                    // 화면 새로고침 및 스크롤 맨 위로 이동
+                    reportAdapter.notifyDataSetChanged()
+                    binding.rvReportList.scrollToPosition(0)
                 }
             }
         }
 
+        // 2. [초기 더미 데이터 수혈] 중복 선언을 없애고 진짜 바구니에 곧바로 데이터를 채웁니다.
+        reportDataList.addAll(
+            listOf(
+                Report(
+                    complaintId = 1,
+                    userId = "user01",
+                    categoryId = 1,
+                    title = "정왕역 앞 쓰레기 무단 투기",
+                    description = "정왕역 1번 출구 앞에 쓰레기가 너무 많이 쌓여있어서 악취가 심합니다. 빨리 치워주세요.",
+                    latitude = 37.3514,
+                    longitude = 126.7424,
+                    address = "경기도 시흥시 정왕동 정왕역",
+                    empathyCount = 12,
+                    createdAt = System.currentTimeMillis() - (2 * 60 * 60 * 1000)
+                ),
+                Report(
+                    complaintId = 2,
+                    userId = "user02",
+                    categoryId = 2,
+                    title = "중앙공원 벤치 파손",
+                    description = "공원 중앙 분수대 옆에 있는 나무 벤치 다리가 부러져 있어서 위험합니다.",
+                    latitude = 37.3550,
+                    longitude = 126.7380,
+                    address = "경기도 시흥시 정왕동 중앙공원",
+                    empathyCount = 5,
+                    createdAt = System.currentTimeMillis() - (30 * 60 * 60 * 1000)
+                )
+            )
+        )
 
-        initDummyData()
+        // 최신 아이디 순으로 초기 정렬
+        reportDataList.sortByDescending { it.complaintId }
 
-        val defaultSortedList = reportDataList.sortedByDescending { it.id }
-        reportDataList.clear()
-        reportDataList.addAll(defaultSortedList)
-
+        // 3. [어댑터 딱 한 번만 연결] 진짜 바구니를 쥐어주고 리사이클러뷰에 세팅합니다.
         reportAdapter = ReportAdapter(reportDataList)
-        binding.reportRecyclerView.adapter = reportAdapter
-        binding.reportRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.rvReportList.adapter = reportAdapter
+        binding.rvReportList.layoutManager = LinearLayoutManager(this)
 
+        // 4. [버튼 이벤트 리스너 세팅]
         binding.Mainbtn.setOnClickListener {
             finish()
         }
@@ -81,78 +111,18 @@ class ReportListActivity : AppCompatActivity() {
         }
     }
 
-    private fun initDummyData() {
-        reportDataList.add(
-            Report(
-                4,
-                "민원 제목",
-                "민원 내용.",
-                "카테고리",
-                37.340,
-                126.733,
-                "칭호창",
-                6,
-                "처리중"
-            )
-        )
-        reportDataList.add(
-            Report(
-                1,
-                "정문 앞 보도블록 파손",
-                "보도블록이 튀어나와 있어 통행이 위험합니다.",
-                "시설물 파손",
-                37.340,
-                126.733,
-                "민원왕",
-                5,
-                "처리중"
-            )
-        )
-        reportDataList.add(
-            Report(
-                2,
-                "공원 내 쓰레기 무단 투기",
-                "벤치 주변에 쓰레기가 너무 많아요.",
-                "쓰레기",
-                37.341,
-                126.732,
-                "클린시민",
-                12,
-                "접수"
-            )
-        )
-        reportDataList.add(
-            Report(
-                3,
-                "가로등 점등 불량",
-                "밤에 너무 어두워서 무섭습니다.",
-                "가로등",
-                37.342,
-                126.731,
-                "야간산책러",
-                2,
-                "해결"
-            )
-        )
-    }
-
-    //id 역순 정렬해 최신순 정렬됨
+    // 5. [정렬 함수 기능 복구] 진짜 바구니인 reportDataList를 정렬하도록 수정했습니다.
     private fun sortByfastCount() {
-        val sortedList = reportDataList.sortedByDescending { it.id }
-
+        val sortedList = reportDataList.sortedByDescending { it.complaintId }
         reportDataList.clear()
         reportDataList.addAll(sortedList)
-
-        reportAdapter.notifyDataSetChanged() //새로고침
+        reportAdapter.notifyDataSetChanged()
     }
 
-    //공감 역순 정렬해 공감순 정렬됨
     private fun sortByLikeCount() {
-        val sortedList = reportDataList.sortedByDescending { it.likeCount }
-
+        val sortedList = reportDataList.sortedByDescending { it.empathyCount }
         reportDataList.clear()
         reportDataList.addAll(sortedList)
-
-        reportAdapter.notifyDataSetChanged() //새로고침
+        reportAdapter.notifyDataSetChanged()
     }
 }

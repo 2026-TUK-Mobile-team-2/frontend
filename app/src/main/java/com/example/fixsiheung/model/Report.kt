@@ -22,7 +22,10 @@ data class Report(
 
     // 공감 수
     @SerializedName("empathy_count")
-    val empathyCount: Int = 0
+    val empathyCount: Int = 0,
+
+    @SerializedName("created_at")
+    val createdAt: Long = System.currentTimeMillis()
 )
 
 
@@ -59,6 +62,5 @@ data class MyPageResponse(
 // 회원정보 수정 요청 모델
 data class UserUpdateRequest(
     val password: String,
-    val nickname: String,
-    val neighborhood: String
+    val nickname: String
 )
