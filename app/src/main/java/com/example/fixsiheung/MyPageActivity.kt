@@ -53,6 +53,37 @@ class MyPageActivity : AppCompatActivity() {
                 else -> false
             }
         }
+
+        binding.menuReportList.apply {
+            ivMenuIcon.setImageResource(R.drawable.ic_list)
+            tvMenuTitle.text = "제보 내역"
+            // 터치 시 구동할 코드 작성
+        }
+
+        binding.menuEmpathyReport.apply {
+            ivMenuIcon.setImageResource(R.drawable.ic_favorite)
+            tvMenuTitle.text = "공감한 제보"
+                // 터치 시 구동할 코드 작성
+        }
+
+        binding.menuNotification.apply {
+            ivMenuIcon.setImageResource(R.drawable.ic_notifications)
+            tvMenuTitle.text = "알림 설정"
+            // 터치 시 구동할 코드 작성
+        }
+
+        binding.menuInquiry.apply {
+            ivMenuIcon.setImageResource(R.drawable.ic_support)
+            tvMenuTitle.text = "문의 하기"
+            // 터치 시 구동할 코드 작성
+        }
+
+        binding.menuLogout.apply {
+            ivMenuIcon.setImageResource(R.drawable.ic_logout)
+            tvMenuTitle.text = "로그아웃"
+            // 터치 시 구동할 코드 작성
+        }
+
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
