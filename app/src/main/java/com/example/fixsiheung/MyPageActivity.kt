@@ -84,6 +84,12 @@ class MyPageActivity : AppCompatActivity() {
             // 터치 시 구동할 코드 작성
         }
 
+        binding.menuAdmin.apply {
+            //ivMenuIcon.setImageResource(R.drawable.)
+            tvMenuTitle.text = "관리자 페이지"
+            // 터치 시 구동할 코드 작성
+        }
+
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)

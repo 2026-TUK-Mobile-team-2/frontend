@@ -408,6 +408,10 @@
                         android:id="@+id/menu_logout"
                         layout="@layout/item_my_page_menu" />
 
+                    <include
+                        android:id="@+id/menu_admin"
+                        layout="@layout/item_my_page_menu" />
+
                 </LinearLayout>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
