@@ -59,6 +59,5 @@ data class MyPageResponse(
 // 회원정보 수정 요청 모델
 data class UserUpdateRequest(
     val password: String,
-    val nickname: String,
-    val neighborhood: String
+    val nickname: String
 )
