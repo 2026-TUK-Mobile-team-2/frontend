@@ -46,6 +46,7 @@
 
         <!-- 사진 업로드 -->
         <FrameLayout
+            android:id="@+id/photoFrame"
             android:layout_width="match_parent"
             android:layout_height="220dp"
             android:layout_marginBottom="32dp">
@@ -85,6 +86,7 @@
             android:layout_marginBottom="16dp" />
 
         <GridLayout
+            android:id="@+id/categoryGrid"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:columnCount="3"
@@ -281,6 +283,7 @@
 
             <TextView
                 android:text="지도"
+                android:id="@+id/mapButton"
                 android:textColor="#1987C2"
                 android:textStyle="bold"
                 android:textSize="14sp"
