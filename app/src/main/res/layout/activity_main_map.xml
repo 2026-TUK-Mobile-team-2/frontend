@@ -68,7 +68,7 @@
                     android:background="@android:color/transparent"
                     android:hint="시흥시 어디든 검색"
                     android:imeOptions="actionSearch"
-                    android:inputType="text"
+                    android:inputType="textNoSuggestions"
                     android:singleLine="true"
                     android:textSize="14sp"
                     app:layout_constraintEnd_toStartOf="@+id/ic_clear_text"
@@ -112,7 +112,7 @@
                 app:singleSelection="true"
                 app:layout_constraintEnd_toEndOf="@+id/layout_search_container"
                 app:layout_constraintStart_toStartOf="@+id/layout_search_container"
-                app:layout_constraintTop_toBottomOf="@+id/rv_search_results">
+                app:layout_constraintTop_toBottomOf="@+id/layout_search_container">
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_all"
@@ -198,7 +198,7 @@
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:text="전체보기"
-                    android:textColor="#2563EB"
+                    android:textColor="@color/primary"
                     android:textSize="12sp"
                     android:textStyle="bold" />
             </RelativeLayout>
