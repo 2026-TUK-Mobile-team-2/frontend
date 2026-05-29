@@ -1,11 +1,17 @@
-package com.example.fixsiheung
+package com.example.fixsiheung.mypage
 
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
+import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.toColorInt
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.fixsiheung.MainMapActivity
+import com.example.fixsiheung.R
 import com.example.fixsiheung.databinding.ActivityMyPageBinding
 
 class MyPageActivity : AppCompatActivity() {
@@ -16,6 +22,13 @@ class MyPageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(binding.root)
+
+        /*************************************************************************************************************/
+        // TODO: 실제 로그인 API 연동 후 관리자 여부를 서버에서 받아와야 합니다.
+        val isAdmin = true // 임시값, 추후 로그인 유저 정보로 교체
+        binding.menuAdmin.root.visibility = if (isAdmin) View.VISIBLE else View.GONE
+        /*************************************************************************************************************/
+
 
         binding.bottomNavigation.selectedItemId = R.id.nav_mypage
 
@@ -54,16 +67,31 @@ class MyPageActivity : AppCompatActivity() {
             }
         }
 
+        binding.tvToolbarTitle.setOnClickListener {
+            val intent = Intent(this, MainMapActivity::class.java)
+                    startActivity(intent)
+        }
+
         binding.menuReportList.apply {
             ivMenuIcon.setImageResource(R.drawable.ic_list)
             tvMenuTitle.text = "제보 내역"
-            // 터치 시 구동할 코드 작성
+            root.setOnClickListener {
+                val intent = Intent(this@MyPageActivity, ReportListActivity::class.java).apply {
+                    putExtra("SCREEN_TYPE", "MY_REPORTS")
+                }
+                startActivity(intent)
+            }
         }
 
         binding.menuEmpathyReport.apply {
             ivMenuIcon.setImageResource(R.drawable.ic_favorite)
             tvMenuTitle.text = "공감한 제보"
-                // 터치 시 구동할 코드 작성
+            root.setOnClickListener {
+                val intent = Intent(this@MyPageActivity, ReportListActivity::class.java).apply {
+                    putExtra("SCREEN_TYPE", "EMPATHIZED_REPORTS")
+                }
+                startActivity(intent)
+            }
         }
 
         binding.menuNotification.apply {
@@ -80,7 +108,9 @@ class MyPageActivity : AppCompatActivity() {
 
         binding.menuLogout.apply {
             ivMenuIcon.setImageResource(R.drawable.ic_logout)
+            ivMenuIcon.imageTintList = ColorStateList.valueOf(Color.parseColor("#EF4444"))
             tvMenuTitle.text = "로그아웃"
+            tvMenuTitle.setTextColor("#EF4444".toColorInt())
             // 터치 시 구동할 코드 작성
         }
 
