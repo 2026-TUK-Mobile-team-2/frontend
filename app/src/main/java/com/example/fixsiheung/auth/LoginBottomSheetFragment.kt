@@ -75,7 +75,14 @@ class LoginBottomSheetFragment : BottomSheetDialogFragment() {
                 override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                     if (response.isSuccessful && response.body() != null) {
                         // 로그인 성공! (200 OK)
-                        val userName = response.body()?.name ?: "시민"
+                        val body = response.body()!!
+                        val userName = body.name ?: "시민"
+
+                        requireContext().getSharedPreferences("user_prefs", android.content.Context.MODE_PRIVATE)
+                            .edit()
+                            .putString("user_id", body.userId)
+                            .putString("user_name", body.name)
+                            .apply()
                         Toast.makeText(requireContext(), "${userName}님 환영합니다!", Toast.LENGTH_SHORT).show()
 
                         val intent = Intent(requireContext(), MainMapActivity::class.java)

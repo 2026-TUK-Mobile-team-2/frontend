@@ -19,7 +19,7 @@
             android:name=".mypage.MyPageActivity"
             android:exported="false" />
         <activity
-            android:name=".mypage.ReportListActivity"
+            android:name=".mypage.MyListActivity"
             android:exported="false" />
         <activity
             android:name=".SplashActivity"
