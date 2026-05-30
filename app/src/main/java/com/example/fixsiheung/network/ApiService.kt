@@ -8,6 +8,8 @@ import com.example.fixsiheung.model.MyPageResponse
 import com.example.fixsiheung.model.Report
 import com.example.fixsiheung.model.SignupRequest
 import com.example.fixsiheung.model.UserUpdateRequest
+import com.example.fixsiheung.model.StatusUpdateRequest
+import com.example.fixsiheung.model.FcmTokenRequest
 import okhttp3.MultipartBody
 import retrofit2.Call
 import retrofit2.http.Body
