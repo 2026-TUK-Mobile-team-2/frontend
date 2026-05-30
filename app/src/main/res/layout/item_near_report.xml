@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="90dp"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="240dp"
-    android:layout_height="100dp"
     android:layout_marginEnd="12dp"
     android:layout_marginTop="4dp"
     android:layout_marginBottom="4dp"
@@ -18,8 +18,8 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/layout_img_holder"
-            android:layout_width="95dp"
-            android:layout_height="95dp"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
             app:cardCornerRadius="12dp"
             app:cardElevation="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -53,7 +53,7 @@
             android:id="@+id/tv_report_tag"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="8dp"
             android:background="@drawable/bg_search_bar"
             android:backgroundTint="#E2E8F0"
             android:paddingHorizontal="8dp"
@@ -64,32 +64,32 @@
             app:layout_constraintStart_toStartOf="@+id/tv_report_title"
             app:layout_constraintTop_toBottomOf="@+id/tv_report_title" />
 
+        <!-- 위치 정보(미구현) -->
+        <TextView
+            android:id="@+id/tv_report_location"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            tools:text="경기도 시흥시 정왕동"
+            android:textColor="#64748B"
+            android:textSize="11sp"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_report_empathy"
+            app:layout_constraintEnd_toStartOf="@+id/tv_report_empathy"
+            app:layout_constraintStart_toStartOf="@+id/tv_report_tag"
+            app:layout_constraintTop_toTopOf="@+id/tv_report_empathy" />
+
+        <!-- 공감수 -->
         <TextView
             android:id="@+id/tv_report_empathy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             tools:text="❤️ 공감수"
             android:textColor="#EF4444"
             android:textSize="11sp"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_report_tag"
-            app:layout_constraintStart_toEndOf="@+id/tv_report_tag"
-            app:layout_constraintTop_toTopOf="@+id/tv_report_tag" />
-
-        <TextView
-            android:id="@+id/tv_report_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:background="@drawable/bg_search_bar"
-            android:backgroundTint="#E2E8F0"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="3dp"
-            tools:text="처리상태"
-            android:textColor="#475569"
-            android:textSize="10sp"
-            app:layout_constraintStart_toStartOf="@+id/tv_report_tag"
-            app:layout_constraintTop_toBottomOf="@+id/tv_report_tag" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

@@ -1,10 +1,524 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ListActivity">
+    android:background="#FFFFFF">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- Header -->
+    <LinearLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical"
+        android:background="#FFFFFF">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="시흥고쳐줘"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#65C0C1" />
+
+        <ImageButton
+            android:id="@+id/searchButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/rounded_gray_bg"
+            android:padding="8dp"
+            android:src="@android:drawable/ic_menu_search"
+            app:tint="#64748B" />
+    </LinearLayout>
+
+    <!-- Scroll Area -->
+    <ScrollView
+        android:layout_below="@id/headerLayout"
+        android:layout_above="@id/itemaddbtn"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="24dp">
+
+            <!-- HOT 이슈 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/star_big_on"
+                        app:tint="#F0C94C" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="오늘의 HOT 이슈"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#000000" />
+                </LinearLayout>
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:layout_marginTop="12dp">
+
+                    <LinearLayout
+                        android:id="@+id/hotIssuesContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="280dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="12dp"
+                            android:orientation="vertical"
+                            android:padding="16dp"
+                            android:background="@drawable/hot_issue_card_bg">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="인기 급상승"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold"
+                                    android:textColor="#F0C94C"
+                                    android:paddingHorizontal="8dp"
+                                    android:paddingVertical="4dp"
+                                    android:background="@drawable/hot_badge_bg" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="5dp"
+                                    android:text="💛 24"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold"
+                                    android:textColor="#F0C94C" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:text="정왕동 상가 앞 무단 투기 쓰레기"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="#1E293B"
+                                android:maxLines="1"
+                                android:ellipsize="end" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="📍 정왕동 상가거리"
+                                android:textSize="12sp"
+                                android:textColor="#64748B" />
+                        </LinearLayout>
+
+                        <!-- HOT 카드 2 -->
+                        <LinearLayout
+                            android:layout_width="280dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="12dp"
+                            android:orientation="vertical"
+                            android:padding="16dp"
+                            android:background="@drawable/hot_issue_card_bg">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="인기 급상승"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold"
+                                    android:textColor="#F0C94C"
+                                    android:paddingHorizontal="8dp"
+                                    android:paddingVertical="4dp"
+                                    android:background="@drawable/hot_badge_bg" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="5dp"
+                                    android:text="💛 18"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold"
+                                    android:textColor="#F0C94C" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:text="은행동 놀이터 시설 파손"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="#1E293B"
+                                android:maxLines="1"
+                                android:ellipsize="end" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="📍 은행동 어린이공원"
+                                android:textSize="12sp"
+                                android:textColor="#64748B" />
+                        </LinearLayout>
+
+                        <!-- HOT 카드 3 -->
+                        <LinearLayout
+                            android:layout_width="280dp"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp"
+                            android:background="@drawable/hot_issue_card_bg">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="인기 급상승"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold"
+                                    android:textColor="#F0C94C"
+                                    android:paddingHorizontal="8dp"
+                                    android:paddingVertical="4dp"
+                                    android:background="@drawable/hot_badge_bg" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="5dp"
+                                    android:text="💛 12"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold"
+                                    android:textColor="#F0C94C" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:text="배곧동 가로등 깜빡거림"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="#1E293B"
+                                android:maxLines="1"
+                                android:ellipsize="end" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="📍 배곧4로 중심거리"
+                                android:textSize="12sp"
+                                android:textColor="#64748B" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </HorizontalScrollView>
+            </LinearLayout>
+
+            <!-- 필터 버튼 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="15dp"
+                android:paddingHorizontal="16dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <android.widget.Button
+                        android:id="@+id/sortfastbtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="45dp"
+                        android:text="최신순"
+                        android:textAllCaps="false"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:textColor="#FFFFFF"
+                        android:paddingHorizontal="20dp"
+                        android:paddingVertical="10dp"
+                        android:background="@drawable/filter_selected_bg" />
+
+                    <android.widget.Button
+                        android:id="@+id/sortlikebtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="45dp"
+                        android:layout_marginStart="8dp"
+                        android:text="공감순"
+                        android:textAllCaps="false"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:textColor="#64748B"
+                        android:paddingHorizontal="20dp"
+                        android:paddingVertical="10dp"
+                        android:background="@drawable/filter_unselected_bg" />
+                </LinearLayout>
+
+                <!-- 카테고리 -->
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:layout_marginTop="12dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <android.widget.Button
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:minHeight="0dp"
+                            android:minWidth="0dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:paddingLeft="18dp"
+                            android:paddingRight="18dp"
+                            android:paddingTop="0dp"
+                            android:paddingBottom="0dp"
+                            android:paddingHorizontal="18dp"
+                            android:paddingVertical="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:gravity="center"
+                            android:id="@+id/filterAllbtn"
+                            android:text="전체"
+                            android:textAllCaps="false"
+                            android:textStyle="bold"
+                            android:textSize="12sp"
+                            android:textColor="#64748B"
+                            android:background="@drawable/rl_category_unselected_bg" />
+
+                        <android.widget.Button
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:minHeight="0dp"
+                            android:minWidth="0dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:paddingLeft="18dp"
+                            android:paddingRight="18dp"
+                            android:paddingTop="0dp"
+                            android:paddingBottom="0dp"
+                            android:paddingHorizontal="18dp"
+                            android:paddingVertical="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:gravity="center"
+                            android:id="@+id/filterTrashbtn"
+                            android:text="쓰레기"
+                            android:textAllCaps="false"
+                            android:textStyle="bold"
+                            android:textSize="12sp"
+                            android:textColor="#64748B"
+                            android:background="@drawable/rl_category_selected_bg" />
+
+                        <android.widget.Button
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:minHeight="0dp"
+                            android:minWidth="0dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:paddingLeft="18dp"
+                            android:paddingRight="18dp"
+                            android:paddingTop="0dp"
+                            android:paddingBottom="0dp"
+                            android:paddingHorizontal="18dp"
+                            android:paddingVertical="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:gravity="center"
+                            android:id="@+id/filterDamagedbtn"
+                            android:text="시설파손"
+                            android:textAllCaps="false"
+                            android:textStyle="bold"
+                            android:textSize="12sp"
+                            android:textColor="#64748B"
+                            android:background="@drawable/rl_category_unselected_bg" />
+
+                        <android.widget.Button
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:minHeight="0dp"
+                            android:minWidth="0dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:paddingLeft="18dp"
+                            android:paddingRight="18dp"
+                            android:paddingTop="0dp"
+                            android:paddingBottom="0dp"
+                            android:paddingHorizontal="18dp"
+                            android:paddingVertical="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:gravity="center"
+                            android:id="@+id/filterDangerbtn"
+                            android:text="안전위험"
+                            android:textAllCaps="false"
+                            android:textStyle="bold"
+                            android:textSize="12sp"
+                            android:textColor="#64748B"
+                            android:background="@drawable/rl_category_unselected_bg" />
+
+                        <android.widget.Button
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:minHeight="0dp"
+                            android:minWidth="0dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:paddingLeft="18dp"
+                            android:paddingRight="18dp"
+                            android:paddingTop="0dp"
+                            android:paddingBottom="0dp"
+                            android:paddingHorizontal="18dp"
+                            android:paddingVertical="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:gravity="center"
+                            android:id="@+id/filterRoadbtn"
+                            android:text="도로"
+                            android:textAllCaps="false"
+                            android:textStyle="bold"
+                            android:textSize="12sp"
+                            android:textColor="#64748B"
+                            android:background="@drawable/rl_category_unselected_bg" />
+
+                        <android.widget.Button
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:minHeight="0dp"
+                            android:minWidth="0dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:paddingLeft="18dp"
+                            android:paddingRight="18dp"
+                            android:paddingTop="0dp"
+                            android:paddingBottom="0dp"
+                            android:paddingHorizontal="18dp"
+                            android:paddingVertical="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:gravity="center"
+                            android:id="@+id/filterNoisebtn"
+                            android:text="소음"
+                            android:textAllCaps="false"
+                            android:textStyle="bold"
+                            android:textSize="12sp"
+                            android:textColor="#64748B"
+                            android:background="@drawable/rl_category_unselected_bg" />
+
+                        <android.widget.Button
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:minHeight="0dp"
+                            android:minWidth="0dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:paddingLeft="18dp"
+                            android:paddingRight="18dp"
+                            android:paddingTop="0dp"
+                            android:paddingBottom="0dp"
+                            android:paddingHorizontal="18dp"
+                            android:paddingVertical="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:gravity="center"
+                            android:id="@+id/filterOtherbtn"
+                            android:text="기타"
+                            android:textAllCaps="false"
+                            android:textStyle="bold"
+                            android:textSize="12sp"
+                            android:textColor="#64748B"
+                            android:background="@drawable/rl_category_unselected_bg" />
+
+                    </LinearLayout>
+                </HorizontalScrollView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingVertical="5dp"
+                android:paddingHorizontal="16dp">
+
+                <!-- 제보 목록 -->
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvReportList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:layout_marginBottom="12dp"
+                    android:nestedScrollingEnabled="false"
+                    android:background="@drawable/report_card_bg"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- FAB -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/itemaddbtn"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="28dp"
+        app:elevation="6dp"
+        android:src="@android:drawable/ic_input_add"
+        android:tint="#FFFFFF"
+        android:scaleType="center"
+        app:fabCustomSize="64dp"
+        app:maxImageSize="28dp"
+        android:backgroundTint="#65C0C1"
+        app:backgroundTint="#65C0C1"
+        app:borderWidth="0dp"
+        />
+
+</RelativeLayout>
