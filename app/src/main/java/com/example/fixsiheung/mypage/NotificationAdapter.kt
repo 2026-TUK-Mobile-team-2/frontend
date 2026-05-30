@@ -63,17 +63,26 @@ class NotificationAdapter(
     }
 
     // 시간 표시 (몇 분 전, 몇 시간 전)
-    private fun getTimeAgo(createdAt: Long): String {
-        val diff = System.currentTimeMillis() - createdAt
-        val minutes = diff / 60_000
-        val hours   = diff / 3_600_000
-        val days    = diff / 86_400_000
+    private fun getTimeAgo(createdAt: String?): String {
+        if (createdAt.isNullOrEmpty()) return ""
 
-        return when {
-            minutes < 1  -> "방금 전"
-            minutes < 60 -> "${minutes}분 전"
-            hours < 24   -> "${hours}시간 전"
-            else         -> "${days}일 전"
+        return try {
+            val sdf = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
+            val date = sdf.parse(createdAt) ?: return ""
+            val diff = System.currentTimeMillis() - date.time
+
+            val minutes = diff / 60_000
+            val hours   = diff / 3_600_000
+            val days    = diff / 86_400_000
+
+            when {
+                minutes < 1  -> "방금 전"
+                minutes < 60 -> "${minutes}분 전"
+                hours < 24   -> "${hours}시간 전"
+                else         -> "${days}일 전"
+            }
+        } catch (e: Exception) {
+            ""
         }
     }
 }

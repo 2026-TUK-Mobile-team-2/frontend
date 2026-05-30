@@ -67,15 +67,40 @@ class SignupActivity : AppCompatActivity() {
                     .enqueue(object : retrofit2.Callback<Any> {
                         override fun onResponse(call: retrofit2.Call<Any>, response: retrofit2.Response<Any>) {
                             if (response.isSuccessful) {
-                                Toast.makeText(this@SignupActivity, "${finalNickname}님 회원가입 완료!", Toast.LENGTH_SHORT).show()
-                                val intent = Intent(this@SignupActivity, MainMapActivity::class.java)
-                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                                startActivity(intent)
+                                Toast.makeText(this@SignupActivity, "${finalNickname}님 환영합니다!", Toast.LENGTH_SHORT).show()
+
+                                // 회원가입 후 자동 로그인
+                                val loginRequest = com.example.fixsiheung.model.LoginRequest(
+                                    userId = finalId,
+                                    password = finalPassword
+                                )
+                                com.example.fixsiheung.network.RetrofitClient.apiService.login(loginRequest)
+                                    .enqueue(object : retrofit2.Callback<com.example.fixsiheung.model.LoginResponse> {
+                                        override fun onResponse(call: retrofit2.Call<com.example.fixsiheung.model.LoginResponse>, response: retrofit2.Response<com.example.fixsiheung.model.LoginResponse>) {
+                                            if (response.isSuccessful) {
+                                                val body = response.body()!!
+                                                getSharedPreferences("user_prefs", android.content.Context.MODE_PRIVATE)
+                                                    .edit()
+                                                    .putString("user_id", body.userId)
+                                                    .putString("user_name", body.name)
+                                                    .putBoolean("is_admin", false)
+                                                    .apply()
+                                            }
+                                            val intent = Intent(this@SignupActivity, MainMapActivity::class.java)
+                                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                            startActivity(intent)
+                                        }
+                                        override fun onFailure(call: retrofit2.Call<com.example.fixsiheung.model.LoginResponse>, t: Throwable) {
+                                            // 자동 로그인 실패해도 메인으로 이동
+                                            val intent = Intent(this@SignupActivity, MainMapActivity::class.java)
+                                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                            startActivity(intent)
+                                        }
+                                    })
                             } else {
                                 viewModel.idErrorMsg.value = "이미 사용 중이거나 가입된 아이디입니다."
                             }
                         }
-
                         override fun onFailure(call: retrofit2.Call<Any>, t: Throwable) {
                             Toast.makeText(this@SignupActivity, "서버 네트워크 통신 오류", Toast.LENGTH_SHORT).show()
                         }

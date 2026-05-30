@@ -140,7 +140,7 @@ class MyPageActivity : AppCompatActivity() {
                             binding.tvNickname.text         = data.user.nickname
                             binding.tvLikesCount.text       = "❤️ ${data.my_reports.sumOf { it.empathyCount }}"
                             binding.tvStatEmpathyCount.text = data.my_reports.size.toString()
-                            binding.tvStatResolvedCount.text = data.my_reports.count { it.status == "처리완료" }.toString()
+                            binding.tvStatResolvedCount.text = data.my_reports.count { it.status == "처리완료" || it.status == "완료"}.toString()
                         }
                     }
                 }

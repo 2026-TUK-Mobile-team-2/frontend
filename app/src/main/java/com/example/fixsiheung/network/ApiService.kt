@@ -2,14 +2,15 @@ package com.example.fixsiheung.network
 
 import com.example.fixsiheung.model.ComplaintRequest
 import com.example.fixsiheung.model.ComplaintResponse
+import com.example.fixsiheung.model.FcmTokenRequest
 import com.example.fixsiheung.model.LoginRequest
 import com.example.fixsiheung.model.LoginResponse
 import com.example.fixsiheung.model.MyPageResponse
+import com.example.fixsiheung.model.Notification
 import com.example.fixsiheung.model.Report
 import com.example.fixsiheung.model.SignupRequest
-import com.example.fixsiheung.model.UserUpdateRequest
 import com.example.fixsiheung.model.StatusUpdateRequest
-import com.example.fixsiheung.model.FcmTokenRequest
+import com.example.fixsiheung.model.UserUpdateRequest
 import okhttp3.MultipartBody
 import retrofit2.Call
 import retrofit2.http.Body
@@ -127,6 +128,30 @@ interface ApiService {
     fun updateComplaintStatus(
         @Path("complaint_id") complaintId: Int,
         @Body request: StatusUpdateRequest
+    ): Call<Map<String, String>>
+
+    // =========================================================
+    // 알림함 관련 API 목록
+    // =========================================================
+
+    // 1. 특정 유저의 알림 목록 최신순 조회
+    @GET("api/users/{user_id}/notifications")
+    fun getNotifications(
+        @Path("user_id") userId: String
+    ): Call<List<Notification>>
+
+    // 2. 유저가 알림을 클릭했을 때 읽음 처리 수행
+    @POST("api/users/{user_id}/notifications/{notification_id}/read")
+    fun readNotification(
+        @Path("user_id") userId: String,
+        @Path("notification_id") notificationId: Int
+    ): Call<Map<String, String>>
+
+    // 3. 알림함 화면에서 특정 알림 스와이프 또는 삭제 버튼 클릭 시 삭제 처리
+    @DELETE("api/users/{user_id}/notifications/{notification_id}")
+    fun deleteNotification(
+        @Path("user_id") userId: String,
+        @Path("notification_id") notificationId: Int
     ): Call<Map<String, String>>
 
 

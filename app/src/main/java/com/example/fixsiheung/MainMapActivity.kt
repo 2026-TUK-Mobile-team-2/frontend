@@ -541,6 +541,8 @@ class NearReportAdapter(
         val tvTitle: TextView      = view.findViewById(R.id.tv_report_title)
         val tvTag: TextView        = view.findViewById(R.id.tv_report_tag)
         val tvEmpathy: TextView    = view.findViewById(R.id.tv_report_empathy)
+
+        val tvStatus: TextView     = view.findViewById(R.id.tv_report_status)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -565,9 +567,9 @@ class NearReportAdapter(
         holder.tvTitle.text   = item.title
         holder.tvEmpathy.text = "❤️ ${item.empathyCount}"
         holder.tvTag.text     = when (item.categoryId) {
-            1    -> "쓰레기"
-            2    -> "시설"
-            3    -> "도로"
+            1    -> "도로"
+            2    -> "쓰레기"
+            3    -> "시설"
             else -> "기타"
         }
         holder.ivThumbnail.setImageResource(android.R.drawable.ic_menu_gallery)

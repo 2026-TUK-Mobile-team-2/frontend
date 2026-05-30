@@ -7,7 +7,6 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fixsiheung.MainMapActivity
-import com.example.fixsiheung.NearReportAdapter
 import com.example.fixsiheung.R
 import com.example.fixsiheung.ReportActivity
 import com.example.fixsiheung.databinding.ActivityMyListBinding
@@ -20,6 +19,7 @@ class MyListActivity : AppCompatActivity() {
     private val binding by lazy { ActivityMyListBinding.inflate(layoutInflater) }
     private var isSortedByEmpathy = false
     private var currentData = listOf<Report>()
+    private lateinit var adapter: MyListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +41,13 @@ class MyListActivity : AppCompatActivity() {
         binding.tvSortOrder.text            = "최신순"
         binding.rvReportList.visibility     = View.GONE
         binding.layoutEmptyState.visibility = View.GONE
+
+        // 어댑터 초기화
+        adapter = MyListAdapter(emptyList()) { report ->
+            // TODO: 민원 상세 페이지로 이동
+        }
+        binding.rvReportList.layoutManager = LinearLayoutManager(this)
+        binding.rvReportList.adapter = adapter
 
         loadReportData(screenType)
 
@@ -105,9 +112,9 @@ class MyListActivity : AppCompatActivity() {
     private fun initChipFilter(screenType: String) {
         binding.chipGroupList.setOnCheckedStateChangeListener { _, checkedIds ->
             val categoryId: Int? = when (checkedIds.firstOrNull()) {
-                R.id.chip_trash      -> 1
-                R.id.chip_facilities -> 2
-                R.id.chip_road       -> 3
+                R.id.chip_road       -> 1
+                R.id.chip_trash      -> 2
+                R.id.chip_facilities -> 3
                 R.id.chip_any        -> 4
                 else                 -> null
             }
@@ -121,13 +128,12 @@ class MyListActivity : AppCompatActivity() {
         val sorted = when {
             screenType == "ADMIN" -> items.sortedByDescending { it.empathyCount }
             isSortedByEmpathy     -> items.sortedByDescending { it.empathyCount }
-            else -> items.sortedByDescending { it.createdAt ?: "" }
+            else                  -> items.sortedByDescending { it.createdAt ?: "" }
         }
 
         binding.tvTotalCount.text = "전체 ${sorted.size}"
 
         if (sorted.isEmpty()) {
-            binding.btnEmptyAction.visibility   = View.VISIBLE
             binding.rvReportList.visibility     = View.GONE
             binding.layoutEmptyState.visibility = View.VISIBLE
             binding.tvEmptyMessage.text = when (screenType) {
@@ -136,14 +142,13 @@ class MyListActivity : AppCompatActivity() {
                 "ADMIN"              -> "등록된 제보가 없어요."
                 else                 -> ""
             }
+            // ADMIN은 빈 상태 버튼 숨기기
+            binding.btnEmptyAction.visibility = if (screenType == "ADMIN") View.GONE else View.VISIBLE
             binding.btnEmptyAction.text = when (screenType) {
                 "MY_REPORTS"         -> "제보하러 가기"
                 "EMPATHIZED_REPORTS" -> "지도 보러 가기"
                 else                 -> "이동"
             }
-            // ADMIN은 빈 상태 버튼 숨기기
-            binding.btnEmptyAction.visibility = if (screenType == "ADMIN") View.GONE else View.VISIBLE
-
             binding.btnEmptyAction.setOnClickListener {
                 when (screenType) {
                     "MY_REPORTS"         -> startActivity(Intent(this, ReportActivity::class.java))
@@ -154,13 +159,7 @@ class MyListActivity : AppCompatActivity() {
         } else {
             binding.rvReportList.visibility     = View.VISIBLE
             binding.layoutEmptyState.visibility = View.GONE
-
-            val adapter = NearReportAdapter(sorted) { report ->
-                // TODO: 민원 상세 페이지로 이동
-            }
-            adapter.isVertical = true
-            binding.rvReportList.layoutManager = LinearLayoutManager(this)
-            binding.rvReportList.adapter = adapter
+            adapter.updateList(sorted)
         }
     }
 }
