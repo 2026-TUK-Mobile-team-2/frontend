@@ -95,7 +95,7 @@ class ReportListActivity : AppCompatActivity() {
         }
 
         binding.filterOtherbtn.setOnClickListener {
-            currentFilterId = 6
+            currentFilterId = 99
             updateDisplay()
         }
 

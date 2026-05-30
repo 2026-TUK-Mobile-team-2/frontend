@@ -18,7 +18,7 @@ class ReportAddActivity : AppCompatActivity() {
             binding.categoryDanger,   // 3
             binding.categoryRoad,     // 4
             binding.categoryNoise,    // 5
-            binding.categoryOther     // 6
+            binding.categoryOther     // 99
         )
     }
 
@@ -40,7 +40,7 @@ class ReportAddActivity : AppCompatActivity() {
         binding.categoryDanger.setOnClickListener { selectCategory(3) }
         binding.categoryRoad.setOnClickListener { selectCategory(4) }
         binding.categoryNoise.setOnClickListener { selectCategory(5) }
-        binding.categoryOther.setOnClickListener { selectCategory(6) }
+        binding.categoryOther.setOnClickListener { selectCategory(99) }
 
         // 제보하기 버튼
         binding.submitButton.setOnClickListener {
