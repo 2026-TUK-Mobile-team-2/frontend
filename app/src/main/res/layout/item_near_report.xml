@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="240dp"
+    android:layout_width="match_parent"
     android:layout_height="90dp"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_marginEnd="12dp"
@@ -68,13 +68,11 @@
             android:id="@+id/tv_report_empathy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             tools:text="❤️ 공감수"
             android:textColor="#EF4444"
             android:textSize="11sp"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_report_tag"
-            app:layout_constraintStart_toEndOf="@+id/tv_report_tag"
-            app:layout_constraintTop_toTopOf="@+id/tv_report_tag" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

@@ -2,7 +2,6 @@ package com.example.fixsiheung
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,47 +13,115 @@ class ReportListActivity : AppCompatActivity() {
     private lateinit var binding: ActivityReportListBinding
     private lateinit var reportAdapter: ReportAdapter
 
-    // 💡 [단일화] 바구니는 딱 이거 하나만 씁니다! 모든 데이터는 여기에만 담깁니다.
+    // 💡 [원본 데이터] 모든 데이터는 여기에만 담깁니다.
     private val reportDataList = arrayListOf<Report>()
+    
+    // 💡 [필터 상태] 현재 어떤 필터가 켜져 있는지 기억합니다.
+    private var currentFilterId: Int? = null
 
-    private lateinit var addReportLauncher: ActivityResultLauncher<Intent>
+    // 💡 [런처 등록] 새 제보 화면에서 들고 온 데이터를 처리하는 배달원 (클래스 레벨 선언)
+    private val addReportLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val data = result.data
+            if (data != null) {
+                val title = data.getStringExtra("intent_title") ?: ""
+                val description = data.getStringExtra("intent_content") ?: ""
+                val categoryId = data.getIntExtra("intent_category", 1)
+                val userId = data.getStringExtra("intent_writer") ?: "익명"
+
+                val newReport = Report(
+                    complaintId = (reportDataList.size + 1),
+                    userId = userId,
+                    categoryId = categoryId,
+                    title = title,
+                    description = description,
+                    latitude = 37.3,
+                    longitude = 126.7
+                )
+
+                // 마스터 바구니 맨 앞에 추가
+                reportDataList.add(0, newReport)
+
+                // 화면 갱신 및 스크롤 이동
+                updateDisplay()
+                binding.nestedScroll.smoothScrollTo(0, 0)
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityReportListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 1. [런처 등록] 새 제보 화면에서 들고 온 데이터를 처리하는 배달원
-        addReportLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-                val data = result.data
-                if (data != null) {
-                    val title = data.getStringExtra("intent_title") ?: ""
-                    val description = data.getStringExtra("intent_content") ?: ""
-                    val categoryId = data.getIntExtra("intent_category", 1)
-                    val userId = data.getStringExtra("intent_writer") ?: "익명"
+        // 1. [초기 더미 데이터 수혈]
+        initDummyData()
 
-                    val newReport = Report(
-                        complaintId = (reportDataList.size + 1),
-                        userId = userId,
-                        categoryId = categoryId,
-                        title = title,
-                        description = description,
-                        latitude = 37.3,
-                        longitude = 126.7
-                    )
+        // 2. [어댑터 연결] 
+        // 처음에 보여줄 리스트를 생성하여 넘깁니다.
+        reportAdapter = ReportAdapter(ArrayList(reportDataList))
+        binding.rvReportList.adapter = reportAdapter
+        binding.rvReportList.layoutManager = LinearLayoutManager(this)
 
-                    // 통합된 진짜 바구니(reportDataList) 맨 앞에 추가합니다.
-                    reportDataList.add(0, newReport)
-
-                    // 화면 새로고침 및 스크롤 맨 위로 이동
-                    reportAdapter.notifyDataSetChanged()
-                    binding.rvReportList.scrollToPosition(0)
-                }
-            }
+        // 3. [버튼 이벤트 리스너]
+        binding.Mainbtn.setOnClickListener {
+            finish()
         }
 
-        // 2. [초기 더미 데이터 수혈] 중복 선언을 없애고 진짜 바구니에 곧바로 데이터를 채웁니다.
+        binding.itemaddbtn.setOnClickListener {
+            val intent = Intent(this, ReportAddActivity::class.java)
+            addReportLauncher.launch(intent)
+        }
+
+        binding.sortfastbtn.setOnClickListener {
+            sortByfastCount()
+        }
+
+        binding.sortlikebtn.setOnClickListener {
+            sortByLikeCount()
+        }
+
+        // 필터 버튼들
+        binding.filterAllbtn.setOnClickListener {
+            currentFilterId = null
+            updateDisplay()
+        }
+
+        binding.filterTrashbtn.setOnClickListener {
+            currentFilterId = 1
+            updateDisplay()
+        }
+
+        binding.filterDamagedbtn.setOnClickListener {
+            currentFilterId = 2
+            updateDisplay()
+        }
+
+        binding.filterDangerbtn.setOnClickListener {
+            currentFilterId = 3
+            updateDisplay()
+        }
+
+        binding.filterRoadDangerbtn.setOnClickListener {
+            currentFilterId = 4
+            updateDisplay()
+        }
+    }
+
+    //화면 정렬
+
+    private fun updateDisplay() {
+        val filteredList = if (currentFilterId == null) {
+            reportDataList // 전체
+        } else {
+            reportDataList.filter { it.categoryId == currentFilterId }
+        }
+        
+        // 어댑터에 새로운 리스트 전달
+        reportAdapter.updateData(filteredList)
+    }
+
+    private fun initDummyData() {
         reportDataList.addAll(
             listOf(
                 Report(
@@ -62,7 +129,7 @@ class ReportListActivity : AppCompatActivity() {
                     userId = "user01",
                     categoryId = 1,
                     title = "정왕역 앞 쓰레기 무단 투기",
-                    description = "정왕역 1번 출구 앞에 쓰레기가 너무 많이 쌓여있어서 악취가 심합니다. 빨리 치워주세요.",
+                    description = "정왕역 1번 출구 앞에 쓰레기가 너무 많이 쌓여있어서 악취가 심합니다.",
                     latitude = 37.3514,
                     longitude = 126.7424,
                     address = "경기도 시흥시 정왕동 정왕역",
@@ -83,46 +150,17 @@ class ReportListActivity : AppCompatActivity() {
                 )
             )
         )
-
-        // 최신 아이디 순으로 초기 정렬
+        // 기본 최신순 정렬
         reportDataList.sortByDescending { it.complaintId }
-
-        // 3. [어댑터 딱 한 번만 연결] 진짜 바구니를 쥐어주고 리사이클러뷰에 세팅합니다.
-        reportAdapter = ReportAdapter(reportDataList)
-        binding.rvReportList.adapter = reportAdapter
-        binding.rvReportList.layoutManager = LinearLayoutManager(this)
-
-        // 4. [버튼 이벤트 리스너 세팅]
-        binding.Mainbtn.setOnClickListener {
-            finish()
-        }
-
-        binding.itemaddbtn.setOnClickListener {
-            val intent = Intent(this, ReportAddActivity::class.java)
-            addReportLauncher.launch(intent)
-        }
-
-        binding.sortfastbtn.setOnClickListener {
-            sortByfastCount()
-        }
-
-        binding.sortlikebtn.setOnClickListener {
-            sortByLikeCount()
-        }
     }
 
-    // 5. [정렬 함수 기능 복구] 진짜 바구니인 reportDataList를 정렬하도록 수정했습니다.
     private fun sortByfastCount() {
-        val sortedList = reportDataList.sortedByDescending { it.complaintId }
-        reportDataList.clear()
-        reportDataList.addAll(sortedList)
-        reportAdapter.notifyDataSetChanged()
+        reportDataList.sortByDescending { it.complaintId }
+        updateDisplay()
     }
 
     private fun sortByLikeCount() {
-        val sortedList = reportDataList.sortedByDescending { it.empathyCount }
-        reportDataList.clear()
-        reportDataList.addAll(sortedList)
-        reportAdapter.notifyDataSetChanged()
+        reportDataList.sortByDescending { it.empathyCount }
+        updateDisplay()
     }
 }
