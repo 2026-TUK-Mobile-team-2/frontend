@@ -56,7 +56,7 @@ class LoginBottomSheetFragment : BottomSheetDialogFragment() {
         }
 
         // id 입력 확인
-        binding.etEmail.addTextChangedListener {
+        binding.etId.addTextChangedListener {
             checkInputs()
         }
 
@@ -66,7 +66,7 @@ class LoginBottomSheetFragment : BottomSheetDialogFragment() {
         }
 
         binding.btnBottomSheetLogin.setOnClickListener {
-            val userId = binding.etEmail.text.toString().trim()
+            val userId = binding.etId.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
 
             val loginRequest = LoginRequest(userId = userId, password = password)
@@ -77,13 +77,19 @@ class LoginBottomSheetFragment : BottomSheetDialogFragment() {
                         // 로그인 성공! (200 OK)
                         val body = response.body()!!
                         val userName = body.name ?: "시민"
+                        val isAdmin = body.userId == "admin_user"
 
                         requireContext().getSharedPreferences("user_prefs", android.content.Context.MODE_PRIVATE)
                             .edit()
                             .putString("user_id", body.userId)
                             .putString("user_name", body.name)
+                            .putBoolean("is_admin", isAdmin)
                             .apply()
-                        Toast.makeText(requireContext(), "${userName}님 환영합니다!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            requireContext(),
+                            if (isAdmin) "${userName}님 환영합니다! (관리자)" else "${userName}님 환영합니다!",
+                            Toast.LENGTH_SHORT
+                        ).show()
 
                         val intent = Intent(requireContext(), MainMapActivity::class.java)
                         startActivity(intent)
@@ -106,7 +112,7 @@ class LoginBottomSheetFragment : BottomSheetDialogFragment() {
 
     // 아이디, 비밀번호 입력 체크
     private fun checkInputs() {
-        val id = binding.etEmail.text.toString().trim()
+        val id = binding.etId.text.toString().trim()
         val password = binding.etPassword.text.toString().trim()
 
         val isBothFilled = id.isNotEmpty() && password.isNotEmpty()

@@ -121,7 +121,7 @@ class MyListActivity : AppCompatActivity() {
         val sorted = when {
             screenType == "ADMIN" -> items.sortedByDescending { it.empathyCount }
             isSortedByEmpathy     -> items.sortedByDescending { it.empathyCount }
-            else                  -> items.sortedByDescending { it.createdAt } // createdAt으로 최신순 정렬
+            else -> items.sortedByDescending { it.createdAt ?: "" }
         }
 
         binding.tvTotalCount.text = "전체 ${sorted.size}"

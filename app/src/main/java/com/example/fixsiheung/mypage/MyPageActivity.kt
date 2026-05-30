@@ -29,8 +29,8 @@ class MyPageActivity : AppCompatActivity() {
 
         loadMyPageData()
 
-        // SharedPreferences에서 관리자 여부 불러오기
-        val isAdmin = getSharedPreferences("user_prefs", MODE_PRIVATE).getBoolean("is_admin", false)
+        val userId = getSharedPreferences("user_prefs", MODE_PRIVATE).getString("user_id", null)
+        val isAdmin = userId == "admin_user"
         binding.menuAdmin.root.visibility = if (isAdmin) View.VISIBLE else View.GONE
 
         binding.bottomNavigation.selectedItemId = R.id.nav_mypage

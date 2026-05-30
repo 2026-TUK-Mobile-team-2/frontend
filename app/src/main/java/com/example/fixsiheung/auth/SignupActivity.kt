@@ -80,10 +80,6 @@ class SignupActivity : AppCompatActivity() {
                             Toast.makeText(this@SignupActivity, "서버 네트워크 통신 오류", Toast.LENGTH_SHORT).show()
                         }
                     })
-
-                val intent = Intent(this, MainMapActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
             }
         }
     }
