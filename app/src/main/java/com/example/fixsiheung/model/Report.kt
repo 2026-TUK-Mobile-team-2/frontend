@@ -19,10 +19,22 @@ data class Report(
     val latitude: Double,
     val longitude: Double,
     val address: String? = "",
-
+    
     // 공감 수
     @SerializedName("empathy_count")
     val empathyCount: Int = 0
+
+     // 추가 : 서버에서 보내주는 진행 상태(접수, 처리중, 완료)
+    val status: String? = "",
+
+    // 추가 : 작성시간, 수정시간 
+    @SerializedName("created_at")
+    val createdAt: String? = "",
+    @SerializedName("updated_at")
+    val updatedAt: String? = "",
+
+    // 추가 : 닉네임
+    val nickname: String? = ""
 )
 
 
