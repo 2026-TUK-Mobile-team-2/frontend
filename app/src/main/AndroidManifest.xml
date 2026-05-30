@@ -30,13 +30,13 @@
             android:exported="false" />
 
         <activity
-            android:name=".MyPageActivity"
+            android:name=".mypage.MyPageActivity"
             android:exported="false" />
         <activity
             android:name=".ReportActivity"
             android:exported="false" />
         <activity
-            android:name=".ListActivity"
+            android:name=".mypage.MyListActivity"
             android:exported="false" />
 
         <activity

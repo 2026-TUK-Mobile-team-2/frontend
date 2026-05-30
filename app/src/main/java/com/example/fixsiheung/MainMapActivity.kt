@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.fixsiheung.databinding.ActivityMainMapBinding
 import com.example.fixsiheung.model.Report
+import com.example.fixsiheung.mypage.MyPageActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -211,7 +212,13 @@ class MainMapActivity : AppCompatActivity() {
 
         items.forEach { report ->
             val isHot = report.complaintId in topHotIds
-            val isNew = (now - report.createdAt) <= twentyFourH
+            val isNew = try {
+                val sdf = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
+                val date = sdf.parse(report.createdAt ?: "")
+                date != null && (now - date.time) <= twentyFourH
+            } catch (e: Exception) {
+                false
+            }
 
             val styleKey = when {
                 isHot && isNew -> "${report.categoryId}_hot_new"

@@ -9,10 +9,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.example.fixsiheung.R
 import com.example.fixsiheung.model.Report
 import com.example.fixsiheung.network.RetrofitClient
+import com.bumptech.glide.Glide
 
 class MyListAdapter(
     private var items: List<Report>,
@@ -24,7 +24,7 @@ class MyListAdapter(
         val tvTitle: TextView      = view.findViewById(R.id.tv_report_title)
         val tvTag: TextView        = view.findViewById(R.id.tv_report_tag)
         val tvEmpathy: TextView    = view.findViewById(R.id.tv_report_empathy)
-        val tvStatus: TextView     = view.findViewById(R.id.tv_report_status)
+        val tvStatus: TextView     = view.findViewById(R.id.tv_report_location)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
