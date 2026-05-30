@@ -22,7 +22,7 @@ data class Report(
     
     // 공감 수
     @SerializedName("empathy_count")
-    val empathyCount: Int = 0
+    val empathyCount: Int = 0,
 
      // 추가 : 서버에서 보내주는 진행 상태(접수, 처리중, 완료)
     val status: String? = "",
