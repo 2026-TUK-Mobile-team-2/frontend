@@ -53,7 +53,6 @@ import com.kakao.vectormap.label.LabelStyles
 
 class MainMapActivity : AppCompatActivity() {
 
-    private val binding by lazy { ActivityMainMapBinding.inflate(layoutInflater) }
     private var kakaoMap: KakaoMap? = null
     private var myLocationLabel: Label? = null
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -84,10 +83,61 @@ class MainMapActivity : AppCompatActivity() {
         }
     }
 
+    private lateinit var binding: ActivityMainMapBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // ViewBinding 연결
+        binding = ActivityMainMapBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // 하단 네비 기본 선택
+        binding.bottomNavigation.selectedItemId = R.id.nav_home
+
+        // 하단 네비 클릭 이벤트
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
+
+            when (item.itemId) {
+
+                R.id.nav_home -> {
+                    true
+                }
+
+                R.id.nav_list -> {
+
+                    val intent = Intent(this, ListActivity::class.java)
+                    startActivity(intent)
+
+                    true
+                }
+
+                R.id.nav_report -> {
+
+                    val intent = Intent(this, ReportActivity::class.java)
+                    startActivity(intent)
+
+                    true
+                }
+
+                R.id.nav_mypage -> {
+
+                    val intent = Intent(this, MyPageActivity::class.java)
+                    startActivity(intent)
+
+                    true
+                }
+
+                else -> false
+            }
+        }
+
+        // FAB 버튼 클릭
+        binding.reportFab.setOnClickListener {
+            val intent = Intent(this, ReportActivity::class.java)
+            startActivity(intent)
+        }
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         loadMockData()
