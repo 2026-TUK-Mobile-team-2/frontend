@@ -61,3 +61,21 @@ data class UserUpdateRequest(
     val password: String,
     val nickname: String
 )
+
+// =========================================================
+// 알림 및 관리자 전용 API 추가
+// =========================================================
+
+// [유저] 내 기기의 푸시 알림 토큰(FCM)을 서버에 저장
+@PUT("api/users/{user_id}/fcm-token")
+fun updateFcmToken(
+    @Path("user_id") userId: String,
+    @Body request: FcmTokenRequest
+): Call<Map<String, String>>
+
+// 특정 민원의 상태(접수/처리중/완료) 변경 및 알림 발송
+@PUT("api/complaints/{complaint_id}/status")
+fun updateComplaintStatus(
+    @Path("complaint_id") complaintId: Int,
+    @Body request: StatusUpdateRequest
+): Call<Map<String, String>>
