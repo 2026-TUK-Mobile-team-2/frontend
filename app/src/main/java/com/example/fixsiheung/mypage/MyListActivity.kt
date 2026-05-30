@@ -14,12 +14,11 @@ import com.example.fixsiheung.databinding.ActivityMyListBinding
 import com.example.fixsiheung.model.MyPageResponse
 import com.example.fixsiheung.model.Report
 import com.example.fixsiheung.network.RetrofitClient
-import kotlin.jvm.java
 
 class MyListActivity : AppCompatActivity() {
 
     private val binding by lazy { ActivityMyListBinding.inflate(layoutInflater) }
-    private var isSortedByEmpathy = false  // true: 공감순, false: 최신순
+    private var isSortedByEmpathy = false
     private var currentData = listOf<Report>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,11 +34,11 @@ class MyListActivity : AppCompatActivity() {
             else                 -> "목록"
         }
 
-        // 정렬 버튼 - 관리자는 항상 공감순이므로 숨기기
+        // 관리자는 항상 공감순이므로 정렬 버튼 숨기기
         binding.tvSortOrder.visibility = if (screenType == "ADMIN") View.GONE else View.VISIBLE
 
         binding.btnBack.setOnClickListener { finish() }
-        binding.tvSortOrder.text = "최신순"
+        binding.tvSortOrder.text            = "최신순"
         binding.rvReportList.visibility     = View.GONE
         binding.layoutEmptyState.visibility = View.GONE
 
@@ -54,20 +53,21 @@ class MyListActivity : AppCompatActivity() {
 
     private fun loadReportData(screenType: String) {
         if (screenType == "ADMIN") {
-            RetrofitClient.apiService.getAllReports().enqueue(object : retrofit2.Callback<List<Report>> {
-                override fun onResponse(call: retrofit2.Call<List<Report>>, response: retrofit2.Response<List<Report>>) {
-                    if (response.isSuccessful) {
-                        currentData = response.body() ?: emptyList()
-                        runOnUiThread {
-                            showData(currentData, screenType)
-                            initChipFilter(screenType)
+            RetrofitClient.apiService.getAllReports()
+                .enqueue(object : retrofit2.Callback<List<Report>> {
+                    override fun onResponse(call: retrofit2.Call<List<Report>>, response: retrofit2.Response<List<Report>>) {
+                        if (response.isSuccessful) {
+                            currentData = response.body() ?: emptyList()
+                            runOnUiThread {
+                                showData(currentData, screenType)
+                                initChipFilter(screenType)
+                            }
                         }
                     }
-                }
-                override fun onFailure(call: retrofit2.Call<List<Report>>, t: Throwable) {
-                    Log.e("Admin", "API 실패: ${t.message}")
-                }
-            })
+                    override fun onFailure(call: retrofit2.Call<List<Report>>, t: Throwable) {
+                        Log.e("Admin", "API 실패: ${t.message}")
+                    }
+                })
             return
         }
 
@@ -75,32 +75,31 @@ class MyListActivity : AppCompatActivity() {
             .getString("user_id", null)
 
         if (userId == null) {
-            // 로그인 안 된 상태 → 빈 화면 표시
             showData(emptyList(), screenType)
             initChipFilter(screenType)
             return
         }
 
-        RetrofitClient.apiService.getMyPage(userId).enqueue(object : retrofit2.Callback<MyPageResponse> {
-            override fun onResponse(call: retrofit2.Call<MyPageResponse>, response: retrofit2.Response<MyPageResponse>) {
-                if (response.isSuccessful) {
-                    val data = response.body() ?: return
-                    currentData = when (screenType) {
-                        "MY_REPORTS"         -> data.my_reports
-                        "EMPATHIZED_REPORTS" -> data.empathized_reports
-                        else                 -> emptyList()
-                    }
-                    runOnUiThread {
-                        showData(currentData, screenType)
-                        // API 완료 후 칩 리스너 등록
-                        initChipFilter(screenType)
+        RetrofitClient.apiService.getMyPage(userId)
+            .enqueue(object : retrofit2.Callback<MyPageResponse> {
+                override fun onResponse(call: retrofit2.Call<MyPageResponse>, response: retrofit2.Response<MyPageResponse>) {
+                    if (response.isSuccessful) {
+                        val data = response.body() ?: return
+                        currentData = when (screenType) {
+                            "MY_REPORTS"         -> data.my_reports
+                            "EMPATHIZED_REPORTS" -> data.empathized_reports
+                            else                 -> emptyList()
+                        }
+                        runOnUiThread {
+                            showData(currentData, screenType)
+                            initChipFilter(screenType)
+                        }
                     }
                 }
-            }
-            override fun onFailure(call: retrofit2.Call<MyPageResponse>, t: Throwable) {
-                Log.e("ReportList", "API 실패: ${t.message}")
-            }
-        })
+                override fun onFailure(call: retrofit2.Call<MyPageResponse>, t: Throwable) {
+                    Log.e("ReportList", "API 실패: ${t.message}")
+                }
+            })
     }
 
     private fun initChipFilter(screenType: String) {
@@ -119,38 +118,36 @@ class MyListActivity : AppCompatActivity() {
     }
 
     private fun showData(items: List<Report>, screenType: String) {
-        // 정렬 적용
         val sorted = when {
-            screenType == "ADMIN"  -> items.sortedByDescending { it.empathyCount } // 항상 공감순
-            isSortedByEmpathy      -> items.sortedByDescending { it.empathyCount }
-            else                   -> items.sortedByDescending { it.complaintId } // 최신순 정렬인데 api확인후 변경 필요
+            screenType == "ADMIN" -> items.sortedByDescending { it.empathyCount }
+            isSortedByEmpathy     -> items.sortedByDescending { it.empathyCount }
+            else                  -> items.sortedByDescending { it.createdAt } // createdAt으로 최신순 정렬
         }
 
         binding.tvTotalCount.text = "전체 ${sorted.size}"
 
         if (sorted.isEmpty()) {
-            binding.btnEmptyAction.visibility = View.VISIBLE
+            binding.btnEmptyAction.visibility   = View.VISIBLE
             binding.rvReportList.visibility     = View.GONE
             binding.layoutEmptyState.visibility = View.VISIBLE
             binding.tvEmptyMessage.text = when (screenType) {
                 "MY_REPORTS"         -> "아직 등록한 제보가 없어요."
                 "EMPATHIZED_REPORTS" -> "아직 공감한 제보가 없어요."
-                else -> "설명"
+                "ADMIN"              -> "등록된 제보가 없어요."
+                else                 -> ""
             }
             binding.btnEmptyAction.text = when (screenType) {
                 "MY_REPORTS"         -> "제보하러 가기"
-                "EMPATHIZED_REPORTS" -> "공감하러 가기"
-                else -> "이동"
+                "EMPATHIZED_REPORTS" -> "지도 보러 가기"
+                else                 -> "이동"
             }
+            // ADMIN은 빈 상태 버튼 숨기기
+            binding.btnEmptyAction.visibility = if (screenType == "ADMIN") View.GONE else View.VISIBLE
 
             binding.btnEmptyAction.setOnClickListener {
                 when (screenType) {
-                    "MY_REPORTS" -> {
-                        startActivity(Intent(this, ReportActivity::class.java))
-                    }
-                    "EMPATHIZED_REPORTS" -> {
-                        startActivity(Intent(this, MainMapActivity::class.java))
-                    }
+                    "MY_REPORTS"         -> startActivity(Intent(this, ReportActivity::class.java))
+                    "EMPATHIZED_REPORTS" -> startActivity(Intent(this, MainMapActivity::class.java))
                 }
                 finish()
             }

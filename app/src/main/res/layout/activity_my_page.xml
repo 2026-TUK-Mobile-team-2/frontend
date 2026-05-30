@@ -127,17 +127,6 @@
                         android:textColor="#1F2937"
                         android:textSize="20sp"
                         android:textStyle="bold" />
-
-                    <ImageView
-                        android:id="@+id/btn_edit_nickname"
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:layout_marginStart="8dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:src="@drawable/ic_edit"
-                        app:tint="@color/primary" />
                 </LinearLayout>
 
                 <!-- 3) 상단 공감 받은 수 종합 배지 -->

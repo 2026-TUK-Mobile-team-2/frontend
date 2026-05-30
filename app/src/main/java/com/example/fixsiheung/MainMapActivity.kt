@@ -32,13 +32,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.fixsiheung.databinding.ActivityMainMapBinding
 import com.example.fixsiheung.model.Report
+import com.example.fixsiheung.mypage.MyPageActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
 import com.kakao.vectormap.KakaoMapSdk
@@ -51,8 +51,15 @@ import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelStyles
 
+/*
+ * 지도 메인 화면
+ * - 카카오맵 표시 및 민원 마커 렌더링
+ * - 현재 위치 실시간 추적
+ * - 검색, 카테고리 필터, 주변 소식 바텀시트 제공
+ */
 class MainMapActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityMainMapBinding
     private var kakaoMap: KakaoMap? = null
     private var myLocationLabel: Label? = null
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -62,6 +69,8 @@ class MainMapActivity : AppCompatActivity() {
     private val registeredLabels = mutableListOf<Label>()
     private var allMarkerItems = listOf<Report>()
     private val cachedStyles = mutableMapOf<String, LabelStyles>()
+    private var cachedTopHotIds = listOf<Int>()
+    private var isFirstLocation = true
 
     private val schoolLatLng = LatLng.from(37.340174, 126.733593)
 
@@ -83,69 +92,20 @@ class MainMapActivity : AppCompatActivity() {
         }
     }
 
-    private lateinit var binding: ActivityMainMapBinding
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        // ViewBinding 연결
         binding = ActivityMainMapBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 하단 네비 기본 선택
-        binding.bottomNavigation.selectedItemId = R.id.nav_home
-
-        // 하단 네비 클릭 이벤트
-        binding.bottomNavigation.setOnItemSelectedListener { item ->
-
-            when (item.itemId) {
-
-                R.id.nav_home -> {
-                    true
-                }
-
-                R.id.nav_list -> {
-
-                    val intent = Intent(this, ListActivity::class.java)
-                    startActivity(intent)
-
-                    true
-                }
-
-                R.id.nav_report -> {
-
-                    val intent = Intent(this, ReportActivity::class.java)
-                    startActivity(intent)
-
-                    true
-                }
-
-                R.id.nav_mypage -> {
-
-                    val intent = Intent(this, MyPageActivity::class.java)
-                    startActivity(intent)
-
-                    true
-                }
-
-                else -> false
-            }
-        }
-
-        // FAB 버튼 클릭
-        binding.reportFab.setOnClickListener {
-            val intent = Intent(this, ReportActivity::class.java)
-            startActivity(intent)
-        }
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        loadMockData()
+
         initKakaoMap()
         initChipFilter()
         initChipStyles()
         initSearchBar()
         initNearReports()
+        initNavigation()
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -162,6 +122,9 @@ class MainMapActivity : AppCompatActivity() {
         ) {
             startLocationUpdates()
         }
+
+        // 화면 복귀 시 API로 마커 데이터 새로고침
+        loadMarkersFromApi()
     }
 
     override fun onPause() {
@@ -169,19 +132,51 @@ class MainMapActivity : AppCompatActivity() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
-    // ─── 임시 데이터 ───────────────────────────────────────────────────────────
+    // ─── 네비게이션 ────────────────────────────────────────────────────────────
 
-    private fun loadMockData() {
-        val now     = System.currentTimeMillis()
-        val oneHour = 3_600_000L
-        val oneDay  = 86_400_000L
+    private fun initNavigation() {
+        binding.bottomNavigation.selectedItemId = R.id.nav_home
 
-        allMarkerItems = listOf(
-            Report(1, "a", 1, "쓰레기 무단투기",  "정왕역 앞 골목길에 쓰레기 무단투기가 너무 심합니다.",       "접수",  37.341500, 126.732500, "경기도 시흥시 정왕동 2321",        15, now - oneHour,     now - oneHour),
-            Report(2, "b", 2, "파손된 벤치 수리", "놀이터 옆 벤치 나무가 부서져 아이들이 다칠 위험이 있습니다.", "처리중", 37.339500, 126.735000, "경기도 시흥시 정왕동 1700 공원내",  3,  now - oneDay * 2,  now - oneDay),
-            Report(3, "c", 3, "아스팔트 포트홀",  "서해안로 2차선 도로에 깊은 포트홀이 생겼습니다.",           "접수",  37.342000, 126.734000, "경기도 시흥시 정왕동 1284-4 도로", 24, now - oneDay * 3,  now - oneDay * 3),
-            Report(4, "d", 4, "가로등 소등 신고", "골목 가로등이 완전히 꺼졌습니다. 밤길이 너무 어둡습니다.",   "해결",  37.340000, 126.736500, "경기도 시흥시 정왕동 1502-1",      0,  now - oneHour / 2, now - oneHour / 2),
-        )
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_home    -> true
+                R.id.nav_list    -> {
+                    startActivity(Intent(this, ListActivity::class.java))
+                    true
+                }
+                R.id.nav_report  -> {
+                    startActivity(Intent(this, ReportActivity::class.java))
+                    true
+                }
+                R.id.nav_mypage  -> {
+                    startActivity(Intent(this, MyPageActivity::class.java))
+                    true
+                }
+                else -> false
+            }
+        }
+
+        binding.reportFab.setOnClickListener {
+            startActivity(Intent(this, ReportActivity::class.java))
+        }
+    }
+
+    // ─── API 연동 ──────────────────────────────────────────────────────────────
+    // TODO: ngrok URL 받으면 RetrofitClient BASE_URL 교체 후 주석 해제
+
+    private fun loadMarkersFromApi() {
+        // RetrofitClient.apiService.getComplaintMarkers().enqueue(object : retrofit2.Callback<List<Report>> {
+        //     override fun onResponse(call: retrofit2.Call<List<Report>>, response: retrofit2.Response<List<Report>>) {
+        //         if (response.isSuccessful) {
+        //             allMarkerItems = response.body() ?: emptyList()
+        //             cachedTopHotIds = allMarkerItems.sortedByDescending { it.empathyCount }.take(2).map { it.complaintId }
+        //             displayRegisteredMarkers(allMarkerItems)
+        //         }
+        //     }
+        //     override fun onFailure(call: retrofit2.Call<List<Report>>, t: Throwable) {
+        //         Log.e("API", "마커 로드 실패: ${t.message}")
+        //     }
+        // })
     }
 
     // ─── 지도 초기화 ───────────────────────────────────────────────────────────
@@ -241,11 +236,12 @@ class MainMapActivity : AppCompatActivity() {
 
         val now         = System.currentTimeMillis()
         val twentyFourH = 86_400_000L
-        val topHotIds   = allMarkerItems.sortedByDescending { it.empathyCount }.take(2).map { it.complaintId }
 
         items.forEach { report ->
-            val isHot = report.complaintId in topHotIds
-            val isNew = (now - report.createdAt) <= twentyFourH
+            val isHot = report.complaintId in cachedTopHotIds
+            // TODO: Report 모델에 createdAt 추가되면 isNew 로직 활성화
+            // val isNew = (now - report.createdAt) <= twentyFourH
+            val isNew = false
 
             val styleKey = when {
                 isHot && isNew -> "${report.categoryId}_hot_new"
@@ -315,10 +311,12 @@ class MainMapActivity : AppCompatActivity() {
                 CameraUpdateFactory.newCenterPosition(LatLng.from(report.latitude, report.longitude), 16),
                 CameraAnimation.from(500, true, true)
             )
-            displayRegisteredMarkers(listOf(report))
+            binding.chipAll.isChecked = true
+            displayRegisteredMarkers(allMarkerItems)
             binding.searchBar.setText(report.title)
             binding.rvSearchResults.visibility = View.GONE
             hideKeyboard()
+            binding.searchBar.clearFocus()
         }
         binding.rvSearchResults.adapter = searchAdapter
 
@@ -351,6 +349,7 @@ class MainMapActivity : AppCompatActivity() {
     }
 
     // ─── 바텀시트 (내 주변 소식) ────────────────────────────────────────────────
+    // BottomSheetBehavior 없이 고정 높이로 표시
 
     private fun initNearReports() {
         nearReportAdapter = NearReportAdapter(allMarkerItems) { report ->
@@ -358,7 +357,6 @@ class MainMapActivity : AppCompatActivity() {
                 CameraUpdateFactory.newCenterPosition(LatLng.from(report.latitude, report.longitude), 16),
                 CameraAnimation.from(500, true, true)
             )
-            BottomSheetBehavior.from(binding.layoutBottomNews).state = BottomSheetBehavior.STATE_COLLAPSED
         }
 
         binding.rvNearReports.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
@@ -368,42 +366,16 @@ class MainMapActivity : AppCompatActivity() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 val maxScroll = recyclerView.computeHorizontalScrollRange() - recyclerView.computeHorizontalScrollExtent()
                 if (maxScroll <= 0) return
-                val ratio     = recyclerView.computeHorizontalScrollOffset().toFloat() / maxScroll
-                val maxMoveX  = (binding.layoutIndicator.width - binding.viewIndicatorBar.width).toFloat()
+                val ratio    = recyclerView.computeHorizontalScrollOffset().toFloat() / maxScroll
+                val maxMoveX = (binding.layoutIndicator.width - binding.viewIndicatorBar.width).toFloat()
                 binding.viewIndicatorBar.translationX = ratio * maxMoveX
             }
         })
 
-        BottomSheetBehavior.from(binding.layoutBottomNews)
-            .addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-                override fun onStateChanged(bottomSheet: View, newState: Int) {
-                    if (nearReportAdapter.itemCount == 0) {
-                        binding.rvNearReports.visibility   = View.GONE
-                        binding.layoutIndicator.visibility = View.GONE
-                        binding.tvNoReports.visibility     = View.VISIBLE
-                        return
-                    }
-                    when (newState) {
-                        BottomSheetBehavior.STATE_EXPANDED -> {
-                            binding.rvNearReports.layoutManager = LinearLayoutManager(this@MainMapActivity, LinearLayoutManager.VERTICAL, false)
-                            binding.rvNearReports.recycledViewPool.clear()
-                            nearReportAdapter.isVertical = true
-                            nearReportAdapter.notifyDataSetChanged()
-                            binding.layoutIndicator.visibility = View.GONE
-                            binding.tvNoReports.visibility     = View.GONE
-                        }
-                        BottomSheetBehavior.STATE_COLLAPSED -> {
-                            binding.rvNearReports.layoutManager = LinearLayoutManager(this@MainMapActivity, LinearLayoutManager.HORIZONTAL, false)
-                            binding.rvNearReports.recycledViewPool.clear()
-                            nearReportAdapter.isVertical = false
-                            nearReportAdapter.notifyDataSetChanged()
-                            binding.layoutIndicator.visibility = View.VISIBLE
-                            binding.tvNoReports.visibility     = View.GONE
-                        }
-                    }
-                }
-                override fun onSlide(bottomSheet: View, slideOffset: Float) {}
-            })
+        // 전체보기 클릭 시 목록 화면으로 이동
+        binding.tvViewAll.setOnClickListener {
+            startActivity(Intent(this, ListActivity::class.java))
+        }
     }
 
     // ─── 현재 위치 ─────────────────────────────────────────────────────────────
@@ -425,10 +397,17 @@ class MainMapActivity : AppCompatActivity() {
             } else {
                 myLocationLabel?.moveTo(myPosition)
             }
-            kakaoMap?.moveCamera(CameraUpdateFactory.newCenterPosition(myPosition))
+
+            // 최초 1회만 카메라 이동
+            if (isFirstLocation) {
+                kakaoMap?.moveCamera(CameraUpdateFactory.newCenterPosition(myPosition))
+                isFirstLocation = false
+            }
+
             updateNearReports(location)
         }
     }
+
     private fun updateNearReports(location: Location) {
         val results = FloatArray(1)
         val nearReports = allMarkerItems
@@ -446,11 +425,9 @@ class MainMapActivity : AppCompatActivity() {
             binding.tvNoReports.visibility     = View.VISIBLE
             nearReportAdapter.updateList(emptyList())
         } else {
-            val behavior = BottomSheetBehavior.from(binding.layoutBottomNews)
             binding.tvNoReports.visibility     = View.GONE
             binding.rvNearReports.visibility   = View.VISIBLE
-            binding.layoutIndicator.visibility =
-                if (behavior.state == BottomSheetBehavior.STATE_EXPANDED) View.GONE else View.VISIBLE
+            binding.layoutIndicator.visibility = View.VISIBLE
             nearReportAdapter.updateList(nearReports)
         }
     }
