@@ -9,8 +9,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.fixsiheung.R
 import com.example.fixsiheung.model.Report
+import com.example.fixsiheung.network.RetrofitClient
 
 class MyListAdapter(
     private var items: List<Report>,
@@ -64,11 +66,34 @@ class MyListAdapter(
         holder.tvStatus.backgroundTintList = ColorStateList.valueOf(Color.parseColor(bgColor))
         holder.tvStatus.setTextColor(Color.parseColor(textColor))
 
-        // TODO: 이미지 URL 연동 후 Glide로 교체
-        holder.ivThumbnail.setImageResource(android.R.drawable.ic_menu_gallery)
-        holder.ivThumbnail.setColorFilter(Color.parseColor("#9CA3AF"))
-
-        holder.itemView.setOnClickListener { onItemClick(report) }
+        if (!report.imageUrl.isNullOrEmpty()) {
+            val fixedUrl = report.imageUrl.replace("127.0.0.1", "10.0.2.2")
+            holder.ivThumbnail.clearColorFilter()
+            Glide.with(holder.itemView.context)
+                .load(fixedUrl)
+                .placeholder(android.R.drawable.ic_menu_gallery)
+                .error(android.R.drawable.ic_menu_gallery)
+                .centerCrop()
+                .into(holder.ivThumbnail)
+        } else {
+            // imageUrl 없으면 상세 조회
+            RetrofitClient.apiService.getComplaintDetail(report.complaintId)
+                .enqueue(object : retrofit2.Callback<Report> {
+                    override fun onResponse(call: retrofit2.Call<Report>, response: retrofit2.Response<Report>) {
+                        if (response.isSuccessful) {
+                            val detail = response.body() ?: return
+                            val fixedUrl = detail.imageUrl?.replace("127.0.0.1", "10.0.2.2") ?: return
+                            Glide.with(holder.itemView.context)
+                                .load(fixedUrl)
+                                .placeholder(android.R.drawable.ic_menu_gallery)
+                                .error(android.R.drawable.ic_menu_gallery)
+                                .centerCrop()
+                                .into(holder.ivThumbnail)
+                        }
+                    }
+                    override fun onFailure(call: retrofit2.Call<Report>, t: Throwable) {}
+                })
+        }
     }
 
     override fun getItemCount() = items.size

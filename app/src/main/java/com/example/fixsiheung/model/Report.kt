@@ -34,7 +34,7 @@ data class Report(
     val updatedAt: String? = "",
 
     // 추가 : 닉네임
-    val nickname: String? = ""
+    val nickname: String? = "",
     // 추가 : 이미지
     @SerializedName("image_url")
     val imageUrl: String? = null
@@ -86,4 +86,16 @@ data class StatusUpdateRequest(
 // 로그인/앱 실행 시 내 폰의 푸시 알림 주소(FCM 토큰)를 서버로 보낼 데이터
 data class FcmTokenRequest(
     @SerializedName("fcm_token") val fcmToken: String
+)
+
+
+// 알림 상태
+data class Notification(
+    val id: Int,
+    val type: String,        // "status" / "empathy" / "new_complaint"
+    val title: String,
+    val message: String,
+    @SerializedName("complaint_id") val complaintId: Int? = null,
+    @SerializedName("is_read") val isRead: Boolean = false,
+    @SerializedName("created_at") val createdAt: String? = ""
 )
