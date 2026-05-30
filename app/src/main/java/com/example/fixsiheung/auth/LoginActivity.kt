@@ -17,7 +17,7 @@ class LoginActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(binding.root)
 
-        //임시 버튼
+        //임시 버튼 제거 필수!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         binding.test.setOnClickListener {
             val intent = Intent(this, MainMapActivity::class.java)
             startActivity(intent)

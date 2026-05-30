@@ -1,5 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
+
+    // 앱 푸시알림 설정
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -61,9 +64,14 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    // 이미지 로딩 라이브러리
+    implementation("com.github.bumptech.glide:glide:4.16.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // 앱 푸시알림 설정
+    implementation("com.google.firebase:firebase-messaging:23.4.0")
 
     // 카카오 맵 SDK 추가 (버전은 최신으로 확인 필요)
     implementation("com.kakao.maps.open:android:2.13.1")

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "524236135802",
+    "project_id": "fixsiheung",
+    "storage_bucket": "fixsiheung.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:524236135802:android:8526d53121f4bf003e8ac3",
+        "android_client_info": {
+          "package_name": "com.example.fixsiheung"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC09Tq10mOYos8U2QGCXcaPX5RTyRMRmho"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

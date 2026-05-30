@@ -87,3 +87,15 @@ data class StatusUpdateRequest(
 data class FcmTokenRequest(
     @SerializedName("fcm_token") val fcmToken: String
 )
+
+
+// 알림 상태
+data class Notification(
+    val id: Int,
+    val type: String,        // "status" / "empathy" / "new_complaint"
+    val title: String,
+    val message: String,
+    @SerializedName("complaint_id") val complaintId: Int? = null,
+    @SerializedName("is_read") val isRead: Boolean = false,
+    @SerializedName("created_at") val createdAt: String? = ""
+)

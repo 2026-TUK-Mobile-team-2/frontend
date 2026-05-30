@@ -1,13 +1,7 @@
 package com.example.fixsiheung.auth
 
-import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.fixsiheung.R
 
 class  SignupViewModel : ViewModel() {
     val nickname = MutableLiveData<String>("")

@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.fixsiheung.databinding.ActivityMainMapBinding
 import com.example.fixsiheung.model.Report
+import com.example.fixsiheung.mypage.MyPageActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -211,7 +212,13 @@ class MainMapActivity : AppCompatActivity() {
 
         items.forEach { report ->
             val isHot = report.complaintId in topHotIds
-            val isNew = (now - report.createdAt) <= twentyFourH
+            val isNew = try {
+                val sdf = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
+                val date = sdf.parse(report.createdAt ?: "")
+                date != null && (now - date.time) <= twentyFourH
+            } catch (e: Exception) {
+                false
+            }
 
             val styleKey = when {
                 isHot && isNew -> "${report.categoryId}_hot_new"
@@ -519,6 +526,7 @@ class SearchResultAdapter(
 // ─── 주변 소식 어댑터 ─────────────────────────────────────────────────────────
 
 class NearReportAdapter(
+
     private var items: List<Report>,
     private val onItemClick: (Report) -> Unit
 ) : RecyclerView.Adapter<NearReportAdapter.ViewHolder>() {
@@ -530,6 +538,8 @@ class NearReportAdapter(
         val tvTitle: TextView      = view.findViewById(R.id.tv_report_title)
         val tvTag: TextView        = view.findViewById(R.id.tv_report_tag)
         val tvEmpathy: TextView    = view.findViewById(R.id.tv_report_empathy)
+        val tvStatus: TextView     = view.findViewById(R.id.tv_report_status)   // 추가
+        val tvLocation: TextView   = view.findViewById(R.id.tv_report_location) // 추가
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -554,13 +564,32 @@ class NearReportAdapter(
         holder.tvTitle.text   = item.title
         holder.tvEmpathy.text = "❤️ ${item.empathyCount}"
         holder.tvTag.text     = when (item.categoryId) {
-            1    -> "쓰레기"
-            2    -> "시설파손"
-            3    -> "안전위험"
-            4    -> "도로위험"
-            5    -> "소음"
-            else -> "기타"
+            1    -> "도로"
+            2    -> "쓰레기"
+            3    -> "시설"
+            4    -> "기타"
+            else -> "null"
         }
+
+// 상태 표시
+        holder.tvStatus.text = when (item.status) {
+            "접수", "접수완료" -> "접수완료"
+            "처리중"           -> "처리중"
+            "완료", "처리완료" -> "처리완료"
+            else               -> item.status ?: "접수완료"
+        }
+        val (bgColor, textColor) = when (item.status) {
+            "접수완료", "접수" -> "#E5E7EB" to "#4B5563"
+            "처리중"           -> "#FEF3C7" to "#B45309"
+            "처리완료", "완료" -> "#D1FAE5" to "#065F46"
+            else               -> "#F3F4F6" to "#6B7280"
+        }
+        holder.tvStatus.backgroundTintList = ColorStateList.valueOf(Color.parseColor(bgColor))
+        holder.tvStatus.setTextColor(Color.parseColor(textColor))
+
+        // 주소 표시
+        holder.tvLocation.text = item.address ?: ""
+
         holder.ivThumbnail.setImageResource(android.R.drawable.ic_menu_gallery)
         holder.ivThumbnail.setColorFilter(Color.parseColor("#9CA3AF"))
         holder.itemView.setOnClickListener { onItemClick(item) }

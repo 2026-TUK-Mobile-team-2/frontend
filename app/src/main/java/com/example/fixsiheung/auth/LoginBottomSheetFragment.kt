@@ -56,7 +56,7 @@ class LoginBottomSheetFragment : BottomSheetDialogFragment() {
         }
 
         // id 입력 확인
-        binding.etEmail.addTextChangedListener {
+        binding.etId.addTextChangedListener {
             checkInputs()
         }
 
@@ -66,7 +66,7 @@ class LoginBottomSheetFragment : BottomSheetDialogFragment() {
         }
 
         binding.btnBottomSheetLogin.setOnClickListener {
-            val userId = binding.etEmail.text.toString().trim()
+            val userId = binding.etId.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
 
             val loginRequest = LoginRequest(userId = userId, password = password)
@@ -75,13 +75,46 @@ class LoginBottomSheetFragment : BottomSheetDialogFragment() {
                 override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                     if (response.isSuccessful && response.body() != null) {
                         // 로그인 성공! (200 OK)
-                        val userName = response.body()?.name ?: "시민"
-                        Toast.makeText(requireContext(), "${userName}님 환영합니다!", Toast.LENGTH_SHORT).show()
+                        val body = response.body()!!
+                        val userName = body.name ?: "시민"
+                        val isAdmin = body.userId == "admin_user"
 
-                        val intent = Intent(requireContext(), MainMapActivity::class.java)
-                        startActivity(intent)
-                        activity?.finish()
-                        dismiss()
+                        requireContext().getSharedPreferences("user_prefs", android.content.Context.MODE_PRIVATE)
+                            .edit()
+                            .putString("user_id", body.userId)
+                            .putString("user_name", body.name)
+                            .putBoolean("is_admin", isAdmin)
+                            .apply()
+                        Toast.makeText(
+                            requireContext(),
+                            if (isAdmin) "${userName}님 환영합니다! (관리자)" else "${userName}님 환영합니다!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        com.google.firebase.messaging.FirebaseMessaging.getInstance().token
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    val token = task.result
+                                    RetrofitClient.apiService.updateFcmToken(
+                                        body.userId,
+                                        com.example.fixsiheung.model.FcmTokenRequest(token)
+                                    ).enqueue(object : retrofit2.Callback<Map<String, String>> {
+                                        override fun onResponse(
+                                            call: retrofit2.Call<Map<String, String>>,
+                                            response: retrofit2.Response<Map<String, String>>
+                                        ) {
+                                            Log.d("FCM", "토큰 전송 성공")
+                                        }
+                                        override fun onFailure(call: retrofit2.Call<Map<String, String>>, t: Throwable) {
+                                            Log.e("FCM", "토큰 전송 실패: ${t.message}")
+                                        }
+                                    })
+                                }
+                                val intent = Intent(requireContext(), MainMapActivity::class.java)
+                                startActivity(intent)
+                                activity?.finish()
+                                dismiss()
+                            }
                     } else {
                         // 아이디나 비밀번호가 틀렸을 때 (401 에러)
                         Toast.makeText(requireContext(), "아이디 또는 비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show()
@@ -99,7 +132,7 @@ class LoginBottomSheetFragment : BottomSheetDialogFragment() {
 
     // 아이디, 비밀번호 입력 체크
     private fun checkInputs() {
-        val id = binding.etEmail.text.toString().trim()
+        val id = binding.etId.text.toString().trim()
         val password = binding.etPassword.text.toString().trim()
 
         val isBothFilled = id.isNotEmpty() && password.isNotEmpty()
