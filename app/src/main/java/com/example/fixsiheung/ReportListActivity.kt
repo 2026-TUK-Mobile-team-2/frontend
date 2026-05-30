@@ -12,14 +12,9 @@ class ReportListActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityReportListBinding
     private lateinit var reportAdapter: ReportAdapter
-
-    // 💡 [원본 데이터] 모든 데이터는 여기에만 담깁니다.
     private val reportDataList = arrayListOf<Report>()
-
-    // 💡 [필터 상태] 현재 어떤 필터가 켜져 있는지 기억합니다.
     private var currentFilterId: Int? = null
 
-    // 💡 [런처 등록] 새 제보 화면에서 들고 온 데이터를 처리하는 배달원
     private val addReportLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
             val data = result.data
@@ -39,27 +34,23 @@ class ReportListActivity : AppCompatActivity() {
                     longitude = 126.7
                 )
 
-                // 마스터 바구니 맨 앞에 추가
                 reportDataList.add(0, newReport)
 
-                // 필터 상태 유지하면서 화면 새로고침
                 updateDisplay()
                 binding.rvReportList.scrollToPosition(0)
             }
         }
     }
 
-    // 🛠️ [긴급 수리] 사라졌던 onCreate 선언부를 다시 만들고 중괄호 짝을 완벽히 맞췄습니다.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityReportListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 초기 데이터 세팅 및 리사이클러뷰 준비
         initDummyData()
         initRecyclerView()
 
-        // 버튼 클릭 이벤트 리스너들 등록
+        // ───────────── 정렬 버튼들 ─────────────────────
         binding.itemaddbtn.setOnClickListener {
             val intent = Intent(this, ReportAddActivity::class.java)
             addReportLauncher.launch(intent)
@@ -73,7 +64,6 @@ class ReportListActivity : AppCompatActivity() {
             sortByLikeCount()
         }
 
-        // 필터 버튼 클릭 리스너들
         binding.filterAllbtn.setOnClickListener {
             currentFilterId = null
             updateDisplay()
@@ -94,20 +84,29 @@ class ReportListActivity : AppCompatActivity() {
             updateDisplay()
         }
 
-        binding.filterRoadDangerbtn.setOnClickListener {
+        binding.filterRoadbtn.setOnClickListener {
             currentFilterId = 4
             updateDisplay()
         }
 
-        // 메인 지도 화면으로 돌아가는 버튼 리스너
+        binding.filterNoisebtn.setOnClickListener {
+            currentFilterId = 5
+            updateDisplay()
+        }
+
+        binding.filterOtherbtn.setOnClickListener {
+            currentFilterId = 6
+            updateDisplay()
+        }
+
+        //──────────────────────────────────
+
+        // 메인화면가는 버튼 (메뉴바에 통합해야함)
         binding.Mainbtn.setOnClickListener {
             finish()
         }
     }
 
-    /**
-     * 리사이클러뷰 초기 연결 함수
-     */
     private fun initRecyclerView() {
         reportAdapter = ReportAdapter(reportDataList)
         binding.rvReportList.layoutManager = LinearLayoutManager(this)
@@ -115,23 +114,15 @@ class ReportListActivity : AppCompatActivity() {
         updateDisplay() // 초기 정렬 상태에 맞게 화면 갱신
     }
 
-    /**
-     * 필터 상태를 유지한 채 어댑터에 데이터를 갱신하는 핵심 함수
-     */
     private fun updateDisplay() {
         val filteredList = if (currentFilterId == null) {
-            reportDataList // 전체 보기
+            reportDataList
         } else {
-            reportDataList.filter { it.categoryId == currentFilterId } // 카테고리 필터링
+            reportDataList.filter { it.categoryId == currentFilterId }
         }
-
-        // 어댑터에 정렬/필터링된 새로운 리스트만 쏙 전달
         reportAdapter.updateData(filteredList)
     }
 
-    /**
-     * 초기 더미 데이터 생성
-     */
     private fun initDummyData() {
         reportDataList.addAll(
             listOf(
@@ -159,20 +150,17 @@ class ReportListActivity : AppCompatActivity() {
                 )
             )
         )
-        // 기본 정렬: 최신순 (complaintId가 높은 순서가 맨 위로)
         reportDataList.sortByDescending { it.complaintId }
     }
 
-    // ─── 정렬 로직 구역 (중복 코드 완벽 컷!) ───────────────────────────────────────
+    // ─── 정렬 로직 구역 ───────────────────────────────────────
 
     private fun sortByfastCount() {
-        // 원본 데이터를 최신 id순으로 정렬한 뒤 필터 유지한 채 화면 갱신
         reportDataList.sortByDescending { it.complaintId }
         updateDisplay()
     }
 
     private fun sortByLikeCount() {
-        // 원본 데이터를 공감 많은 순으로 정렬한 뒤 필터 유지한 채 화면 갱신
         reportDataList.sortByDescending { it.empathyCount }
         updateDisplay()
     }

@@ -558,6 +558,7 @@ class NearReportAdapter(
             2    -> "시설파손"
             3    -> "안전위험"
             4    -> "도로위험"
+            5    -> "소음"
             else -> "기타"
         }
         holder.ivThumbnail.setImageResource(android.R.drawable.ic_menu_gallery)

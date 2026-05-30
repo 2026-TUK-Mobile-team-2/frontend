@@ -63,10 +63,9 @@ class ReportAdapter(private var reportList: List<Report>) :
                 2 -> "시설파손"
                 3 -> "안전위험"
                 4 -> "도로위험"
+                5 -> "소음공해"
                 else -> "기타"
             }
-
-            // 3. 기본 이미지 썸네일 설정 및 회색 필터 세팅
             binding.ivReportThumbnail.setImageResource(android.R.drawable.ic_menu_gallery)
             binding.ivReportThumbnail.setColorFilter(Color.parseColor("#9CA3AF"))
         }

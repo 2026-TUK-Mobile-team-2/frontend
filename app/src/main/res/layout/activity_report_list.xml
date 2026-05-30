@@ -160,8 +160,9 @@
                     <Button android:id="@+id/filterTrashbtn" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="쓰레기" android:layout_marginEnd="6dp" style="?android:attr/buttonStyleSmall"/>
                     <Button android:id="@+id/filterDamagedbtn" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="시설파손" android:layout_marginEnd="6dp" style="?android:attr/buttonStyleSmall"/>
                     <Button android:id="@+id/filterDangerbtn" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="안전위험" android:layout_marginEnd="6dp" style="?android:attr/buttonStyleSmall"/>
-                    <Button android:id="@+id/filterRoadDangerbtn" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="도로위험" style="?android:attr/buttonStyleSmall"/>
-
+                    <Button android:id="@+id/filterRoadbtn" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="도로위험" style="?android:attr/buttonStyleSmall"/>
+                    <Button android:id="@+id/filterNoisebtn" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="소음공해" style="?android:attr/buttonStyleSmall"/>
+                    <Button android:id="@+id/filterOtherbtn" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="기타" style="?android:attr/buttonStyleSmall"/>
                 </LinearLayout>
             </HorizontalScrollView>
 

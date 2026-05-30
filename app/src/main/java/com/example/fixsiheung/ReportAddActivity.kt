@@ -1,4 +1,3 @@
-// 🛠️ ReportAddActivity.kt 파일 전체에 덮어씌우기
 package com.example.fixsiheung
 
 import android.content.Intent
@@ -10,43 +9,75 @@ import com.example.fixsiheung.databinding.ActivityReportAddBinding
 class ReportAddActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityReportAddBinding
+    private var selectedCategoryId: Int = 1 // 기본값: 쓰레기
+
+    private val categoryViews by lazy {
+        listOf(
+            binding.categoryTrash,    // 1
+            binding.categoryDamaged,  // 2
+            binding.categoryDanger,   // 3
+            binding.categoryRoad,     // 4
+            binding.categoryNoise,    // 5
+            binding.categoryOther     // 6
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityReportAddBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        supportActionBar?.title = "민원 제보하기"
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        updateCategoryUI(1)
 
-        // 💡 민원 신청하기 버튼 클릭 이벤트
-        binding.btnSubmit.setOnClickListener {
-            val title = binding.addTitle.text.toString().trim()
-            val category = binding.addCategory.text.toString().trim()
-            val location = binding.addLocation.text.toString().trim()
-            val content = binding.addContent.text.toString().trim()
+        // 닫기 버튼
+        binding.closeButton.setOnClickListener {
+            finish()
+        }
 
-            // 하나라도 안 적은 칸이 있으면 경고 문구를 띄우고 진행을 막습니다.
-            if (title.isEmpty() || category.isEmpty() || location.isEmpty() || content.isEmpty()) {
-                Toast.makeText(this, "모든 항목을 입력해 주세요.", Toast.LENGTH_SHORT).show()
+        // ─── 카테고리 클릭 리스너 설정 ───
+        binding.categoryTrash.setOnClickListener { selectCategory(1) }
+        binding.categoryDamaged.setOnClickListener { selectCategory(2) }
+        binding.categoryDanger.setOnClickListener { selectCategory(3) }
+        binding.categoryRoad.setOnClickListener { selectCategory(4) }
+        binding.categoryNoise.setOnClickListener { selectCategory(5) }
+        binding.categoryOther.setOnClickListener { selectCategory(6) }
+
+        // 제보하기 버튼
+        binding.submitButton.setOnClickListener {
+            val title = binding.reportTitle.text.toString().trim()
+            val content = binding.reportDescription.text.toString().trim()
+            val location = "시흥시 정왕동 부근"
+
+            if (title.isEmpty() || content.isEmpty()) {
+                Toast.makeText(this, "제목과 상세 내용을 모두 입력해 주세요.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // 📦 인텐트(택배 상자) 생성 후 데이터 집어넣기
-            val resultIntent = Intent()
-            resultIntent.putExtra("intent_title", title)
-            resultIntent.putExtra("intent_category", category)
-            resultIntent.putExtra("intent_location", location)
-            resultIntent.putExtra("intent_content", content)
+            val resultIntent = Intent().apply {
+                putExtra("intent_title", title)
+                putExtra("intent_category", selectedCategoryId)
+                putExtra("intent_location", location)
+                putExtra("intent_content", content)
+                putExtra("intent_writer", "익명") // 작성자 정보 추가
+            }
 
-            // 결과 성공(RESULT_OK) 신호와 함께 택배 보내기
             setResult(RESULT_OK, resultIntent)
-            finish() // 제보 화면을 종료하고 리스트 화면으로 돌아감
+            finish()
         }
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        finish()
-        return true
+    private fun selectCategory(id: Int) {
+        selectedCategoryId = id
+        updateCategoryUI(id)
+    }
+
+    private fun updateCategoryUI(selectedIndex: Int) {
+        categoryViews.forEachIndexed { index, view ->
+            if (index == selectedIndex - 1) {
+                view.setBackgroundResource(R.drawable.re_category_selected_bg)
+            } else {
+                view.setBackgroundResource(R.drawable.re_category_unselected_bg)
+            }
+        }
     }
 }
