@@ -61,3 +61,14 @@ data class UserUpdateRequest(
     val password: String,
     val nickname: String
 )
+
+// 관리자가 민원 상태를 변경할 때 서버로 보낼 데이터
+data class StatusUpdateRequest(
+    @SerializedName("user_id") val userId: String, // 변경을 요청하는 관리자의 ID
+    val status: String                             // "처리중", "완료" 등
+)
+
+// 로그인/앱 실행 시 내 폰의 푸시 알림 주소(FCM 토큰)를 서버로 보낼 데이터
+data class FcmTokenRequest(
+    @SerializedName("fcm_token") val fcmToken: String
+)
