@@ -98,60 +98,32 @@ class MainMapActivity : AppCompatActivity() {
 
         // 하단 네비 클릭 이벤트
         binding.bottomNavigation.setOnItemSelectedListener { item ->
-
             when (item.itemId) {
-
                 R.id.nav_home -> {
+                    // 현재 지도 화면이므로 홈 클릭 시 별도 동작 없음
                     true
                 }
-
                 R.id.nav_list -> {
-
-                    val intent = Intent(this, ListActivity::class.java)
+                    val intent = Intent(this, ReportListActivity::class.java)
                     startActivity(intent)
-
                     true
                 }
-
                 R.id.nav_report -> {
-
-                    val intent = Intent(this, ReportActivity::class.java)
+                    val intent = Intent(this, ReportAddActivity::class.java)
                     startActivity(intent)
-
                     true
                 }
 
                 R.id.nav_mypage -> {
-
                     val intent = Intent(this, MyPageActivity::class.java)
                     startActivity(intent)
-
                     true
                 }
-
                 else -> false
             }
         }
 
-        // FAB 버튼 클릭
-        binding.reportFab.setOnClickListener {
-            val intent = Intent(this, ReportActivity::class.java)
-            startActivity(intent)
-        }
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        loadMockData()
-        initKakaoMap()
-        initChipFilter()
-        initChipStyles()
-        initSearchBar()
-        initNearReports()
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+        //--------------------
     }
 
     override fun onResume() {
@@ -176,12 +148,6 @@ class MainMapActivity : AppCompatActivity() {
         val oneHour = 3_600_000L
         val oneDay  = 86_400_000L
 
-        allMarkerItems = listOf(
-            Report(1, "a", 1, "쓰레기 무단투기",  "정왕역 앞 골목길에 쓰레기 무단투기가 너무 심합니다.",       "접수",  37.341500, 126.732500, "경기도 시흥시 정왕동 2321",        15, now - oneHour,     now - oneHour),
-            Report(2, "b", 2, "파손된 벤치 수리", "놀이터 옆 벤치 나무가 부서져 아이들이 다칠 위험이 있습니다.", "처리중", 37.339500, 126.735000, "경기도 시흥시 정왕동 1700 공원내",  3,  now - oneDay * 2,  now - oneDay),
-            Report(3, "c", 3, "아스팔트 포트홀",  "서해안로 2차선 도로에 깊은 포트홀이 생겼습니다.",           "접수",  37.342000, 126.734000, "경기도 시흥시 정왕동 1284-4 도로", 24, now - oneDay * 3,  now - oneDay * 3),
-            Report(4, "d", 4, "가로등 소등 신고", "골목 가로등이 완전히 꺼졌습니다. 밤길이 너무 어둡습니다.",   "해결",  37.340000, 126.736500, "경기도 시흥시 정왕동 1502-1",      0,  now - oneHour / 2, now - oneHour / 2),
-        )
     }
 
     // ─── 지도 초기화 ───────────────────────────────────────────────────────────
@@ -589,8 +555,10 @@ class NearReportAdapter(
         holder.tvEmpathy.text = "❤️ ${item.empathyCount}"
         holder.tvTag.text     = when (item.categoryId) {
             1    -> "쓰레기"
-            2    -> "시설"
-            3    -> "도로"
+            2    -> "시설파손"
+            3    -> "안전위험"
+            4    -> "도로위험"
+            5    -> "소음"
             else -> "기타"
         }
         holder.ivThumbnail.setImageResource(android.R.drawable.ic_menu_gallery)

@@ -15,7 +15,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FixSiheung"
         android:usesCleartextTraffic="true">
-
         <activity
             android:name=".SplashActivity"
             android:exported="true">
@@ -41,12 +40,22 @@
             android:exported="false" />
 
         <activity
+            android:name=".ReportAddActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ReportDetailActivity"
+            android:exported="false"
+            android:parentActivityName=".ReportListActivity" />
+        <activity
+            android:name=".ReportListActivity"
+            android:exported="false"
+            android:parentActivityName=".MainMapActivity" />
+        <activity
             android:name=".auth.SignupActivity"
             android:exported="false" />
         <activity
             android:name=".auth.LoginActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true" />
 
         <meta-data
             android:name="com.kakao.sdk.AppKey"

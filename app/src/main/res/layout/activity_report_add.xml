@@ -94,13 +94,15 @@
 
             <!-- 선택된 버튼 -->
             <LinearLayout
+                android:id="@+id/categoryTrash"
                 android:layout_width="0dp"
                 android:layout_height="100dp"
                 android:layout_columnWeight="1"
+                android:clickable="true"
                 android:orientation="vertical"
                 android:gravity="center"
                 android:layout_margin="6dp"
-                android:background="@drawable/re_category_selected_bg">
+                android:background="@drawable/re_category_unselected_bg">
 
                 <TextView
                     android:text="🗑"
@@ -111,7 +113,7 @@
 
                 <TextView
                     android:text="쓰레기"
-                    android:textColor="#FFFFFF"
+                    android:textColor="#94A3B8"
                     android:textStyle="bold"
                     android:textSize="12sp"
                     android:layout_marginTop="8dp"
@@ -121,9 +123,11 @@
 
             <!-- 일반 버튼들 -->
             <LinearLayout
+                android:id="@+id/categoryDamaged"
                 android:layout_width="0dp"
                 android:layout_height="100dp"
                 android:layout_columnWeight="1"
+                android:clickable="true"
                 android:orientation="vertical"
                 android:gravity="center"
                 android:layout_margin="6dp"
@@ -146,9 +150,11 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/categoryDanger"
                 android:layout_width="0dp"
                 android:layout_height="100dp"
                 android:layout_columnWeight="1"
+                android:clickable="true"
                 android:orientation="vertical"
                 android:gravity="center"
                 android:layout_margin="6dp"
@@ -171,9 +177,11 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/categoryRoad"
                 android:layout_width="0dp"
                 android:layout_height="100dp"
                 android:layout_columnWeight="1"
+                android:clickable="true"
                 android:orientation="vertical"
                 android:gravity="center"
                 android:layout_margin="6dp"
@@ -196,9 +204,11 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/categoryNoise"
                 android:layout_width="0dp"
                 android:layout_height="100dp"
                 android:layout_columnWeight="1"
+                android:clickable="true"
                 android:orientation="vertical"
                 android:gravity="center"
                 android:layout_margin="6dp"
@@ -221,9 +231,11 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/categoryOther"
                 android:layout_width="0dp"
                 android:layout_height="100dp"
                 android:layout_columnWeight="1"
+                android:clickable="true"
                 android:orientation="vertical"
                 android:gravity="center"
                 android:layout_margin="6dp"
