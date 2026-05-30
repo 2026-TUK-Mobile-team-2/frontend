@@ -1,44 +1,66 @@
 package com.example.fixsiheung
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fixsiheung.databinding.ActivityListBinding
 import com.example.fixsiheung.model.Report
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class ReportListActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityListBinding
     private lateinit var reportAdapter: ReportAdapter
-    private val reportDataList = arrayListOf<Report>()
+
+    private val masterReportList = arrayListOf<Report>()
+
     private var currentFilterId: Int? = null
+    private var currentSortType: String = "FAST"
+
+    private val categoryButtons by lazy {
+        listOf(
+            binding.filterAllbtn,
+            binding.filterTrashbtn,
+            binding.filterDamagedbtn,
+            binding.filterDangerbtn,
+            binding.filterRoadbtn,
+            binding.filterNoisebtn,
+            binding.filterOtherbtn
+        )
+    }
 
     private val addReportLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
-            val data = result.data
-            if (data != null) {
-                val title = data.getStringExtra("intent_title") ?: ""
-                val description = data.getStringExtra("intent_content") ?: ""
-                val categoryId = data.getIntExtra("intent_category", 1)
-                val userId = data.getStringExtra("intent_writer") ?: "익명"
+            val data = result.data ?: return@registerForActivityResult
 
-                val newReport = Report(
-                    complaintId = (reportDataList.size + 1),
-                    userId = userId,
-                    categoryId = categoryId,
-                    title = title,
-                    description = description,
-                    latitude = 37.3,
-                    longitude = 126.7
-                )
+            val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+            val currentDateTimeString = sdf.format(java.util.Date())
 
-                reportDataList.add(0, newReport)
+            val newReport = Report(
+                complaintId = (masterReportList.size + 1),
+                userId = data.getStringExtra("intent_writer") ?: "익명",
+                categoryId = data.getIntExtra("intent_category", 1),
+                title = data.getStringExtra("intent_title") ?: "",
+                description = data.getStringExtra("intent_content") ?: "",
+                latitude = 37.3,
+                longitude = 126.7,
+                address = "시흥시 정왕동",
+                empathyCount = 0,
+                status = "접수",
 
-                updateDisplay()
-                binding.rvReportList.scrollToPosition(0)
-            }
+                createdAt = currentDateTimeString,
+                updatedAt = currentDateTimeString,
+                nickname = data.getStringExtra("intent_writer") ?: "익명",
+                imageUrl = null
+            )
+
+            masterReportList.add(0, newReport)
+            applyFilterAndSort()
+            binding.rvReportList.scrollToPosition(0)
         }
     }
 
@@ -49,119 +71,90 @@ class ReportListActivity : AppCompatActivity() {
 
         initDummyData()
         initRecyclerView()
-
-        // ───────────── 정렬 버튼들 ─────────────────────
-        binding.itemaddbtn.setOnClickListener {
-            val intent = Intent(this, ReportAddActivity::class.java)
-            addReportLauncher.launch(intent)
-        }
-
-        binding.sortfastbtn.setOnClickListener {
-            sortByfastCount()
-        }
-
-        binding.sortlikebtn.setOnClickListener {
-            sortByLikeCount()
-        }
-
-        binding.filterAllbtn.setOnClickListener {
-            currentFilterId = null
-            updateDisplay()
-        }
-
-        binding.filterTrashbtn.setOnClickListener {
-            currentFilterId = 1
-            updateDisplay()
-        }
-
-        binding.filterDamagedbtn.setOnClickListener {
-            currentFilterId = 2
-            updateDisplay()
-        }
-
-        binding.filterDangerbtn.setOnClickListener {
-            currentFilterId = 3
-            updateDisplay()
-        }
-
-        binding.filterRoadbtn.setOnClickListener {
-            currentFilterId = 4
-            updateDisplay()
-        }
-
-        binding.filterNoisebtn.setOnClickListener {
-            currentFilterId = 5
-            updateDisplay()
-        }
-
-        binding.filterOtherbtn.setOnClickListener {
-            currentFilterId = 99
-            updateDisplay()
-        }
-
-        //──────────────────────────────────
-
-        // 메인화면가는 버튼 (메뉴바에 통합해야함)
-        /*binding.Mainbtn.setOnClickListener {
-            finish()
-        }*/
+        setupListeners()
     }
 
     private fun initRecyclerView() {
-        reportAdapter = ReportAdapter(reportDataList)
+        reportAdapter = ReportAdapter(emptyList())
         binding.rvReportList.layoutManager = LinearLayoutManager(this)
         binding.rvReportList.adapter = reportAdapter
-        updateDisplay() // 초기 정렬 상태에 맞게 화면 갱신
+        applyFilterAndSort()
     }
 
-    private fun updateDisplay() {
-        val filteredList = if (currentFilterId == null) {
-            reportDataList
-        } else {
-            reportDataList.filter { it.categoryId == currentFilterId }
+    private fun setupListeners() {
+        binding.itemaddbtn.setOnClickListener {
+            addReportLauncher.launch(Intent(this, ReportAddActivity::class.java))
         }
+
+        binding.sortfastbtn.setOnClickListener {
+            currentSortType = "FAST"
+            applyFilterAndSort()
+        }
+        binding.sortlikebtn.setOnClickListener {
+            currentSortType = "LIKE"
+            applyFilterAndSort()
+        }
+
+        binding.filterAllbtn.setOnClickListener { updateFilter(null) }
+        binding.filterTrashbtn.setOnClickListener { updateFilter(1) }
+        binding.filterDamagedbtn.setOnClickListener { updateFilter(2) }
+        binding.filterDangerbtn.setOnClickListener { updateFilter(3) }
+        binding.filterRoadbtn.setOnClickListener { updateFilter(4) }
+        binding.filterNoisebtn.setOnClickListener { updateFilter(5) }
+        binding.filterOtherbtn.setOnClickListener { updateFilter(6) }
+    }
+
+    private fun updateFilter(categoryId: Int?) {
+        currentFilterId = categoryId
+        applyFilterAndSort()
+    }
+
+    private fun applyFilterAndSort() {
+        var filteredList = if (currentFilterId == null) {
+            masterReportList.toList()
+        } else {
+            masterReportList.filter { it.categoryId == currentFilterId }
+        }
+
+        filteredList = when (currentSortType) {
+            "FAST" -> filteredList.sortedByDescending { it.complaintId }
+            "LIKE" -> filteredList.sortedByDescending { it.empathyCount }
+            else -> filteredList
+        }
+
         reportAdapter.updateData(filteredList)
+        updateUIStates()
+    }
+
+    private fun updateUIStates() {
+        val targetIndex = currentFilterId ?: 0
+        categoryButtons.forEachIndexed { index, button ->
+            if (index == targetIndex) {
+                button.setBackgroundResource(R.drawable.re_category_selected_bg)
+                button.setTextColor(Color.WHITE)
+            } else {
+                button.setBackgroundResource(R.drawable.re_category_unselected_bg)
+                button.setTextColor(Color.parseColor("#4B5563"))
+            }
+        }
+
+        if (currentSortType == "FAST") {
+            binding.sortfastbtn.setBackgroundResource(R.drawable.re_category_selected_bg)
+            binding.sortfastbtn.setTextColor(Color.WHITE)
+            binding.sortlikebtn.setBackgroundResource(R.drawable.re_category_unselected_bg)
+            binding.sortlikebtn.setTextColor(Color.parseColor("#4B5563"))
+        } else {
+            binding.sortfastbtn.setBackgroundResource(R.drawable.re_category_unselected_bg)
+            binding.sortfastbtn.setTextColor(Color.parseColor("#4B5563"))
+            binding.sortlikebtn.setBackgroundResource(R.drawable.re_category_selected_bg)
+            binding.sortlikebtn.setTextColor(Color.WHITE)
+        }
     }
 
     private fun initDummyData() {
-        reportDataList.addAll(
-            listOf(
-                Report(
-                    complaintId = 1,
-                    userId = "user01",
-                    categoryId = 1,
-                    title = "정왕역 앞 쓰레기 무단 투기",
-                    description = "정왕역 1번 출구 앞에 쓰레기가 너무 많이 쌓여있어서 악취가 심합니다. 빨리 치워주세요.",
-                    latitude = 37.3514,
-                    longitude = 126.7424,
-                    address = "경기도 시흥시 정왕동 정왕역",
-                    empathyCount = 12
-                ),
-                Report(
-                    complaintId = 2,
-                    userId = "user02",
-                    categoryId = 2,
-                    title = "중앙공원 벤치 파손",
-                    description = "공원 중앙 분수대 옆에 있는 나무 벤치 다리가 부러져 있어서 위험합니다.",
-                    latitude = 37.3550,
-                    longitude = 126.7380,
-                    address = "경기도 시흥시 정왕동 중앙공원",
-                    empathyCount = 5
-                )
-            )
-        )
-        reportDataList.sortByDescending { it.complaintId }
-    }
-
-    // ─── 정렬 로직 구역 ───────────────────────────────────────
-
-    private fun sortByfastCount() {
-        reportDataList.sortByDescending { it.complaintId }
-        updateDisplay()
-    }
-
-    private fun sortByLikeCount() {
-        reportDataList.sortByDescending { it.empathyCount }
-        updateDisplay()
+        masterReportList.addAll(listOf(
+            Report(complaintId = 1, userId = "user01", categoryId = 1, title = "정왕역 앞 쓰레기 무단 투기", description = "악취가 심합니다.", latitude = 37.3514, longitude = 126.7424, address = "경기도 시흥시 정왕동 정왕역", empathyCount = 12, status = "접수", createdAt = "2026-05-31 01:00:00", updatedAt = "2026-05-31 01:00:00", nickname = "익명1", imageUrl = null),
+            Report(complaintId = 2, userId = "user02", categoryId = 2, title = "중앙공원 벤치 파손", description = "나무 벤치 다리가 부러져 있습니다.", latitude = 37.3550, longitude = 126.7380, address = "경기도 시흥시 정왕동 중앙공원", empathyCount = 5, status = "접수", createdAt = "2026-05-31 03:00:00", updatedAt = "2026-05-31 03:00:00", nickname = "익명2", imageUrl = null)
+        ))
     }
 }

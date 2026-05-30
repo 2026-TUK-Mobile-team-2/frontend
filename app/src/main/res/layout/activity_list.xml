@@ -35,7 +35,7 @@
     </LinearLayout>
 
     <!-- Scroll Area -->
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_below="@id/headerLayout"
         android:layout_above="@id/itemaddbtn"
         android:layout_width="match_parent"
@@ -490,7 +490,7 @@
                     android:id="@+id/rvReportList"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
+                    android:orientation="vertical"
                     android:padding="16dp"
                     android:layout_marginBottom="12dp"
                     android:nestedScrollingEnabled="false"
@@ -499,7 +499,7 @@
             </LinearLayout>
 
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <!-- FAB -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
