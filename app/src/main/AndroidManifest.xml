@@ -15,7 +15,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FixSiheung"
         android:usesCleartextTraffic="true">
-
         <activity
             android:name=".SplashActivity"
             android:exported="true">
@@ -56,8 +55,7 @@
             android:exported="false" />
         <activity
             android:name=".auth.LoginActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true" />
 
         <meta-data
             android:name="com.kakao.sdk.AppKey"

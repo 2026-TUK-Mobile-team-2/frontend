@@ -555,8 +555,9 @@ class NearReportAdapter(
         holder.tvEmpathy.text = "❤️ ${item.empathyCount}"
         holder.tvTag.text     = when (item.categoryId) {
             1    -> "쓰레기"
-            2    -> "시설"
-            3    -> "도로"
+            2    -> "시설파손"
+            3    -> "안전위험"
+            4    -> "도로위험"
             else -> "기타"
         }
         holder.ivThumbnail.setImageResource(android.R.drawable.ic_menu_gallery)
