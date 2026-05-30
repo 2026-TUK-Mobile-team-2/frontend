@@ -98,66 +98,31 @@ class MainMapActivity : AppCompatActivity() {
 
         // 하단 네비 클릭 이벤트
         binding.bottomNavigation.setOnItemSelectedListener { item ->
-
             when (item.itemId) {
-
                 R.id.nav_home -> {
+                    // 현재 지도 화면이므로 홈 클릭 시 별도 동작 없음
                     true
                 }
-
                 R.id.nav_list -> {
-
-                    val intent = Intent(this, ListActivity::class.java)
+                    val intent = Intent(this, ReportListActivity::class.java)
                     startActivity(intent)
-
                     true
                 }
-
                 R.id.nav_report -> {
-
-                    val intent = Intent(this, ReportActivity::class.java)
+                    val intent = Intent(this, ReportAddActivity::class.java)
                     startActivity(intent)
-
                     true
                 }
 
                 R.id.nav_mypage -> {
-
                     val intent = Intent(this, MyPageActivity::class.java)
                     startActivity(intent)
-
                     true
                 }
-
                 else -> false
             }
         }
 
-        // FAB 버튼 클릭
-        binding.reportFab.setOnClickListener {
-            val intent = Intent(this, ReportActivity::class.java)
-            startActivity(intent)
-        }
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        loadMockData()
-        initKakaoMap()
-        initChipFilter()
-        initChipStyles()
-        initSearchBar()
-        initNearReports()
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-
-        //---------화면전환리스너---------------
-        binding.Reportbtn.setOnClickListener {
-            val intent = Intent(this, ReportListActivity::class.java)
-            startActivity(intent)
-        }
         //--------------------
     }
 
