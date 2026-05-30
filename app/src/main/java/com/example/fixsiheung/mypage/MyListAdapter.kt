@@ -24,7 +24,8 @@ class MyListAdapter(
         val tvTitle: TextView      = view.findViewById(R.id.tv_report_title)
         val tvTag: TextView        = view.findViewById(R.id.tv_report_tag)
         val tvEmpathy: TextView    = view.findViewById(R.id.tv_report_empathy)
-        val tvStatus: TextView     = view.findViewById(R.id.tv_report_location)
+        val tvStatus: TextView     = view.findViewById(R.id.tv_report_status)
+        val tvLocation: TextView   = view.findViewById(R.id.tv_report_location)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -45,8 +46,10 @@ class MyListAdapter(
             1    -> "도로"
             2    -> "쓰레기"
             3    -> "시설"
-            else -> "기타"
+            4    -> "기타"
+            else -> "null"
         }
+        holder.tvLocation.text = report.address ?: ""
 
         // 서버값 관계없이 표시 텍스트 통일
         holder.tvStatus.text = when (report.status) {

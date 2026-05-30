@@ -14,9 +14,11 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.fixsiheung.MainMapActivity
 import com.example.fixsiheung.R
 import com.example.fixsiheung.ReportActivity
+import com.example.fixsiheung.ReportListActivity
 import com.example.fixsiheung.databinding.ActivityMyPageBinding
 import com.example.fixsiheung.model.MyPageResponse
 import com.example.fixsiheung.network.RetrofitClient
+import kotlin.jvm.java
 
 class MyPageActivity : AppCompatActivity() {
 
@@ -28,6 +30,7 @@ class MyPageActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         loadMyPageData()
+        updateNotificationBadge()
 
         val userId = getSharedPreferences("user_prefs", MODE_PRIVATE).getString("user_id", null)
         val isAdmin = userId == "admin_user"
@@ -38,7 +41,7 @@ class MyPageActivity : AppCompatActivity() {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home   -> { startActivity(Intent(this, MainMapActivity::class.java)); true }
-                R.id.nav_list   -> { /* TODO: ListActivity */ true }
+                R.id.nav_list   -> { startActivity(Intent(this, ReportListActivity::class.java)); true}
                 R.id.nav_report -> { startActivity(Intent(this, ReportActivity::class.java)); true }
                 R.id.nav_mypage -> true
                 else            -> false
@@ -124,6 +127,11 @@ class MyPageActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        updateNotificationBadge()
+    }
+
     private fun loadMyPageData() {
         val userId = getSharedPreferences("user_prefs", MODE_PRIVATE)
             .getString("user_id", null) ?: return
@@ -147,6 +155,33 @@ class MyPageActivity : AppCompatActivity() {
                 override fun onFailure(call: retrofit2.Call<MyPageResponse>, t: Throwable) {
                     Log.e("MyPage", "API 실패: ${t.message}")
                 }
+            })
+    }
+
+    private fun updateNotificationBadge() {
+        val userId = getSharedPreferences("user_prefs", MODE_PRIVATE)
+            .getString("user_id", null) ?: return
+
+        RetrofitClient.apiService.getNotifications(userId)
+            .enqueue(object : retrofit2.Callback<List<com.example.fixsiheung.model.Notification>> {
+                override fun onResponse(call: retrofit2.Call<List<com.example.fixsiheung.model.Notification>>, response: retrofit2.Response<List<com.example.fixsiheung.model.Notification>>) {
+                    if (response.isSuccessful) {
+                        val readPrefs = getSharedPreferences("notification_read_prefs", MODE_PRIVATE)
+                        val unreadCount = response.body()?.count { notif ->
+                            !readPrefs.getBoolean("notification_read_${notif.id}", notif.isRead)
+                        } ?: 0
+
+                        runOnUiThread {
+                            if (unreadCount > 0) {
+                                binding.tvNotificationBadge.visibility = View.VISIBLE
+                                binding.tvNotificationBadge.text = if (unreadCount > 99) "99+" else unreadCount.toString()
+                            } else {
+                                binding.tvNotificationBadge.visibility = View.GONE
+                            }
+                        }
+                    }
+                }
+                override fun onFailure(call: retrofit2.Call<List<com.example.fixsiheung.model.Notification>>, t: Throwable) {}
             })
     }
 }

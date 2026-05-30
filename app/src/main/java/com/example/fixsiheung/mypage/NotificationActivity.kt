@@ -1,5 +1,6 @@
 package com.example.fixsiheung.mypage
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -55,9 +56,61 @@ class NotificationActivity : AppCompatActivity() {
                     runOnUiThread { showData(getMockData()) }
                 }
             })
+
+        binding.btnMore.setOnClickListener { view ->
+            val popup = android.widget.PopupMenu(this, view)
+            popup.menu.add(0, 1, 0, "모두 읽음")
+            popup.menu.add(0, 2, 0, "모두 지움")
+
+            // 모두 지움 빨간색
+            popup.menu.findItem(2).let {
+                val spannable = android.text.SpannableString("모두 지움")
+                spannable.setSpan(
+                    android.text.style.ForegroundColorSpan(Color.parseColor("#EF4444")),
+                    0, spannable.length, 0
+                )
+                it.title = spannable
+            }
+
+            popup.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    1 -> {
+                        // 전체 읽음 처리
+                        adapter.markAllAsRead()
+                        binding.tvNotificationTitle.text = "알림"
+                        true
+                    }
+                    2 -> {
+                        val userId = getSharedPreferences("user_prefs", MODE_PRIVATE)
+                            .getString("user_id", null) ?: return@setOnMenuItemClickListener true
+
+                        // 각 알림 하나씩 삭제
+                        adapter.getItems().forEach { notif ->
+                            RetrofitClient.apiService.deleteNotification(userId, notif.id)
+                                .enqueue(object : retrofit2.Callback<Map<String, String>> {
+                                    override fun onResponse(call: retrofit2.Call<Map<String, String>>, response: retrofit2.Response<Map<String, String>>) {}
+                                    override fun onFailure(call: retrofit2.Call<Map<String, String>>, t: Throwable) {}
+                                })
+                        }
+                        runOnUiThread { showData(emptyList()) }
+                        true
+                    }
+                    else -> false
+                }
+            }
+            popup.show()
+        }
     }
 
     private fun showData(data: List<Notification>) {
+        // 안읽은 알림 수 계산
+        val unreadCount = data.count { notif ->
+            !readPrefs.getBoolean("notification_read_${notif.id}", notif.isRead)
+        }
+
+        // 제목 업데이트
+        binding.tvNotificationTitle.text = if (unreadCount > 0) "알림 ($unreadCount)" else "알림"
+
         if (data.isEmpty()) {
             binding.tvEmptyNotification.visibility = View.VISIBLE
             binding.rvNotifications.visibility     = View.GONE

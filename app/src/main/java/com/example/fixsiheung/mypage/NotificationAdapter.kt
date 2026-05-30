@@ -62,6 +62,15 @@ class NotificationAdapter(
         notifyDataSetChanged()
     }
 
+    fun getItems() = items
+
+    fun markAllAsRead() {
+        items.forEach { notif ->
+            prefs.edit().putBoolean("notification_read_${notif.id}", true).apply()
+        }
+        notifyDataSetChanged()
+    }
+
     // 시간 표시 (몇 분 전, 몇 시간 전)
     private fun getTimeAgo(createdAt: String?): String {
         if (createdAt.isNullOrEmpty()) return ""

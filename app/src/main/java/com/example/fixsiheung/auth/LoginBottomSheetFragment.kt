@@ -91,10 +91,30 @@ class LoginBottomSheetFragment : BottomSheetDialogFragment() {
                             Toast.LENGTH_SHORT
                         ).show()
 
-                        val intent = Intent(requireContext(), MainMapActivity::class.java)
-                        startActivity(intent)
-                        activity?.finish()
-                        dismiss()
+                        com.google.firebase.messaging.FirebaseMessaging.getInstance().token
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    val token = task.result
+                                    RetrofitClient.apiService.updateFcmToken(
+                                        body.userId,
+                                        com.example.fixsiheung.model.FcmTokenRequest(token)
+                                    ).enqueue(object : retrofit2.Callback<Map<String, String>> {
+                                        override fun onResponse(
+                                            call: retrofit2.Call<Map<String, String>>,
+                                            response: retrofit2.Response<Map<String, String>>
+                                        ) {
+                                            Log.d("FCM", "토큰 전송 성공")
+                                        }
+                                        override fun onFailure(call: retrofit2.Call<Map<String, String>>, t: Throwable) {
+                                            Log.e("FCM", "토큰 전송 실패: ${t.message}")
+                                        }
+                                    })
+                                }
+                                val intent = Intent(requireContext(), MainMapActivity::class.java)
+                                startActivity(intent)
+                                activity?.finish()
+                                dismiss()
+                            }
                     } else {
                         // 아이디나 비밀번호가 틀렸을 때 (401 에러)
                         Toast.makeText(requireContext(), "아이디 또는 비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show()

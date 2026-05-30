@@ -5,12 +5,12 @@ import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.fixsiheung.databinding.ActivityReportListBinding
+import com.example.fixsiheung.databinding.ActivityListBinding
 import com.example.fixsiheung.model.Report
 
 class ReportListActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityReportListBinding
+    private lateinit var binding: ActivityListBinding
     private lateinit var reportAdapter: ReportAdapter
     private val reportDataList = arrayListOf<Report>()
     private var currentFilterId: Int? = null
@@ -44,7 +44,7 @@ class ReportListActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityReportListBinding.inflate(layoutInflater)
+        binding = ActivityListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         initDummyData()
@@ -102,9 +102,9 @@ class ReportListActivity : AppCompatActivity() {
         //──────────────────────────────────
 
         // 메인화면가는 버튼 (메뉴바에 통합해야함)
-        binding.Mainbtn.setOnClickListener {
+        /*binding.Mainbtn.setOnClickListener {
             finish()
-        }
+        }*/
     }
 
     private fun initRecyclerView() {

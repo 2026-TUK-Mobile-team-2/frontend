@@ -342,6 +342,15 @@
                         app:singleSelection="false">
 
                         <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_road"
+                            style="@style/Widget.MaterialComponents.Chip.Choice"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="도로"
+                            android:textColor="@color/chip_text_selector"
+                            app:chipBackgroundColor="@color/chip_bg_selector" />
+
+                        <com.google.android.material.chip.Chip
                             android:id="@+id/chip_trash"
                             style="@style/Widget.MaterialComponents.Chip.Choice"
                             android:layout_width="wrap_content"
@@ -355,16 +364,7 @@
                             style="@style/Widget.MaterialComponents.Chip.Choice"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="시설"
-                            android:textColor="@color/chip_text_selector"
-                            app:chipBackgroundColor="@color/chip_bg_selector" />
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chip_road"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="도로"
+                            android:text="시설파손"
                             android:textColor="@color/chip_text_selector"
                             app:chipBackgroundColor="@color/chip_bg_selector" />
 
