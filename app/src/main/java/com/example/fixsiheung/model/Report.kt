@@ -34,7 +34,7 @@ data class Report(
     val updatedAt: String? = "",
 
     // 추가 : 닉네임
-    val nickname: String? = ""
+    val nickname: String? = "",
     // 추가 : 이미지
     @SerializedName("image_url")
     val imageUrl: String? = null
