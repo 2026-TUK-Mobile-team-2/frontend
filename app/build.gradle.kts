@@ -16,6 +16,7 @@ android {
         }
     }
 
+
     defaultConfig {
         applicationId = "com.example.fixsiheung"
         minSdk = 35
