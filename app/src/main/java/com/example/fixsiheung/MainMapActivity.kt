@@ -229,7 +229,7 @@ class MainMapActivity : AppCompatActivity() {
                     val report = label.tag as? Report
                     if (report != null) {
                         val intent = Intent(this@MainMapActivity, ReportDetailActivity::class.java).apply {
-                            putExtra("intent_complaint_id", report.complaintId)
+                            putExtra("COMPLAINT_ID", report.complaintId)
                         }
                         startActivity(intent)
                         true

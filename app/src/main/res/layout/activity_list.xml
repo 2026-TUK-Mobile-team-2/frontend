@@ -34,7 +34,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="시흥고쳐줘"
+            android:text="고쳐줘시흥"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="#65C0C1" />

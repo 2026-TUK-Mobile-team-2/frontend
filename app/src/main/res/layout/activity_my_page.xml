@@ -47,7 +47,7 @@
                     android:id="@+id/tv_toolbar_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="시흥고쳐줘"
+                    android:text="고쳐줘시흥"
                     android:textColor="#65C0C1"
                     android:textSize="24sp"
                     android:textStyle="bold"
