@@ -63,10 +63,25 @@ class ReportAdapter(private var reportList: List<Report>) :
                 1 -> "쓰레기"
                 2 -> "시설파손"
                 3 -> "안전위험"
-                4 -> "도로위험"
-                5 -> "소음공해"
+                4 -> "불법주차"
+                5 -> "소음"
                 else -> "기타"
             }
+            binding.tvReportStatus.text = when(report.status) {
+                "접수", "접수완료" -> "접수완료"
+                "처리중"           -> "처리중"
+                "완료", "처리완료" -> "처리완료"
+                else               -> report.status ?: "접수완료"
+            }
+            val (bgColor, textColor) = when(report.status) {
+                "접수완료", "접수" -> "#E5E7EB" to "#4B5563"
+                "처리중"           -> "#FEF3C7" to "#B45309"
+                "처리완료", "완료" -> "#D1FAE5" to "#065F46"
+                else               -> "#F3F4F6" to "#6B7280"
+            }
+            binding.tvReportStatus.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor(bgColor))
+            binding.tvReportStatus.setTextColor(Color.parseColor(textColor))
+
             binding.ivReportThumbnail.setImageResource(android.R.drawable.ic_menu_gallery)
             binding.ivReportThumbnail.setColorFilter(Color.parseColor("#9CA3AF"))
         }

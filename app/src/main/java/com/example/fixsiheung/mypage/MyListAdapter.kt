@@ -2,6 +2,7 @@ package com.example.fixsiheung.mypage
 
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -40,6 +41,8 @@ class MyListAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val report = items[position]
+        Log.d("Image", "imageUrl: ${report.imageUrl}")
+        holder.itemView.setOnClickListener { onItemClick(report) }
 
         holder.tvTitle.text   = report.title
         holder.tvEmpathy.text = "❤️ ${report.empathyCount}"
@@ -93,6 +96,9 @@ class MyListAdapter(
                     override fun onResponse(call: retrofit2.Call<Report>, response: retrofit2.Response<Report>) {
                         if (response.isSuccessful) {
                             val detail = response.body() ?: return
+
+                            Log.d("Image", "detail imageUrl: ${detail.imageUrl}")
+                            Log.d("Image", "fixedUrl: ${detail.imageUrl?.replace("127.0.0.1", "10.0.2.2")}")
 
                             // 뷰홀더가 재사용되지 않고 제자리에 있는지 검사
                             if (holder.itemView.tag == detail.complaintId) {

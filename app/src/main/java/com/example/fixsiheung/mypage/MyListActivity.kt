@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fixsiheung.MainMapActivity
 import com.example.fixsiheung.R
 import com.example.fixsiheung.ReportActivity
+import com.example.fixsiheung.ReportDetailActivity
 import com.example.fixsiheung.databinding.ActivityMyListBinding
 import com.example.fixsiheung.model.MyPageResponse
 import com.example.fixsiheung.model.Report
@@ -44,7 +45,12 @@ class MyListActivity : AppCompatActivity() {
 
         // 어댑터 초기화
         adapter = MyListAdapter(emptyList()) { report ->
-            // TODO: 민원 상세 페이지로 이동
+            val userId = getSharedPreferences("user_prefs", MODE_PRIVATE)
+                .getString("user_id", "") ?: ""
+            startActivity(Intent(this, ReportDetailActivity::class.java).apply {
+                putExtra("COMPLAINT_ID", report.complaintId)
+                putExtra("USER_ID", userId)
+            })
         }
         binding.rvReportList.layoutManager = LinearLayoutManager(this)
         binding.rvReportList.adapter = adapter
