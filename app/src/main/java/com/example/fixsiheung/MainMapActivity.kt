@@ -31,6 +31,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.fixsiheung.databinding.ActivityMainMapBinding
 import com.example.fixsiheung.model.Report
 import com.example.fixsiheung.mypage.MyPageActivity
@@ -635,9 +636,23 @@ class NearReportAdapter(
         // 주소 표시
         holder.tvLocation.text = item.address ?: ""
 
-        holder.ivThumbnail.setImageResource(android.R.drawable.ic_menu_gallery)
-        holder.ivThumbnail.setColorFilter(Color.parseColor("#9CA3AF"))
-        holder.itemView.setOnClickListener { onItemClick(item) }
+        if (!item.imageUrl.isNullOrEmpty()) {
+            // DB에 있는 127.0.0.1 주소를 컴퓨터의 실제 내부 IP로 치환
+            val fixedUrl = item.imageUrl.replace("127.0.0.1", "192.168.0.41")
+
+            holder.ivThumbnail.clearColorFilter()
+
+            Glide.with(holder.itemView.context)
+                .load(fixedUrl)
+                .placeholder(android.R.drawable.ic_menu_gallery)
+                .error(android.R.drawable.ic_menu_gallery)
+                .centerCrop()
+                .into(holder.ivThumbnail)
+        } else {
+            // 이미지가 없는 경우에만 회색 갤러리 아이콘 표시
+            holder.ivThumbnail.setImageResource(android.R.drawable.ic_menu_gallery)
+            holder.ivThumbnail.setColorFilter(Color.parseColor("#9CA3AF"))
+        }
     }
 
     override fun getItemCount() = items.size

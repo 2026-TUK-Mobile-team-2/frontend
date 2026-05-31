@@ -217,12 +217,23 @@ class ReportListActivity : AppCompatActivity() {
         // 공감순(empathyCount)으로 내림차순 정렬 후 상위 3개만 자르기
         val hotReports = reports.sortedByDescending { it.empathyCount }.take(3)
 
+        // 💡 [추가됨] 상세 페이지로 넘겨줄 로그인 유저 아이디 (가짜 아이디 방지)
+        val currentUserId = AppPrefs.getUserId(this).ifBlank { "minjae404" }
+
         // HOT 카드 1 업데이트
         if (hotReports.isNotEmpty()) {
             binding.hotCard1.visibility = android.view.View.VISIBLE
             binding.tvHotLike1.text = "💛 ${hotReports[0].empathyCount}"
             binding.tvHotTitle1.text = hotReports[0].title
             binding.tvHotAddress1.text = "📍 ${hotReports[0].address}"
+
+            // 💡 [추가됨] 카드 1 클릭 이벤트
+            binding.hotCard1.setOnClickListener {
+                val intent = Intent(this, ReportDetailActivity::class.java)
+                intent.putExtra("COMPLAINT_ID", hotReports[0].complaintId)
+                intent.putExtra("USER_ID", currentUserId)
+                startActivity(intent)
+            }
         } else {
             binding.hotCard1.visibility = android.view.View.GONE
         }
@@ -233,6 +244,14 @@ class ReportListActivity : AppCompatActivity() {
             binding.tvHotLike2.text = "💛 ${hotReports[1].empathyCount}"
             binding.tvHotTitle2.text = hotReports[1].title
             binding.tvHotAddress2.text = "📍 ${hotReports[1].address}"
+
+            // 💡 [추가됨] 카드 2 클릭 이벤트
+            binding.hotCard2.setOnClickListener {
+                val intent = Intent(this, ReportDetailActivity::class.java)
+                intent.putExtra("COMPLAINT_ID", hotReports[1].complaintId)
+                intent.putExtra("USER_ID", currentUserId)
+                startActivity(intent)
+            }
         } else {
             binding.hotCard2.visibility = android.view.View.GONE
         }
@@ -243,6 +262,14 @@ class ReportListActivity : AppCompatActivity() {
             binding.tvHotLike3.text = "💛 ${hotReports[2].empathyCount}"
             binding.tvHotTitle3.text = hotReports[2].title
             binding.tvHotAddress3.text = "📍 ${hotReports[2].address}"
+
+            // 💡 [추가됨] 카드 3 클릭 이벤트
+            binding.hotCard3.setOnClickListener {
+                val intent = Intent(this, ReportDetailActivity::class.java)
+                intent.putExtra("COMPLAINT_ID", hotReports[2].complaintId)
+                intent.putExtra("USER_ID", currentUserId)
+                startActivity(intent)
+            }
         } else {
             binding.hotCard3.visibility = android.view.View.GONE
         }

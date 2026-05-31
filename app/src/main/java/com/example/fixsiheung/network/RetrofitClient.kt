@@ -8,10 +8,10 @@ object RetrofitClient {
     // 실제 폰 연결 테스트 시 같은 WI-FI 사용해야함
 
     // 핸드폰테스트
-    //private const val BASE_URL = "http://192.168.0.41:5000/"
+    private const val BASE_URL = "http://192.168.0.41:5000/"
 
     // 에뮬레이터
-    private const val BASE_URL = "http://10.0.2.2:5000/"
+    //private const val BASE_URL = "http://10.0.2.2:5000/"
 
     val apiService: ApiService by lazy {
         Retrofit.Builder()

@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.fixsiheung.model.Report
 import com.example.fixsiheung.databinding.ItemNearReportBinding
 
@@ -82,8 +83,24 @@ class ReportAdapter(private var reportList: List<Report>) :
             binding.tvReportStatus.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor(bgColor))
             binding.tvReportStatus.setTextColor(Color.parseColor(textColor))
 
-            binding.ivReportThumbnail.setImageResource(android.R.drawable.ic_menu_gallery)
-            binding.ivReportThumbnail.setColorFilter(Color.parseColor("#9CA3AF"))
+            if (!report.imageUrl.isNullOrEmpty()) {
+                // DB에 있는 127.0.0.1 주소를 컴퓨터의 실제 내부 IP로 치환
+                val fixedUrl = report.imageUrl.replace("127.0.0.1", "192.168.0.41")
+
+                // 기존에 칠해져 있던 회색 필터 제거
+                binding.ivReportThumbnail.clearColorFilter()
+
+                Glide.with(itemView.context)
+                    .load(fixedUrl)
+                    .placeholder(android.R.drawable.ic_menu_gallery) // 로딩 중 보여줄 이미지
+                    .error(android.R.drawable.ic_menu_gallery)       // 통신 실패 시 보여줄 이미지
+                    .centerCrop()
+                    .into(binding.ivReportThumbnail)
+            } else {
+                // 이미지가 아예 없는 글일 경우에만 기본 회색 아이콘 표시
+                binding.ivReportThumbnail.setImageResource(android.R.drawable.ic_menu_gallery)
+                binding.ivReportThumbnail.setColorFilter(Color.parseColor("#9CA3AF"))
+            }
         }
     }
 }

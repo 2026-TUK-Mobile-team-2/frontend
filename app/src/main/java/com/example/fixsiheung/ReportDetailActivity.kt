@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide // 💡 Glide 임포트 추가!
 import com.example.fixsiheung.databinding.ActivityReportDetailBinding
 import com.example.fixsiheung.model.Report
 import com.example.fixsiheung.model.StatusUpdateRequest
@@ -33,8 +34,13 @@ class ReportDetailActivity : AppCompatActivity() {
         binding.btnBack.setOnClickListener { finish() }
 
         complaintId = intent.getIntExtra("COMPLAINT_ID", -1)
-        userId = getSharedPreferences("user_prefs", MODE_PRIVATE)
-            .getString("user_id", "") ?: ""
+
+        // 💡 [수정] AppPrefs를 최우선으로 사용하고, 없으면 인텐트에서 가져옵니다.
+        userId = AppPrefs.getUserId(this).ifBlank {
+            intent.getStringExtra("USER_ID") ?: ""
+        }
+
+        // 관리자 여부 판단
         isAdmin = userId == "admin_user"
 
         if (complaintId == -1) {
@@ -43,7 +49,7 @@ class ReportDetailActivity : AppCompatActivity() {
             return
         }
 
-        // 관리자면 상태 변경 버튼 표시
+        // 💡 [유지] 팀원분이 만드신 관리자면 상태 변경 버튼 표시 로직
         if (isAdmin) {
             binding.layoutAdminStatus.visibility = View.VISIBLE
             binding.btnEmpathy.visibility = View.GONE
@@ -58,7 +64,8 @@ class ReportDetailActivity : AppCompatActivity() {
     }
 
     private fun loadReportDetail(complaintId: Int) {
-        val currentUserId = if (userId.isBlank()) "user01" else userId
+        // 💡 [수정] DB 외래키 에러 방지를 위해, 빈 아이디일 경우 실제 존재하는 아이디로 시연합니다.
+        val currentUserId = userId.ifBlank { "minjae404" }
 
         RetrofitClient.apiService.getComplaintDetail(complaintId, currentUserId)
             .enqueue(object : Callback<Report> {
@@ -80,13 +87,24 @@ class ReportDetailActivity : AppCompatActivity() {
     }
 
     private fun bindReport(report: Report) {
-        binding.ivHeroImage.setImageResource(R.drawable.block)
+        // 💡 [수정] 하드코딩된 이미지 대신 Glide를 사용하여 서버의 진짜 이미지를 로드합니다.
+        if (!report.imageUrl.isNullOrEmpty()) {
+            val fixedUrl = report.imageUrl.replace("127.0.0.1", "192.168.0.41")
+            Glide.with(this)
+                .load(fixedUrl)
+                .placeholder(R.drawable.block)
+                .error(R.drawable.block)
+                .centerCrop()
+                .into(binding.ivHeroImage)
+        } else {
+            binding.ivHeroImage.setImageResource(R.drawable.block)
+        }
 
         val status = report.status ?: "접수중"
         binding.tvStatusBadge.text = status
         binding.tvStatusBadge.setBackgroundResource(
             when (status) {
-                "처리완료" -> R.drawable.status_complete_bg
+                "처리완료", "완료" -> R.drawable.status_complete_bg
                 "처리중"   -> R.drawable.status_processing_badge
                 else       -> R.drawable.status_pending_bg
             }
@@ -112,7 +130,7 @@ class ReportDetailActivity : AppCompatActivity() {
 
     private fun bindProgressTimeline(status: String) {
         val processStatus = when (status) {
-            "처리완료" -> ProcessStatus.COMPLETED
+            "처리완료", "완료" -> ProcessStatus.COMPLETED
             "처리중"   -> ProcessStatus.PROCESSING
             else       -> ProcessStatus.RECEIVED
         }
@@ -156,7 +174,7 @@ class ReportDetailActivity : AppCompatActivity() {
         )
     }
 
-    // 관리자 상태 변경 버튼 설정
+    // 💡 [유지] 팀원분이 만드신 관리자 상태 변경 로직
     private fun setupAdminStatusButtons() {
         binding.btnStatusProcessing.setOnClickListener {
             updateStatus("처리중")
@@ -167,9 +185,12 @@ class ReportDetailActivity : AppCompatActivity() {
     }
 
     private fun updateStatus(newStatus: String) {
+        // 관리자가 상태를 변경할 때는 자신의 아이디(admin_user)를 보냅니다.
+        val targetUserId = userId.ifBlank { "admin_user" }
+
         RetrofitClient.apiService.updateComplaintStatus(
             complaintId,
-            StatusUpdateRequest(userId = userId, status = newStatus)
+            StatusUpdateRequest(userId = targetUserId, status = newStatus)
         ).enqueue(object : Callback<Map<String, String>> {
             override fun onResponse(call: Call<Map<String, String>>, response: Response<Map<String, String>>) {
                 if (response.isSuccessful) {
@@ -197,7 +218,8 @@ class ReportDetailActivity : AppCompatActivity() {
         binding.btnEmpathy.setOnClickListener {
             if (complaintId == -1) return@setOnClickListener
 
-            val testUserId = if (userId.isBlank()) "test_user_01" else userId
+            // 💡 [수정] 공감 요청 시에도 실재하는 아이디를 기본값으로 사용하여 DB 충돌을 막습니다.
+            val targetUserId = userId.ifBlank { "minjae404" }
 
             if (!isEmpathized) {
                 isEmpathized = true
@@ -206,7 +228,7 @@ class ReportDetailActivity : AppCompatActivity() {
 
                 RetrofitClient.apiService.addEmpathy(
                     complaintId,
-                    mapOf("user_id" to testUserId)
+                    mapOf("user_id" to targetUserId)
                 ).enqueue(object : Callback<Map<String, String>> {
                     override fun onResponse(call: Call<Map<String, String>>, response: Response<Map<String, String>>) {
                         if (!response.isSuccessful) rollbackEmpathyUi(false)
@@ -222,7 +244,7 @@ class ReportDetailActivity : AppCompatActivity() {
 
                 RetrofitClient.apiService.removeEmpathy(
                     complaintId,
-                    mapOf("user_id" to testUserId)
+                    mapOf("user_id" to targetUserId)
                 ).enqueue(object : Callback<Map<String, String>> {
                     override fun onResponse(call: Call<Map<String, String>>, response: Response<Map<String, String>>) {
                         if (!response.isSuccessful) rollbackEmpathyUi(true)

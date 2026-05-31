@@ -76,7 +76,7 @@ class MyListAdapter(
         holder.tvStatus.setTextColor(Color.parseColor(textColor))
 
         if (!report.imageUrl.isNullOrEmpty()) {
-            val fixedUrl = report.imageUrl.replace("127.0.0.1", "10.0.2.2")
+            val fixedUrl = report.imageUrl.replace("127.0.0.1", "192.168.0.41")
             holder.ivThumbnail.clearColorFilter()
             Glide.with(holder.itemView.context)
                 .load(fixedUrl)
@@ -98,13 +98,13 @@ class MyListAdapter(
                             val detail = response.body() ?: return
 
                             Log.d("Image", "detail imageUrl: ${detail.imageUrl}")
-                            Log.d("Image", "fixedUrl: ${detail.imageUrl?.replace("127.0.0.1", "10.0.2.2")}")
+                            Log.d("Image", "fixedUrl: ${detail.imageUrl?.replace("127.0.0.1", "192.168.0.41")}")
 
                             // 뷰홀더가 재사용되지 않고 제자리에 있는지 검사
                             if (holder.itemView.tag == detail.complaintId) {
                                 holder.tvLocation.text = detail.address ?: ""
 
-                                val fixedUrl = detail.imageUrl?.replace("127.0.0.1", "10.0.2.2")
+                                val fixedUrl = detail.imageUrl?.replace("127.0.0.1", "192.168.0.41")
                                 if (!fixedUrl.isNullOrEmpty()) {
                                     Glide.with(holder.itemView.context)
                                         .load(fixedUrl)
