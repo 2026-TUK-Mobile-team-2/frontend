@@ -37,8 +37,11 @@ data class Report(
     val nickname: String? = "",
     // 추가 : 이미지
     @SerializedName("image_url")
-    val imageUrl: String? = null
+    val imageUrl: String? = null,
+    // 추가 : 공감여부
+    val isEmpathized: Boolean = false
 )
+
 
 
 // 새 민원 등록용 요청 모델 (서버에 전송용)

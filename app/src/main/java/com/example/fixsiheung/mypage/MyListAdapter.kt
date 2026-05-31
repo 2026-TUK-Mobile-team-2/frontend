@@ -13,6 +13,7 @@ import com.example.fixsiheung.R
 import com.example.fixsiheung.model.Report
 import com.example.fixsiheung.network.RetrofitClient
 import com.bumptech.glide.Glide
+import com.example.fixsiheung.AppPrefs
 
 class MyListAdapter(
     private var items: List<Report>,
@@ -81,22 +82,38 @@ class MyListAdapter(
                 .centerCrop()
                 .into(holder.ivThumbnail)
         } else {
-            // imageUrl 없으면 상세 조회
-            RetrofitClient.apiService.getComplaintDetail(report.complaintId)
+            holder.itemView.tag = report.complaintId
+
+
+            val currentUserId = AppPrefs.getUserId(holder.itemView.context)
+
+            // 💡 3. API 호출 시 두 번째 파라미터로 currentUserId를 넣어줍니다!
+            RetrofitClient.apiService.getComplaintDetail(report.complaintId, currentUserId)
                 .enqueue(object : retrofit2.Callback<Report> {
                     override fun onResponse(call: retrofit2.Call<Report>, response: retrofit2.Response<Report>) {
                         if (response.isSuccessful) {
                             val detail = response.body() ?: return
-                            holder.tvLocation.text = detail.address ?: ""
-                            val fixedUrl = detail.imageUrl?.replace("127.0.0.1", "10.0.2.2") ?: return
-                            Glide.with(holder.itemView.context)
-                                .load(fixedUrl)
-                                .placeholder(android.R.drawable.ic_menu_gallery)
-                                .error(android.R.drawable.ic_menu_gallery)
-                                .centerCrop()
-                                .into(holder.ivThumbnail)
+
+                            // 뷰홀더가 재사용되지 않고 제자리에 있는지 검사
+                            if (holder.itemView.tag == detail.complaintId) {
+                                holder.tvLocation.text = detail.address ?: ""
+
+                                val fixedUrl = detail.imageUrl?.replace("127.0.0.1", "10.0.2.2")
+                                if (!fixedUrl.isNullOrEmpty()) {
+                                    Glide.with(holder.itemView.context)
+                                        .load(fixedUrl)
+                                        .placeholder(android.R.drawable.ic_menu_gallery)
+                                        .error(android.R.drawable.ic_menu_gallery)
+                                        .centerCrop()
+                                        .into(holder.ivThumbnail)
+                                } else {
+                                    holder.ivThumbnail.clearColorFilter()
+                                    holder.ivThumbnail.setImageResource(android.R.drawable.ic_menu_gallery)
+                                }
+                            }
                         }
                     }
+
                     override fun onFailure(call: retrofit2.Call<Report>, t: Throwable) {}
                 })
         }

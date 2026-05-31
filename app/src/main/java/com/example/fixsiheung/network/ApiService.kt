@@ -22,6 +22,7 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ApiService {
     // 민원 목록 가져오기
@@ -65,8 +66,12 @@ interface ApiService {
     fun getComplaintMarkers(): Call<List<Report>>
 
     // 민원 상세 조회 (특정 민원 1개 가져오기)
+    // 💡 민원 상세 조회 시 현재 로그인한 유저의 ID를 함께 넘기도록 수정
     @GET("api/complaints/{complaint_id}")
-    fun getComplaintDetail(@Path("complaint_id") complaintId: Int): Call<Report>
+    fun getComplaintDetail(
+        @Path("complaint_id") complaintId: Int,
+        @Query("user_id") userId: String // ?user_id=값 형태로 주소에 붙음
+    ): Call<Report>
 
     // 민원 수정 (PUT)
     @PUT("api/complaints/{complaint_id}")

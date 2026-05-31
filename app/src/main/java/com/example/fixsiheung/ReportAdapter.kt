@@ -27,15 +27,16 @@ class ReportAdapter(private var reportList: List<Report>) :
                 val context = holder.itemView.context
                 val report = reportList[currentPosition]
 
-                notifyItemChanged(currentPosition)
+                // notifyItemChanged(currentPosition) // 이 줄은 상세 페이지 이동 시 굳이 필요 없으므로 제거했습니다.
 
                 val intent = Intent(context, ReportDetailActivity::class.java)
 
-                intent.putExtra("detail_title", report.title)
-                intent.putExtra("detail_content", report.description)
-                intent.putExtra("detail_category", report.categoryId)
-                intent.putExtra("detail_writer", report.userId)
-                intent.putExtra("detail_like", report.empathyCount)
+                // 💡 핵심 수정 부분: 기존의 detail_... 대신 COMPLAINT_ID 를 넘겨줍니다.
+                intent.putExtra("COMPLAINT_ID", report.complaintId)
+
+                // (선택) 로그인 유저 정보가 아직 없다면 테스트를 위해 임시 USER_ID 를 넘겨줍니다.
+                // 상세 페이지의 '공감하기' 기능 테스트를 위해 필요합니다.
+                intent.putExtra("USER_ID", report.userId)
 
                 context.startActivity(intent)
             }
