@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="#FFFFFF">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="계정 정보"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:textColor="#1A1F26" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="로그인에 사용할 정보를 입력해주세요."
+        android:textSize="14sp"
+        android:textColor="#718096"
+        android:layout_marginTop="6dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="아이디 *"
+        android:textStyle="bold"
+        android:textColor="#555555"
+        android:layout_marginTop="32dp" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layout_signup_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:hintEnabled="false"
+        app:boxBackgroundMode="none"
+        app:endIconMode="custom">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_signup_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="아이디를 입력해주세요"
+            android:background="@drawable/bg_login_edit_text"
+            android:padding="16dp"
+            android:inputType="textEmailAddress"
+            android:textSize="16sp"
+            android:textColor="#1A1F26"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+    <TextView
+        android:id="@+id/tv_id_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="4dp"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:text="사용 가능한 아이디입니다."
+        android:textColor="#10B981"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="비밀번호 *"
+        android:textStyle="bold"
+        android:textColor="#555555"
+        android:layout_marginTop="24dp" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:hintEnabled="false"
+        app:boxBackgroundMode="none"
+        app:passwordToggleEnabled="true"
+        app:passwordToggleTint="#888888">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_signup_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="비밀번호를 입력해주세요"
+            android:background="@drawable/bg_login_edit_text"
+            android:padding="16dp"
+            android:inputType="textPassword"
+            android:textSize="16sp"
+            android:textColor="#1A1F26" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/tv_password_status1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="4dp"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:text="8자 이상"
+        android:textColor="#10B981"
+        android:drawableStart="@drawable/ic_cancel_circle"
+        android:drawablePadding="8dp"
+        />
+    <TextView
+        android:id="@+id/tv_password_status2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:text="영문 포함"
+        android:textColor="#10B981"
+        android:drawableStart="@drawable/ic_cancel_circle"
+        android:drawablePadding="8dp"
+        />
+    <TextView
+        android:id="@+id/tv_password_status3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:text="숫자 포함"
+        android:textColor="#10B981"
+        android:drawableStart="@drawable/ic_cancel_circle"
+        android:drawablePadding="8dp"
+        />
+    <TextView
+        android:id="@+id/tv_password_status4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:text="특수문자 포함"
+        android:textColor="#10B981"
+        android:drawableStart="@drawable/ic_cancel_circle"
+        android:drawablePadding="8dp"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="비밀번호 확인 *"
+        android:textStyle="bold"
+        android:textColor="#555555"
+        android:layout_marginTop="24dp" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:hintEnabled="false"
+        app:boxBackgroundMode="none"
+        app:passwordToggleEnabled="true"
+        app:passwordToggleTint="#888888">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_signup_password2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="비밀번호를 다시 입력해주세요"
+            android:background="@drawable/bg_login_edit_text"
+            android:padding="16dp"
+            android:inputType="textPassword"
+            android:textSize="16sp"
+            android:textColor="#1A1F26" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+    <TextView
+        android:id="@+id/tv_password2_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="4dp"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:text="비밀번호가 일치합니다."
+        android:textColor="#10B981"
+        />
+
+
+</LinearLayout>

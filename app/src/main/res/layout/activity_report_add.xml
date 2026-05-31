@@ -1,0 +1,366 @@
+<!-- report_screen.xml -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#F8FAFC"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- 상단 헤더 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
+
+            <ImageButton
+                android:id="@+id/closeButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/rounded_white_button"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                app:tint="#64748B"
+                android:padding="12dp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="문제 제보하기"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textAlignment="center"
+                android:textColor="#1E293B" />
+
+            <Space
+                android:layout_width="48dp"
+                android:layout_height="48dp" />
+        </LinearLayout>
+
+        <!-- 사진 업로드 -->
+        <FrameLayout
+            android:id="@+id/photoFrame"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:layout_marginBottom="32dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/upload_box_bg">
+
+                <ImageView
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:src="@android:drawable/ic_menu_camera"
+                    app:tint="#65C0C1"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="사진 첨부"
+                    android:textColor="#65C0C1"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:layout_marginTop="12dp" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <!-- 카테고리 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="카테고리 선택"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#1E293B"
+            android:layout_marginBottom="16dp" />
+
+        <GridLayout
+            android:id="@+id/categoryGrid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="3"
+            android:layout_marginBottom="32dp">
+
+            <!-- 선택된 버튼 -->
+            <LinearLayout
+                android:id="@+id/categoryTrash"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_columnWeight="1"
+                android:clickable="true"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_margin="6dp"
+                android:background="@drawable/re_category_unselected_bg">
+
+                <TextView
+                    android:text="🗑"
+                    android:textColor="#ffffff"
+                    android:textSize="28sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:text="쓰레기"
+                    android:textColor="#94A3B8"
+                    android:textStyle="bold"
+                    android:textSize="12sp"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <!-- 일반 버튼들 -->
+            <LinearLayout
+                android:id="@+id/categoryDamaged"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_columnWeight="1"
+                android:clickable="true"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_margin="6dp"
+                android:background="@drawable/re_category_unselected_bg">
+
+                <TextView
+                    android:text="🛠"
+                    android:textSize="28sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:text="시설파손"
+                    android:textColor="#94A3B8"
+                    android:textStyle="bold"
+                    android:textSize="12sp"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/categoryDanger"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_columnWeight="1"
+                android:clickable="true"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_margin="6dp"
+                android:background="@drawable/re_category_unselected_bg">
+
+                <TextView
+                    android:text="⚠"
+                    android:textSize="28sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:text="안전위험"
+                    android:textColor="#94A3B8"
+                    android:textStyle="bold"
+                    android:textSize="12sp"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/categoryRoad"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_columnWeight="1"
+                android:clickable="true"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_margin="6dp"
+                android:background="@drawable/re_category_unselected_bg">
+
+                <TextView
+                    android:text="🛣"
+                    android:textSize="28sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:text="도로"
+                    android:textColor="#94A3B8"
+                    android:textStyle="bold"
+                    android:textSize="12sp"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/categoryNoise"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_columnWeight="1"
+                android:clickable="true"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_margin="6dp"
+                android:background="@drawable/re_category_unselected_bg">
+
+                <TextView
+                    android:text="🔊"
+                    android:textSize="28sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:text="소음"
+                    android:textColor="#94A3B8"
+                    android:textStyle="bold"
+                    android:textSize="12sp"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/categoryOther"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_columnWeight="1"
+                android:clickable="true"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_margin="6dp"
+                android:background="@drawable/re_category_unselected_bg">
+
+                <TextView
+                    android:text="📌"
+                    android:textSize="28sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:text="기타"
+                    android:textColor="#94A3B8"
+                    android:textStyle="bold"
+                    android:textSize="12sp"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </GridLayout>
+
+        <!-- 위치 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="발생 위치"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#1E293B"
+            android:layout_marginBottom="16dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="16dp"
+            android:background="@drawable/location_box_bg"
+            android:layout_marginBottom="32dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_menu_mylocation"
+                app:tint="#65C0C1" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="시흥시 정왕동 부근"
+                android:textColor="#334155"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:layout_marginStart="12dp" />
+
+            <TextView
+                android:text="지도"
+                android:id="@+id/mapButton"
+                android:textColor="#1987C2"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <!-- 내용 입력 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="제보 제목"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#1E293B"
+            android:layout_marginBottom="16dp" />
+
+        <EditText
+            android:id="@+id/reportTitle"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@drawable/description_box_bg"
+            android:gravity="top"
+            android:padding="20dp"
+            android:hint="제목을 입력해주세요."
+            android:textColor="#1E293B"
+            android:textColorHint="#94A3B8"
+            android:textSize="14sp"
+            android:inputType="textMultiLine"
+            android:layout_marginBottom="32dp"/>
+
+        <!-- 내용 입력 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="상세 내용"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#1E293B"
+            android:layout_marginBottom="16dp" />
+
+        <EditText
+            android:id="@+id/reportDescription"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:background="@drawable/description_box_bg"
+            android:gravity="top"
+            android:padding="20dp"
+            android:hint="어떤 문제인지 자세히 알려주세요."
+            android:textColor="#1E293B"
+            android:textColorHint="#94A3B8"
+            android:textSize="14sp"
+            android:inputType="textMultiLine" />
+
+        <!-- 제출 버튼 -->
+        <android.widget.Button
+            android:id="@+id/submitButton"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:layout_marginTop="32dp"
+            android:text="제보하기"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/report_submit_bg"/>
+
+    </LinearLayout>
+</ScrollView>

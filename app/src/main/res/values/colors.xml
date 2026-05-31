@@ -1,5 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="primary">#00696B</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="primary_container">#65C0C1</color>
+    <color name="on_primary_container">#004D4E</color>
+    <color name="primary_fixed">#97F2F2</color>
+    <color name="primary_fixed_dim">#7BD5D6</color>
+
+    <color name="secondary">#276389</color>
+    <color name="on_secondary">#FFFFFF</color>
+    <color name="secondary_container">#9BD2FD</color>
+    <color name="secondary_container_light">#9BD2FD40</color>
+    <color name="on_secondary_container">#1C5B80</color>
+
+    <color name="tertiary">#416915</color>
+    <color name="on_tertiary">#FFFFFF</color>
+    <color name="tertiary_container">#92BF62</color>
+    <color name="on_tertiary_container">#2A4D00</color>
+
+    <color name="background">#F9F9F9</color>
+    <color name="on_background">#1A1C1C</color>
+    <color name="surface">#F9F9F9</color>
+    <color name="on_surface">#1A1C1C</color>
+    <color name="on_surface_variant">#3E4949</color>
+    <color name="surface_variant">#E2E2E2</color>
+    <color name="surface_bright">#F9F9F9</color>
+    <color name="surface_dim">#DADADA</color>
+    <color name="surface_container">#EEEEEE</color>
+    <color name="surface_container_low">#F3F3F3</color>
+    <color name="surface_container_high">#E8E8E8</color>
+    <color name="surface_container_highest">#E2E2E2</color>
+    <color name="surface_container_lowest">#FFFFFF</color>
+    <color name="surface_tint">#00696B</color>
+
+    <color name="outline">#6E7979</color>
+    <color name="outline_variant">#BDC9C8</color>
+
+    <color name="error">#BA1A1A</color>
+    <color name="on_error">#FFFFFF</color>
+    <color name="error_container">#FFDAD6</color>
+    <color name="on_error_container">#93000A</color>
+
+    <color name="inverse_surface">#2F3131</color>
+    <color name="inverse_on_surface">#F1F1F1</color>
+    <color name="inverse_primary">#7BD5D6</color>
+
+    <color name="text_hint">#94A3B8</color>
+
 </resources>
