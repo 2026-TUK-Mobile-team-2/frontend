@@ -52,7 +52,6 @@
     <!-- Scroll Area -->
     <androidx.core.widget.NestedScrollView
         android:layout_below="@id/headerLayout"
-        android:layout_above="@id/itemaddbtn"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true">
@@ -524,25 +523,5 @@
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
-    <!-- FAB -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/itemaddbtn"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_above="@id/bottomNavigation"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="16dp"
-        app:elevation="6dp"
-        android:src="@android:drawable/ic_input_add"
-        android:tint="#FFFFFF"
-        android:scaleType="center"
-        app:fabCustomSize="64dp"
-        app:maxImageSize="28dp"
-        android:backgroundTint="#65C0C1"
-        app:backgroundTint="#65C0C1"
-        app:borderWidth="0dp"
-        />
 
 </RelativeLayout>
