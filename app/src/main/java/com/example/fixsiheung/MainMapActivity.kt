@@ -39,7 +39,6 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
 import com.kakao.vectormap.KakaoMapSdk
@@ -69,8 +68,10 @@ class MainMapActivity : AppCompatActivity() {
     private val categoryDrawables = mapOf(
         1 to R.drawable.ic_marker_trash,
         2 to R.drawable.ic_marker_facilities,
-        3 to R.drawable.ic_marker_road,
-        4 to R.drawable.ic_marker_any
+        3 to R.drawable.ic_marker_parking,
+        4 to R.drawable.ic_marker_danger,
+        5 to R.drawable.ic_marker_noise,
+        6 to R.drawable.ic_marker_any
     )
 
     private val locationPermissionRequest = registerForActivityResult(
@@ -88,7 +89,6 @@ class MainMapActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
 
         // ViewBinding 연결
         binding = ActivityMainMapBinding.inflate(layoutInflater)
@@ -104,27 +104,67 @@ class MainMapActivity : AppCompatActivity() {
                     // 현재 지도 화면이므로 홈 클릭 시 별도 동작 없음
                     true
                 }
+
                 R.id.nav_list -> {
-                    val intent = Intent(this, ReportListActivity::class.java)
-                    startActivity(intent)
+                    startActivity(Intent(this, ReportListActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    })
+                    finish()
                     true
                 }
+
                 R.id.nav_report -> {
-                    val intent = Intent(this, ReportAddActivity::class.java)
-                    startActivity(intent)
+                    startActivity(Intent(this, ReportAddActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    })
+                    finish()
                     true
                 }
 
                 R.id.nav_mypage -> {
-                    val intent = Intent(this, MyPageActivity::class.java)
-                    startActivity(intent)
+                    startActivity(Intent(this, MyPageActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    })
+                    finish()
                     true
                 }
+
                 else -> false
             }
         }
 
-        //--------------------
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        initKakaoMap()
+        initSearchBar()
+        initNearReports()
+        initChipFilter()
+
+        // API 호출
+        com.example.fixsiheung.network.RetrofitClient.apiService.getAllReports()
+            .enqueue(object : retrofit2.Callback<List<Report>> {
+                override fun onResponse(
+                    call: retrofit2.Call<List<Report>>,
+                    response: retrofit2.Response<List<Report>>
+                ) {
+                    if (response.isSuccessful) {
+                        allMarkerItems = response.body() ?: emptyList()
+                        runOnUiThread {
+                            displayRegisteredMarkers(allMarkerItems)
+                            nearReportAdapter.updateList(allMarkerItems)
+                        }
+                    }
+                }
+
+                override fun onFailure(call: retrofit2.Call<List<Report>>, t: Throwable) {
+                    Log.e("MainMap", "API 실패: ${t.message}")
+                }
+            })
+
+        binding.tvBottomTitle.setOnClickListener {
+            val intent = Intent(this, ReportListActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     override fun onResume() {
@@ -142,13 +182,15 @@ class MainMapActivity : AppCompatActivity() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
-    // ─── 임시 데이터 ───────────────────────────────────────────────────────────
+    private var backPressedTime = 0L
 
-    private fun loadMockData() {
-        val now     = System.currentTimeMillis()
-        val oneHour = 3_600_000L
-        val oneDay  = 86_400_000L
-
+    override fun onBackPressed() {
+        if (System.currentTimeMillis() - backPressedTime < 2000) {
+            finishAffinity()
+        } else {
+            backPressedTime = System.currentTimeMillis()
+            Toast.makeText(this, "한 번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
+        }
     }
 
     // ─── 지도 초기화 ───────────────────────────────────────────────────────────
@@ -162,6 +204,7 @@ class MainMapActivity : AppCompatActivity() {
                 myLocationLabel = null
                 registeredLabels.clear()
             }
+
             override fun onMapError(error: Exception?) {
                 Log.e("KakaoMap", "onMapError: ${error?.message}")
             }
@@ -189,10 +232,10 @@ class MainMapActivity : AppCompatActivity() {
         categoryDrawables.forEach { (id, drawableId) ->
             val base = vectorToBitmap(drawableId)
             mapOf(
-                "$id"           to createBadgeMarkerBitmap(base, isHot = false, isNew = false),
-                "${id}_hot"     to createBadgeMarkerBitmap(base, isHot = true,  isNew = false),
-                "${id}_new"     to createBadgeMarkerBitmap(base, isHot = false, isNew = true),
-                "${id}_hot_new" to createBadgeMarkerBitmap(base, isHot = true,  isNew = true),
+                "$id" to createBadgeMarkerBitmap(base, isHot = false, isNew = false),
+                "${id}_hot" to createBadgeMarkerBitmap(base, isHot = true, isNew = false),
+                "${id}_new" to createBadgeMarkerBitmap(base, isHot = false, isNew = true),
+                "${id}_hot_new" to createBadgeMarkerBitmap(base, isHot = true, isNew = true),
             ).forEach { (key, bitmap) ->
                 val style = LabelStyle.from(bitmap).setAnchorPoint(0.5f, 1.0f)
                 labelManager.addLabelStyles(LabelStyles.from("style_$key", style))
@@ -206,14 +249,16 @@ class MainMapActivity : AppCompatActivity() {
         registeredLabels.forEach { it.remove() }
         registeredLabels.clear()
 
-        val now         = System.currentTimeMillis()
+        val now = System.currentTimeMillis()
         val twentyFourH = 86_400_000L
-        val topHotIds   = allMarkerItems.sortedByDescending { it.empathyCount }.take(2).map { it.complaintId }
+        val topHotIds =
+            allMarkerItems.sortedByDescending { it.empathyCount }.take(2).map { it.complaintId }
 
         items.forEach { report ->
             val isHot = report.complaintId in topHotIds
             val isNew = try {
-                val sdf = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
+                val sdf =
+                    java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
                 val date = sdf.parse(report.createdAt ?: "")
                 date != null && (now - date.time) <= twentyFourH
             } catch (e: Exception) {
@@ -222,9 +267,9 @@ class MainMapActivity : AppCompatActivity() {
 
             val styleKey = when {
                 isHot && isNew -> "${report.categoryId}_hot_new"
-                isHot          -> "${report.categoryId}_hot"
-                isNew          -> "${report.categoryId}_new"
-                else           -> report.categoryId.toString()
+                isHot -> "${report.categoryId}_hot"
+                isNew -> "${report.categoryId}_new"
+                else -> report.categoryId.toString()
             }
 
             val styles = cachedStyles[styleKey] ?: cachedStyles["4"] ?: return@forEach
@@ -237,30 +282,39 @@ class MainMapActivity : AppCompatActivity() {
         }
     }
 
-    private fun createBadgeMarkerBitmap(baseBitmap: Bitmap, isHot: Boolean, isNew: Boolean): Bitmap {
+    private fun createBadgeMarkerBitmap(
+        baseBitmap: Bitmap,
+        isHot: Boolean,
+        isNew: Boolean
+    ): Bitmap {
         if (!isHot && !isNew) return baseBitmap
 
-        val dp          = resources.displayMetrics.density
-        val badgeH      = (12 * dp).toInt()
-        val badgeW      = (24 * dp).toInt()
-        val gap         = (2  * dp).toInt()
-        val overlap     = (-15 * dp).toInt()
-        val badgeCount  = listOf(isHot, isNew).count { it }
+        val dp = resources.displayMetrics.density
+        val badgeH = (12 * dp).toInt()
+        val badgeW = (24 * dp).toInt()
+        val gap = (2 * dp).toInt()
+        val overlap = (-15 * dp).toInt()
+        val badgeCount = listOf(isHot, isNew).count { it }
         val totalBadgeH = badgeH * badgeCount + gap * (badgeCount - 1)
 
         val resultW = maxOf(baseBitmap.width, badgeW)
         val resultH = baseBitmap.height + totalBadgeH + overlap
-        val result  = Bitmap.createBitmap(resultW, resultH, Bitmap.Config.ARGB_8888)
-        val canvas  = Canvas(result)
+        val result = Bitmap.createBitmap(resultW, resultH, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(result)
 
-        canvas.drawBitmap(baseBitmap, (resultW - baseBitmap.width) / 2f, (totalBadgeH + overlap).toFloat(), null)
+        canvas.drawBitmap(
+            baseBitmap,
+            (resultW - baseBitmap.width) / 2f,
+            (totalBadgeH + overlap).toFloat(),
+            null
+        )
 
         val badgePaint = Paint().apply { isAntiAlias = true; style = Paint.Style.FILL }
-        val textPaint  = Paint().apply {
-            color          = Color.WHITE
-            textSize       = 8 * dp
-            isAntiAlias    = true
-            textAlign      = Paint.Align.CENTER
+        val textPaint = Paint().apply {
+            color = Color.WHITE
+            textSize = 8 * dp
+            isAntiAlias = true
+            textAlign = Paint.Align.CENTER
             isFakeBoldText = true
         }
 
@@ -269,8 +323,9 @@ class MainMapActivity : AppCompatActivity() {
             if (isHot) add("#FF3B30" to "HOT")
             if (isNew) add("#3B82F6" to "NEW")
         }.forEachIndexed { i, (colorHex, label) ->
-            val top   = i * (badgeH + gap)
-            val rectF = RectF(badgeLeft, top.toFloat(), badgeLeft + badgeW, (top + badgeH).toFloat())
+            val top = i * (badgeH + gap)
+            val rectF =
+                RectF(badgeLeft, top.toFloat(), badgeLeft + badgeW, (top + badgeH).toFloat())
             badgePaint.color = Color.parseColor(colorHex)
             canvas.drawRoundRect(rectF, badgeH / 2f, badgeH / 2f, badgePaint)
             val textY = top + badgeH / 2f - (textPaint.descent() + textPaint.ascent()) / 2f
@@ -285,7 +340,12 @@ class MainMapActivity : AppCompatActivity() {
     private fun initSearchBar() {
         searchAdapter = SearchResultAdapter(emptyList()) { report ->
             kakaoMap?.moveCamera(
-                CameraUpdateFactory.newCenterPosition(LatLng.from(report.latitude, report.longitude), 16),
+                CameraUpdateFactory.newCenterPosition(
+                    LatLng.from(
+                        report.latitude,
+                        report.longitude
+                    ), 16
+                ),
                 CameraAnimation.from(500, true, true)
             )
             displayRegisteredMarkers(listOf(report))
@@ -306,7 +366,8 @@ class MainMapActivity : AppCompatActivity() {
                 val filtered = allMarkerItems
                     .filter { it.title.contains(keyword, ignoreCase = true) }
                     .sortedBy { it.title.indexOf(keyword, ignoreCase = true) }
-                binding.rvSearchResults.visibility = if (filtered.isNotEmpty()) View.VISIBLE else View.GONE
+                binding.rvSearchResults.visibility =
+                    if (filtered.isNotEmpty()) View.VISIBLE else View.GONE
                 if (filtered.isNotEmpty()) searchAdapter.updateList(filtered)
             }
         }
@@ -328,73 +389,40 @@ class MainMapActivity : AppCompatActivity() {
     private fun initNearReports() {
         nearReportAdapter = NearReportAdapter(allMarkerItems) { report ->
             kakaoMap?.moveCamera(
-                CameraUpdateFactory.newCenterPosition(LatLng.from(report.latitude, report.longitude), 16),
+                CameraUpdateFactory.newCenterPosition(
+                    LatLng.from(
+                        report.latitude,
+                        report.longitude
+                    ), 16
+                ),
                 CameraAnimation.from(500, true, true)
             )
-            BottomSheetBehavior.from(binding.layoutBottomNews).state = BottomSheetBehavior.STATE_COLLAPSED
         }
 
-        binding.rvNearReports.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        binding.rvNearReports.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         binding.rvNearReports.adapter = nearReportAdapter
-
-        binding.rvNearReports.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                val maxScroll = recyclerView.computeHorizontalScrollRange() - recyclerView.computeHorizontalScrollExtent()
-                if (maxScroll <= 0) return
-                val ratio     = recyclerView.computeHorizontalScrollOffset().toFloat() / maxScroll
-                val maxMoveX  = (binding.layoutIndicator.width - binding.viewIndicatorBar.width).toFloat()
-                binding.viewIndicatorBar.translationX = ratio * maxMoveX
-            }
-        })
-
-        BottomSheetBehavior.from(binding.layoutBottomNews)
-            .addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-                override fun onStateChanged(bottomSheet: View, newState: Int) {
-                    if (nearReportAdapter.itemCount == 0) {
-                        binding.rvNearReports.visibility   = View.GONE
-                        binding.layoutIndicator.visibility = View.GONE
-                        binding.tvNoReports.visibility     = View.VISIBLE
-                        return
-                    }
-                    when (newState) {
-                        BottomSheetBehavior.STATE_EXPANDED -> {
-                            binding.rvNearReports.layoutManager = LinearLayoutManager(this@MainMapActivity, LinearLayoutManager.VERTICAL, false)
-                            binding.rvNearReports.recycledViewPool.clear()
-                            nearReportAdapter.isVertical = true
-                            nearReportAdapter.notifyDataSetChanged()
-                            binding.layoutIndicator.visibility = View.GONE
-                            binding.tvNoReports.visibility     = View.GONE
-                        }
-                        BottomSheetBehavior.STATE_COLLAPSED -> {
-                            binding.rvNearReports.layoutManager = LinearLayoutManager(this@MainMapActivity, LinearLayoutManager.HORIZONTAL, false)
-                            binding.rvNearReports.recycledViewPool.clear()
-                            nearReportAdapter.isVertical = false
-                            nearReportAdapter.notifyDataSetChanged()
-                            binding.layoutIndicator.visibility = View.VISIBLE
-                            binding.tvNoReports.visibility     = View.GONE
-                        }
-                    }
-                }
-                override fun onSlide(bottomSheet: View, slideOffset: Float) {}
-            })
     }
 
     // ─── 현재 위치 ─────────────────────────────────────────────────────────────
 
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
-            val location   = locationResult.lastLocation ?: return
+            val location = locationResult.lastLocation ?: return
             val myPosition = LatLng.from(location.latitude, location.longitude)
-            val layer      = kakaoMap?.labelManager?.layer ?: return
+            val layer = kakaoMap?.labelManager?.layer ?: return
 
             if (myLocationLabel == null) {
                 val labelManager = kakaoMap?.labelManager ?: return
                 val styles = labelManager.addLabelStyles(
-                    LabelStyles.from("myStyle",
-                        LabelStyle.from(vectorToBitmap(R.drawable.my_marker)).setAnchorPoint(0.5f, 0.5f)
+                    LabelStyles.from(
+                        "myStyle",
+                        LabelStyle.from(vectorToBitmap(R.drawable.my_marker))
+                            .setAnchorPoint(0.5f, 0.5f)
                     )
                 )
-                myLocationLabel = layer.addLabel(LabelOptions.from(myPosition).setStyles(styles).setRank(10))
+                myLocationLabel =
+                    layer.addLabel(LabelOptions.from(myPosition).setStyles(styles).setRank(10))
             } else {
                 myLocationLabel?.moveTo(myPosition)
             }
@@ -402,11 +430,18 @@ class MainMapActivity : AppCompatActivity() {
             updateNearReports(location)
         }
     }
+
     private fun updateNearReports(location: Location) {
         val results = FloatArray(1)
         val nearReports = allMarkerItems
             .map { report ->
-                Location.distanceBetween(location.latitude, location.longitude, report.latitude, report.longitude, results)
+                Location.distanceBetween(
+                    location.latitude,
+                    location.longitude,
+                    report.latitude,
+                    report.longitude,
+                    results
+                )
                 report to results[0]
             }
             .filter { (_, dist) -> dist <= 1000f }
@@ -414,16 +449,12 @@ class MainMapActivity : AppCompatActivity() {
             .map { (report, _) -> report }
 
         if (nearReports.isEmpty()) {
-            binding.rvNearReports.visibility   = View.GONE
-            binding.layoutIndicator.visibility = View.GONE
-            binding.tvNoReports.visibility     = View.VISIBLE
+            binding.rvNearReports.visibility = View.GONE
+            binding.tvNoReports.visibility = View.VISIBLE
             nearReportAdapter.updateList(emptyList())
         } else {
-            val behavior = BottomSheetBehavior.from(binding.layoutBottomNews)
-            binding.tvNoReports.visibility     = View.GONE
-            binding.rvNearReports.visibility   = View.VISIBLE
-            binding.layoutIndicator.visibility =
-                if (behavior.state == BottomSheetBehavior.STATE_EXPANDED) View.GONE else View.VISIBLE
+            binding.tvNoReports.visibility = View.GONE
+            binding.rvNearReports.visibility = View.VISIBLE
             nearReportAdapter.updateList(nearReports)
         }
     }
@@ -438,7 +469,11 @@ class MainMapActivity : AppCompatActivity() {
         val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
             .setMinUpdateDistanceMeters(5f)
             .build()
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        )
     }
 
     // ─── 칩 필터 ───────────────────────────────────────────────────────────────
@@ -446,11 +481,13 @@ class MainMapActivity : AppCompatActivity() {
     private fun initChipFilter() {
         binding.chipGroupFilter.setOnCheckedStateChangeListener { _, checkedIds ->
             val categoryId: Int? = when (checkedIds.firstOrNull()) {
-                R.id.chip_trash      -> 1
+                R.id.chip_trash -> 1
                 R.id.chip_facilities -> 2
-                R.id.chip_road       -> 3
-                R.id.chip_any        -> 4
-                else                 -> null
+                R.id.chip_danger -> 3
+                R.id.chip_parking -> 4
+                R.id.chip_noise -> 5
+                R.id.chip_any -> 6
+                else -> null
             }
             val filtered = if (categoryId == null) allMarkerItems
             else allMarkerItems.filter { it.categoryId == categoryId }
@@ -458,31 +495,21 @@ class MainMapActivity : AppCompatActivity() {
         }
     }
 
-    private fun initChipStyles() {
-        val states   = arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf())
-        val bgList   = ColorStateList(states, intArrayOf(ContextCompat.getColor(this, R.color.primary), Color.parseColor("#F3F4F6")))
-        val textList = ColorStateList(states, intArrayOf(Color.WHITE, Color.parseColor("#4B5563")))
-
-        listOf(binding.chipAll, binding.chipTrash, binding.chipFacilities, binding.chipRoad, binding.chipAny)
-            .forEach { chip ->
-                chip.chipBackgroundColor = bgList
-                chip.setTextColor(textList)
-                chip.isChipIconVisible = false
-            }
-    }
-
     // ─── 유틸 ──────────────────────────────────────────────────────────────────
 
     private fun vectorToBitmap(drawableId: Int): Bitmap {
         val drawable = ContextCompat.getDrawable(this, drawableId)!!
-        val maxPx    = (48 * resources.displayMetrics.density).toInt()
+        val maxPx = (48 * resources.displayMetrics.density).toInt()
 
         var w = drawable.intrinsicWidth
         var h = drawable.intrinsicHeight
 
         if (w > maxPx || h > maxPx) {
-            if (w > h) { h = (h * (maxPx.toFloat() / w)).toInt(); w = maxPx }
-            else       { w = (w * (maxPx.toFloat() / h)).toInt(); h = maxPx }
+            if (w > h) {
+                h = (h * (maxPx.toFloat() / w)).toInt(); w = maxPx
+            } else {
+                w = (w * (maxPx.toFloat() / h)).toInt(); h = maxPx
+            }
         }
 
         return Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888).also {
@@ -531,58 +558,51 @@ class NearReportAdapter(
     private val onItemClick: (Report) -> Unit
 ) : RecyclerView.Adapter<NearReportAdapter.ViewHolder>() {
 
-    var isVertical: Boolean = false
-
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val ivThumbnail: ImageView = view.findViewById(R.id.iv_report_thumbnail)
-        val tvTitle: TextView      = view.findViewById(R.id.tv_report_title)
-        val tvTag: TextView        = view.findViewById(R.id.tv_report_tag)
-        val tvEmpathy: TextView    = view.findViewById(R.id.tv_report_empathy)
-        val tvStatus: TextView     = view.findViewById(R.id.tv_report_status)   // 추가
-        val tvLocation: TextView   = view.findViewById(R.id.tv_report_location) // 추가
+        val tvTitle: TextView = view.findViewById(R.id.tv_report_title)
+        val tvTag: TextView = view.findViewById(R.id.tv_report_tag)
+        val tvEmpathy: TextView = view.findViewById(R.id.tv_report_empathy)
+        val tvStatus: TextView = view.findViewById(R.id.tv_report_status)
+        val tvLocation: TextView = view.findViewById(R.id.tv_report_location)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_near_report, parent, false)
+        val view =
+            LayoutInflater.from(parent.context).inflate(R.layout.item_near_report, parent, false)
         return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
-        val dp   = holder.itemView.context.resources.displayMetrics.density
-        val lp   = holder.itemView.layoutParams
+        val lp = holder.itemView.layoutParams
 
-        if (isVertical) {
-            lp.width = ViewGroup.LayoutParams.MATCH_PARENT
-            (lp as? ViewGroup.MarginLayoutParams)?.marginEnd = 0
-        } else {
-            lp.width = (240 * dp).toInt()
-            (lp as? ViewGroup.MarginLayoutParams)?.marginEnd = (12 * dp).toInt()
-        }
         holder.itemView.layoutParams = lp
 
-        holder.tvTitle.text   = item.title
+        holder.tvTitle.text = item.title
         holder.tvEmpathy.text = "❤️ ${item.empathyCount}"
-        holder.tvTag.text     = when (item.categoryId) {
-            1    -> "도로"
-            2    -> "쓰레기"
-            3    -> "시설"
-            4    -> "기타"
-            else -> "null"
+        holder.tvTag.text = when (item.categoryId) {
+            1 -> "쓰레기"
+            2 -> "시설파손"
+            3 -> "안전위험"
+            4 -> "불법주차"
+            5 -> "소음"
+            6 -> "기타"
+            else -> "기타"
         }
 
-// 상태 표시
+        // 상태 표시
         holder.tvStatus.text = when (item.status) {
             "접수", "접수완료" -> "접수완료"
-            "처리중"           -> "처리중"
+            "처리중" -> "처리중"
             "완료", "처리완료" -> "처리완료"
-            else               -> item.status ?: "접수완료"
+            else -> item.status ?: "접수완료"
         }
         val (bgColor, textColor) = when (item.status) {
             "접수완료", "접수" -> "#E5E7EB" to "#4B5563"
-            "처리중"           -> "#FEF3C7" to "#B45309"
+            "처리중" -> "#FEF3C7" to "#B45309"
             "처리완료", "완료" -> "#D1FAE5" to "#065F46"
-            else               -> "#F3F4F6" to "#6B7280"
+            else -> "#F3F4F6" to "#6B7280"
         }
         holder.tvStatus.backgroundTintList = ColorStateList.valueOf(Color.parseColor(bgColor))
         holder.tvStatus.setTextColor(Color.parseColor(textColor))

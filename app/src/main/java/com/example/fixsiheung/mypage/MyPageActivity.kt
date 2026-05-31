@@ -26,7 +26,6 @@ class MyPageActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(binding.root)
 
         loadMyPageData()
@@ -40,11 +39,32 @@ class MyPageActivity : AppCompatActivity() {
 
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.nav_home   -> { startActivity(Intent(this, MainMapActivity::class.java)); true }
-                R.id.nav_list   -> { startActivity(Intent(this, ReportListActivity::class.java)); true}
-                R.id.nav_report -> { startActivity(Intent(this, ReportActivity::class.java)); true }
+                R.id.nav_home -> {
+                    startActivity(Intent(this, MainMapActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    })
+                    finish()
+                    true
+                }
+
+                R.id.nav_list -> {
+                    startActivity(Intent(this, ReportListActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    })
+                    finish()
+                    true
+                }
+
+                R.id.nav_report -> {
+                    startActivity(Intent(this, ReportActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    })
+                    finish()
+                    true
+                }
+
                 R.id.nav_mypage -> true
-                else            -> false
+                else -> false
             }
         }
 
@@ -101,7 +121,10 @@ class MyPageActivity : AppCompatActivity() {
                 LogoutDialogFragment {
                     getSharedPreferences("user_prefs", MODE_PRIVATE).edit().clear().apply()
                     startActivity(
-                        Intent(this@MyPageActivity, com.example.fixsiheung.auth.LoginActivity::class.java).apply {
+                        Intent(
+                            this@MyPageActivity,
+                            com.example.fixsiheung.auth.LoginActivity::class.java
+                        ).apply {
                             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         }
                     )
@@ -118,12 +141,6 @@ class MyPageActivity : AppCompatActivity() {
                     putExtra("SCREEN_TYPE", "ADMIN")
                 })
             }
-        }
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
         }
     }
 
@@ -145,13 +162,17 @@ class MyPageActivity : AppCompatActivity() {
                     if (response.isSuccessful) {
                         val data = response.body() ?: return
                         runOnUiThread {
-                            binding.tvNickname.text         = data.user.nickname
-                            binding.tvLikesCount.text       = "❤️ ${data.my_reports.sumOf { it.empathyCount }}"
+                            binding.tvNickname.text = data.user.nickname
+                            binding.tvLikesCount.text =
+                                "❤️ ${data.my_reports.sumOf { it.empathyCount }}"
                             binding.tvStatEmpathyCount.text = data.my_reports.size.toString()
-                            binding.tvStatResolvedCount.text = data.my_reports.count { it.status == "처리완료" || it.status == "완료"}.toString()
+                            binding.tvStatResolvedCount.text =
+                                data.my_reports.count { it.status == "처리완료" || it.status == "완료" }
+                                    .toString()
                         }
                     }
                 }
+
                 override fun onFailure(call: retrofit2.Call<MyPageResponse>, t: Throwable) {
                     Log.e("MyPage", "API 실패: ${t.message}")
                 }
@@ -164,9 +185,13 @@ class MyPageActivity : AppCompatActivity() {
 
         RetrofitClient.apiService.getNotifications(userId)
             .enqueue(object : retrofit2.Callback<List<com.example.fixsiheung.model.Notification>> {
-                override fun onResponse(call: retrofit2.Call<List<com.example.fixsiheung.model.Notification>>, response: retrofit2.Response<List<com.example.fixsiheung.model.Notification>>) {
+                override fun onResponse(
+                    call: retrofit2.Call<List<com.example.fixsiheung.model.Notification>>,
+                    response: retrofit2.Response<List<com.example.fixsiheung.model.Notification>>
+                ) {
                     if (response.isSuccessful) {
-                        val readPrefs = getSharedPreferences("notification_read_prefs", MODE_PRIVATE)
+                        val readPrefs =
+                            getSharedPreferences("notification_read_prefs", MODE_PRIVATE)
                         val unreadCount = response.body()?.count { notif ->
                             !readPrefs.getBoolean("notification_read_${notif.id}", notif.isRead)
                         } ?: 0
@@ -174,14 +199,20 @@ class MyPageActivity : AppCompatActivity() {
                         runOnUiThread {
                             if (unreadCount > 0) {
                                 binding.tvNotificationBadge.visibility = View.VISIBLE
-                                binding.tvNotificationBadge.text = if (unreadCount > 99) "99+" else unreadCount.toString()
+                                binding.tvNotificationBadge.text =
+                                    if (unreadCount > 99) "99+" else unreadCount.toString()
                             } else {
                                 binding.tvNotificationBadge.visibility = View.GONE
                             }
                         }
                     }
                 }
-                override fun onFailure(call: retrofit2.Call<List<com.example.fixsiheung.model.Notification>>, t: Throwable) {}
+
+                override fun onFailure(
+                    call: retrofit2.Call<List<com.example.fixsiheung.model.Notification>>,
+                    t: Throwable
+                ) {
+                }
             })
     }
 }

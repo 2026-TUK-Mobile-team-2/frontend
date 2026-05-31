@@ -5,6 +5,21 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF">
 
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/bottom_nav_bg"
+        android:elevation="8dp"
+        app:itemActiveIndicatorStyle="@null"
+        app:itemIconSize="28dp"
+        app:itemIconTint="@color/selector_bottom_nav"
+        app:itemTextColor="@color/selector_bottom_nav"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/menu_bottom_nav" />
+
     <!-- Header -->
     <LinearLayout
         android:id="@+id/headerLayout"
@@ -506,10 +521,10 @@
         android:id="@+id/itemaddbtn"
         android:layout_width="64dp"
         android:layout_height="64dp"
-        android:layout_alignParentBottom="true"
+        android:layout_above="@id/bottomNavigation"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="24dp"
-        android:layout_marginBottom="28dp"
+        android:layout_marginBottom="16dp"
         app:elevation="6dp"
         android:src="@android:drawable/ic_input_add"
         android:tint="#FFFFFF"

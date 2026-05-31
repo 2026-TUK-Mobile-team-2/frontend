@@ -112,11 +112,14 @@ class MyListActivity : AppCompatActivity() {
     private fun initChipFilter(screenType: String) {
         binding.chipGroupList.setOnCheckedStateChangeListener { _, checkedIds ->
             val categoryId: Int? = when (checkedIds.firstOrNull()) {
-                R.id.chip_road       -> 1
-                R.id.chip_trash      -> 2
-                R.id.chip_facilities -> 3
-                R.id.chip_any        -> 4
+                R.id.chip_trash      -> 1
+                R.id.chip_facilities -> 2
+                R.id.chip_danger     -> 3
+                R.id.chip_parking    -> 4
+                R.id.chip_noise      -> 5
+                R.id.chip_any        -> 6
                 else                 -> null
+
             }
             val filtered = if (categoryId == null) currentData
             else currentData.filter { it.categoryId == categoryId }
@@ -128,7 +131,14 @@ class MyListActivity : AppCompatActivity() {
         val sorted = when {
             screenType == "ADMIN" -> items.sortedByDescending { it.empathyCount }
             isSortedByEmpathy     -> items.sortedByDescending { it.empathyCount }
-            else                  -> items.sortedByDescending { it.createdAt ?: "" }
+            else -> items.sortedByDescending {
+                try {
+                    val sdf = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
+                    sdf.parse(it.createdAt ?: "")?.time ?: 0L
+                } catch (e: Exception) {
+                    0L
+                }
+            }
         }
 
         binding.tvTotalCount.text = "전체 ${sorted.size}"

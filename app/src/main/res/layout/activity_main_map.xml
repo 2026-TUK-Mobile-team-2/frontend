@@ -66,12 +66,20 @@
                 app:tint="#94A3B8" />
         </LinearLayout>
 
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:scrollbars="none"
+            android:fadingEdge="horizontal"
+            android:requiresFadingEdge="horizontal"
+            android:fadingEdgeLength="32dp">
+
         <!-- 카테고리 칩 필터 -->
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chip_group_filter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
             android:paddingHorizontal="16dp"
             app:selectionRequired="true"
             app:singleSelection="true">
@@ -126,11 +134,43 @@
                 app:closeIconVisible="false" />
 
             <com.google.android.material.chip.Chip
-                android:id="@+id/chip_road"
+                android:id="@+id/chip_danger"
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="38dp"
-                android:text="도로"
+                android:text="안전위험"
+                android:textAllCaps="false"
+                android:textColor="@color/chip_text_selector"
+                android:textStyle="bold"
+                app:checkedIconVisible="false"
+                app:chipBackgroundColor="@color/chip_bg_selector"
+                app:chipCornerRadius="18dp"
+                app:chipMinHeight="38dp"
+                app:chipStrokeWidth="0dp"
+                app:closeIconVisible="false" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_parking"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:text="불법주차"
+                android:textAllCaps="false"
+                android:textColor="@color/chip_text_selector"
+                android:textStyle="bold"
+                app:checkedIconVisible="false"
+                app:chipBackgroundColor="@color/chip_bg_selector"
+                app:chipCornerRadius="18dp"
+                app:chipMinHeight="38dp"
+                app:chipStrokeWidth="0dp"
+                app:closeIconVisible="false" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_noise"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:text="소음"
                 android:textAllCaps="false"
                 android:textColor="@color/chip_text_selector"
                 android:textStyle="bold"
@@ -157,6 +197,7 @@
                 app:chipStrokeWidth="0dp"
                 app:closeIconVisible="false" />
         </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>>
     </LinearLayout>
 
     <!-- 검색 결과 드롭다운 -->
@@ -178,10 +219,10 @@
     <LinearLayout
         android:id="@+id/layout_bottom_news"
         android:layout_width="match_parent"
-        android:layout_height="260dp"
+        android:layout_height="wrap_content"
         android:layout_above="@id/bottomNavigation"
+        android:layout_marginBottom="0dp"
         android:background="@drawable/bottom_sheet_bg"
-        android:elevation="8dp"
         android:orientation="vertical"
         android:padding="20dp">
 
@@ -200,9 +241,10 @@
 
             <TextView
                 android:id="@+id/tv_bottom_title"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="10dp"
+                android:layout_weight="1"
                 android:text="내 주변 소식"
                 android:textColor="#1E293B"
                 android:textSize="18sp"
@@ -226,32 +268,9 @@
             android:clipToPadding="false"
             android:paddingStart="20dp"
             android:paddingEnd="20dp"
+            android:scrollbars="horizontal"
+            android:scrollbarStyle="outsideOverlay"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/layout_indicator"
-            android:layout_width="160dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp">
-
-            <View
-                android:id="@+id/view_indicator_track"
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:background="#E5E7EB"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <View
-                android:id="@+id/view_indicator_bar"
-                android:layout_width="40dp"
-                android:layout_height="4dp"
-                android:background="#9CA3AF"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
             android:id="@+id/tv_no_reports"
@@ -268,12 +287,12 @@
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_alignParentEnd="true"
+        android:layout_height="100dp"
         android:layout_alignParentBottom="true"
         android:background="@drawable/bottom_nav_bg"
+        android:elevation="8dp"
         app:itemActiveIndicatorStyle="@null"
-        app:itemIconSize="24dp"
+        app:itemIconSize="28dp"
         app:itemIconTint="@color/bottom_nav_selector"
         app:itemTextColor="@color/bottom_nav_selector"
         app:labelVisibilityMode="labeled"
