@@ -297,6 +297,7 @@ class MainMapActivity : AppCompatActivity() {
                 else -> report.categoryId.toString()
             }
 
+
             val styles = cachedStyles[styleKey] ?: cachedStyles["4"] ?: return@forEach
             layer.addLabel(
                 LabelOptions.from(LatLng.from(report.latitude, report.longitude))
