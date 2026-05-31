@@ -105,6 +105,7 @@
                         android:orientation="horizontal">
 
                         <LinearLayout
+                            android:id="@+id/hotCard1"
                             android:layout_width="280dp"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="12dp"
@@ -130,20 +131,22 @@
                                     android:background="@drawable/hot_badge_bg" />
 
                                 <TextView
+                                    android:id="@+id/tvHotLike1"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="5dp"
-                                    android:text="💛 24"
+                                    android:text="💛 0"
                                     android:textSize="14sp"
                                     android:textStyle="bold"
                                     android:textColor="#F0C94C" />
                             </LinearLayout>
 
                             <TextView
+                                android:id="@+id/tvHotTitle1"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp"
-                                android:text="정왕동 상가 앞 무단 투기 쓰레기"
+                                android:text="데이터 불러오는 중..."
                                 android:textSize="16sp"
                                 android:textStyle="bold"
                                 android:textColor="#1E293B"
@@ -151,16 +154,17 @@
                                 android:ellipsize="end" />
 
                             <TextView
+                                android:id="@+id/tvHotAddress1"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
-                                android:text="📍 정왕동 상가거리"
+                                android:text="📍 주소 로딩 중"
                                 android:textSize="12sp"
                                 android:textColor="#64748B" />
                         </LinearLayout>
 
-                        <!-- HOT 카드 2 -->
                         <LinearLayout
+                            android:id="@+id/hotCard2"
                             android:layout_width="280dp"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="12dp"
@@ -186,20 +190,22 @@
                                     android:background="@drawable/hot_badge_bg" />
 
                                 <TextView
+                                    android:id="@+id/tvHotLike2"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="5dp"
-                                    android:text="💛 18"
+                                    android:text="💛 0"
                                     android:textSize="14sp"
                                     android:textStyle="bold"
                                     android:textColor="#F0C94C" />
                             </LinearLayout>
 
                             <TextView
+                                android:id="@+id/tvHotTitle2"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp"
-                                android:text="은행동 놀이터 시설 파손"
+                                android:text="데이터 불러오는 중..."
                                 android:textSize="16sp"
                                 android:textStyle="bold"
                                 android:textColor="#1E293B"
@@ -207,16 +213,17 @@
                                 android:ellipsize="end" />
 
                             <TextView
+                                android:id="@+id/tvHotAddress2"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
-                                android:text="📍 은행동 어린이공원"
+                                android:text="📍 주소 로딩 중"
                                 android:textSize="12sp"
                                 android:textColor="#64748B" />
                         </LinearLayout>
 
-                        <!-- HOT 카드 3 -->
                         <LinearLayout
+                            android:id="@+id/hotCard3"
                             android:layout_width="280dp"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
@@ -241,20 +248,22 @@
                                     android:background="@drawable/hot_badge_bg" />
 
                                 <TextView
+                                    android:id="@+id/tvHotLike3"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="5dp"
-                                    android:text="💛 12"
+                                    android:text="💛 0"
                                     android:textSize="14sp"
                                     android:textStyle="bold"
                                     android:textColor="#F0C94C" />
                             </LinearLayout>
 
                             <TextView
+                                android:id="@+id/tvHotTitle3"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp"
-                                android:text="배곧동 가로등 깜빡거림"
+                                android:text="데이터 불러오는 중..."
                                 android:textSize="16sp"
                                 android:textStyle="bold"
                                 android:textColor="#1E293B"
@@ -262,14 +271,14 @@
                                 android:ellipsize="end" />
 
                             <TextView
+                                android:id="@+id/tvHotAddress3"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
-                                android:text="📍 배곧4로 중심거리"
+                                android:text="📍 주소 로딩 중"
                                 android:textSize="12sp"
                                 android:textColor="#64748B" />
                         </LinearLayout>
-
                     </LinearLayout>
                 </HorizontalScrollView>
             </LinearLayout>
