@@ -224,22 +224,8 @@ class MainMapActivity : AppCompatActivity() {
             override fun onMapReady(kakaoMap: KakaoMap) {
                 this@MainMapActivity.kakaoMap = kakaoMap
                 kakaoMap.moveCamera(CameraUpdateFactory.newCenterPosition(schoolLatLng))
-                kakaoMap.setOnLabelClickListener { kakaoMap, layer, label ->
-                    val report = label.tag as? Report
-                    if (report != null) {
-                        val intent = Intent(this@MainMapActivity, ReportDetailActivity::class.java).apply {
-                            putExtra("intent_complaint_id", report.complaintId)
-                        }
-                        startActivity(intent)
-                        true
-                    } else {
-                        false
-                    }
-                }
-
                 initMarkerStyles()
                 displayRegisteredMarkers(allMarkerItems)
-
                 locationPermissionRequest.launch(
                     arrayOf(
                         Manifest.permission.ACCESS_FINE_LOCATION,
