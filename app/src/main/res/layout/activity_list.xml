@@ -444,7 +444,7 @@
                             android:layout_marginEnd="8dp"
                             android:gravity="center"
                             android:id="@+id/filterRoadbtn"
-                            android:text="도로"
+                            android:text="불법주차"
                             android:textAllCaps="false"
                             android:textStyle="bold"
                             android:textSize="12sp"
