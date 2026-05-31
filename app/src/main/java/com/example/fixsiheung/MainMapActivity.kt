@@ -12,6 +12,7 @@ import android.graphics.RectF
 import android.location.Location
 import android.os.Bundle
 import android.os.Looper
+import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -50,6 +51,7 @@ import com.kakao.vectormap.label.Label
 import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelStyles
+import java.security.MessageDigest
 
 class MainMapActivity : AppCompatActivity() {
 
@@ -133,6 +135,14 @@ class MainMapActivity : AppCompatActivity() {
             }
         }
 
+        val info = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
+        for (signature in info.signatures!!) {
+            val md = MessageDigest.getInstance("SHA")
+            md.update(signature.toByteArray())
+            val hashKey = String(Base64.encode(md.digest(), 0))
+            Log.d("KeyHash", "KeyHash: $hashKey")
+        }
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         initKakaoMap()
@@ -161,9 +171,11 @@ class MainMapActivity : AppCompatActivity() {
                 }
             })
 
-        binding.tvBottomTitle.setOnClickListener {
-            val intent = Intent(this, ReportListActivity::class.java)
-            startActivity(intent)
+        binding.tvViewAll.setOnClickListener {
+            startActivity(Intent(this, ReportListActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            })
+            finish()
         }
     }
 

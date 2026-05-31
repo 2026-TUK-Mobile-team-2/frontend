@@ -48,7 +48,8 @@ data class ComplaintRequest(
     val title: String,
     val description: String,
     val latitude: Double,
-    val longitude: Double
+    val longitude: Double,
+    val address: String? = null
 )
 
 // 새 민원 등록 성공 후 서버 응답 모델 (서버에서 수신용)
