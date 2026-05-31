@@ -39,6 +39,7 @@ data class Report(
     @SerializedName("image_url")
     val imageUrl: String? = null,
     // 추가 : 공감여부
+    @SerializedName("isEmpathized")
     val isEmpathized: Boolean = false
 )
 
@@ -103,3 +104,5 @@ data class Notification(
     @SerializedName("is_read") val isRead: Boolean = false,
     @SerializedName("created_at") val createdAt: String? = ""
 )
+
+

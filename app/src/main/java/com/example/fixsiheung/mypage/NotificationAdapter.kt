@@ -43,6 +43,12 @@ class NotificationAdapter(
         holder.itemView.setOnClickListener {
             prefs.edit().putBoolean("notification_read_${item.id}", true).apply()
             holder.itemView.alpha = 0.6f
+            item.complaintId?.let { id ->
+                val intent = android.content.Intent(holder.itemView.context, com.example.fixsiheung.ReportDetailActivity::class.java).apply {
+                    putExtra("COMPLAINT_ID", id)
+                }
+                holder.itemView.context.startActivity(intent)
+            }
         }
 
         // 타입별 아이콘

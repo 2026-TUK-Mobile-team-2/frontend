@@ -135,6 +135,7 @@ interface ApiService {
         @Body request: StatusUpdateRequest
     ): Call<Map<String, String>>
 
+
     // =========================================================
     // 알림함 관련 API 목록
     // =========================================================

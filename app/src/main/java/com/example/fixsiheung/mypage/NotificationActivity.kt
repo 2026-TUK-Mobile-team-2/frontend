@@ -27,6 +27,7 @@ class NotificationActivity : AppCompatActivity() {
         binding.rvNotifications.adapter = adapter
 
         loadNotifications()
+
     }
 
     private fun loadNotifications() {
@@ -52,8 +53,6 @@ class NotificationActivity : AppCompatActivity() {
                 }
                 override fun onFailure(call: retrofit2.Call<List<Notification>>, t: Throwable) {
                     Log.e("Notification", "API 실패: ${t.message}")
-                    // API 실패 시 mock 데이터로 대체
-                    runOnUiThread { showData(getMockData()) }
                 }
             })
 
@@ -120,11 +119,4 @@ class NotificationActivity : AppCompatActivity() {
             adapter.updateList(data)
         }
     }
-
-    // TODO: API 완성되면 제거
-    private fun getMockData() = listOf(
-        Notification(1, "status",        "제보 상태 변경", "쓰레기 무단투기가 처리중으로 변경되었습니다.", null, false, "2026-05-30 10:00:00"),
-        Notification(2, "empathy",       "공감 알림",      "내 제보에 누군가 공감했습니다.",             null, false, "2026-05-30 08:00:00"),
-        Notification(3, "new_complaint", "새로운 민원",    "주변에 새로운 민원이 등록되었습니다.",        null, true,  "2026-05-29 12:00:00"),
-    )
 }

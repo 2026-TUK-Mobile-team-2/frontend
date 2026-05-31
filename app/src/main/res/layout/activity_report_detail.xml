@@ -16,6 +16,16 @@
         android:background="#F8FAFC"
         android:elevation="4dp">
 
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_arrow_back"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            app:tint="#65C0C1" />
+
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -25,6 +35,9 @@
             android:textStyle="bold"
             android:textSize="20sp"
             android:textColor="#1E293B"/>
+        <Space
+            android:layout_width="40dp"
+            android:layout_height="40dp" />
 
     </LinearLayout>
 
@@ -407,6 +420,34 @@
             android:textStyle="bold"
             android:textSize="18sp"
             android:background="@drawable/re_category_selected_bg"/>
+        <!-- 관리자 상태 변경 버튼 -->
+        <LinearLayout
+            android:id="@+id/layoutAdminStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/btnStatusProcessing"
+                android:layout_width="wrap_content"
+                android:layout_height="52dp"
+                android:text="처리중"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#F59E0B"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btnStatusComplete"
+                android:layout_width="wrap_content"
+                android:layout_height="52dp"
+                android:text="처리완료"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#10B981" />
+
+        </LinearLayout>
+
+
     </LinearLayout>
 
 </RelativeLayout>
