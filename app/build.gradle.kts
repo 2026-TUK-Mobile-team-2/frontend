@@ -16,6 +16,7 @@ android {
         }
     }
 
+
     defaultConfig {
         applicationId = "com.example.fixsiheung"
         minSdk = 35
@@ -64,8 +65,12 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
     // 이미지 로딩 라이브러리
     implementation("com.github.bumptech.glide:glide:4.16.0")
+
+    // HTTP 통신 라이브러리
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
