@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fixsiheung.databinding.ActivityListBinding
 import com.example.fixsiheung.model.Report
+import com.example.fixsiheung.mypage.MyPageActivity
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -68,6 +69,44 @@ class ReportListActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityListBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // 하단 네비 기본 선택
+        binding.bottomNavigation.selectedItemId = R.id.nav_list
+
+        // 하단 네비 클릭 이벤트
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_home -> {
+                    startActivity(Intent(this, MainMapActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    })
+                    finish()
+                    true
+                }
+
+                R.id.nav_list -> {
+                    true
+                }
+
+                R.id.nav_report -> {
+                    startActivity(Intent(this, ReportAddActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    })
+                    finish()
+                    true
+                }
+
+                R.id.nav_mypage -> {
+                    startActivity(Intent(this, MyPageActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    })
+                    finish()
+                    true
+                }
+
+                else -> false
+            }
+        }
 
         initDummyData()
         initRecyclerView()

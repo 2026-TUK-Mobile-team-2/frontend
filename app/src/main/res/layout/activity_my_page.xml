@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_alignParentBottom="true"
-        android:background="#FFFFFF"
+        android:background="@drawable/bottom_nav_bg"
         android:elevation="8dp"
         app:itemActiveIndicatorStyle="@null"
         app:itemIconSize="28dp"
@@ -40,17 +40,16 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp">
+                android:layout_height="wrap_content"
+                android:padding="16dp">
 
                 <TextView
                     android:id="@+id/tv_toolbar_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="시흥고쳐줘"
-                    android:textColor="#0E6E75"
-                    android:textSize="22sp"
+                    android:textColor="#65C0C1"
+                    android:textSize="24sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -71,7 +70,7 @@
                         android:clickable="true"
                         android:focusable="true"
                         android:src="@drawable/ic_notifications"
-                        app:tint="@color/primary" />
+                        app:tint="#65C0C1" />
 
                     <TextView
                         android:id="@+id/tv_notification_badge"

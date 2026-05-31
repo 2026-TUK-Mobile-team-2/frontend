@@ -43,11 +43,13 @@ class MyListAdapter(
         holder.tvTitle.text   = report.title
         holder.tvEmpathy.text = "❤️ ${report.empathyCount}"
         holder.tvTag.text     = when (report.categoryId) {
-            1    -> "도로"
-            2    -> "쓰레기"
-            3    -> "시설"
-            4    -> "기타"
-            else -> "null"
+            1 -> "쓰레기"
+            2 -> "시설파손"
+            3 -> "안전위험"
+            4 -> "불법주차"
+            5 -> "소음"
+            6 -> "기타"
+            else -> "기타"
         }
         holder.tvLocation.text = report.address ?: ""
 
@@ -85,6 +87,7 @@ class MyListAdapter(
                     override fun onResponse(call: retrofit2.Call<Report>, response: retrofit2.Response<Report>) {
                         if (response.isSuccessful) {
                             val detail = response.body() ?: return
+                            holder.tvLocation.text = detail.address ?: ""
                             val fixedUrl = detail.imageUrl?.replace("127.0.0.1", "10.0.2.2") ?: return
                             Glide.with(holder.itemView.context)
                                 .load(fixedUrl)
