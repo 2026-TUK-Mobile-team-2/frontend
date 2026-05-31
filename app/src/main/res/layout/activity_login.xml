@@ -7,19 +7,6 @@
     android:background="#FFFFFF"
     tools:context=".auth.LoginActivity">
 
-    <Button
-        android:id="@+id/test"
-        android:layout_width="0dp" android:layout_height="60dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginEnd="40dp"
-        android:layout_marginBottom="16dp"
-        android:text="임시버튼 로그인 건너뛰기"
-        android:backgroundTint="@color/primary"
-        app:cornerRadius="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/layout_mascot"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
     <FrameLayout
         android:id="@+id/layout_mascot"
         android:layout_width="280dp"

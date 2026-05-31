@@ -13,6 +13,15 @@ import com.example.fixsiheung.network.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import com.kakao.vectormap.KakaoMap
+import com.kakao.vectormap.KakaoMapReadyCallback
+import com.kakao.vectormap.KakaoMapSdk
+import com.kakao.vectormap.LatLng
+import com.kakao.vectormap.MapLifeCycleCallback
+import com.kakao.vectormap.camera.CameraUpdateFactory
+import com.kakao.vectormap.label.LabelOptions
+import com.kakao.vectormap.label.LabelStyle
+import com.kakao.vectormap.label.LabelStyles
 
 class ReportDetailActivity : AppCompatActivity() {
 
@@ -20,16 +29,38 @@ class ReportDetailActivity : AppCompatActivity() {
 
     enum class ProcessStatus { RECEIVED, PROCESSING, COMPLETED }
 
+
+    private var reportCategoryId: Int = 1
     private var complaintId: Int = -1
     private var userId: String = ""
     private var isAdmin: Boolean = false
     private var currentEmpathyCount: Int = 0
     private var isEmpathized: Boolean = false
 
+    private var kakaoMap: KakaoMap? = null
+    private var reportLatLng: LatLng? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityReportDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        KakaoMapSdk.init(this, "f0f61ee911139544fa9381c376c79833")
+        binding.mapView.start(object : MapLifeCycleCallback() {
+            override fun onMapDestroy() {}
+            override fun onMapError(error: Exception?) {}
+        }, object : KakaoMapReadyCallback() {
+            override fun onMapReady(map: KakaoMap) {
+                kakaoMap = map
+                // 리포트 로드 후 위치 있으면 마커 표시
+                reportLatLng?.let { showMarkerOnMap(it) }
+            }
+        })
+
+        binding.mapView.setOnTouchListener { v, event ->
+            v.parent.requestDisallowInterceptTouchEvent(true)
+            false
+        }
 
         binding.btnBack.setOnClickListener { finish() }
 
@@ -86,6 +117,59 @@ class ReportDetailActivity : AppCompatActivity() {
             })
     }
 
+    override fun onResume() {
+        super.onResume()
+        binding.mapView.resume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding.mapView.pause()
+    }
+
+    private fun showMarkerOnMap(latLng: LatLng) {
+        val map = kakaoMap ?: return
+        map.moveCamera(CameraUpdateFactory.newCenterPosition(latLng, 16))
+
+        val markerDrawableId = when (reportCategoryId) {
+            1 -> R.drawable.ic_marker_trash
+            2 -> R.drawable.ic_marker_facilities
+            3 -> R.drawable.ic_marker_danger
+            4 -> R.drawable.ic_marker_parking
+            5 -> R.drawable.ic_marker_noise
+            else -> R.drawable.ic_marker_any
+        }
+
+        // bitmap으로 변환
+        val bitmap = vectorToBitmap(markerDrawableId)
+
+        val labelManager = map.labelManager ?: return
+        val style = labelManager.addLabelStyles(
+            LabelStyles.from(
+                LabelStyle.from(bitmap).setAnchorPoint(0.5f, 1.0f)
+            )
+        ) ?: return
+
+        labelManager.layer?.addLabel(
+            LabelOptions.from(latLng).setStyles(style)
+        )
+    }
+
+    private fun vectorToBitmap(drawableId: Int): android.graphics.Bitmap {
+        val drawable = androidx.core.content.ContextCompat.getDrawable(this, drawableId)!!
+        val maxPx = (48 * resources.displayMetrics.density).toInt()
+        var w = drawable.intrinsicWidth
+        var h = drawable.intrinsicHeight
+        if (w > maxPx || h > maxPx) {
+            if (w > h) { h = (h * (maxPx.toFloat() / w)).toInt(); w = maxPx }
+            else { w = (w * (maxPx.toFloat() / h)).toInt(); h = maxPx }
+        }
+        return android.graphics.Bitmap.createBitmap(w, h, android.graphics.Bitmap.Config.ARGB_8888).also {
+            drawable.setBounds(0, 0, it.width, it.height)
+            drawable.draw(android.graphics.Canvas(it))
+        }
+    }
+
     private fun bindReport(report: Report) {
         // 💡 [수정] 하드코딩된 이미지 대신 Glide를 사용하여 서버의 진짜 이미지를 로드합니다.
         if (!report.imageUrl.isNullOrEmpty()) {
@@ -99,6 +183,10 @@ class ReportDetailActivity : AppCompatActivity() {
         } else {
             binding.ivHeroImage.setImageResource(R.drawable.block)
         }
+
+        reportCategoryId = report.categoryId
+        reportLatLng = LatLng.from(report.latitude, report.longitude)
+        kakaoMap?.let { showMarkerOnMap(reportLatLng!!) }
 
         val status = report.status ?: "접수중"
         binding.tvStatusBadge.text = status

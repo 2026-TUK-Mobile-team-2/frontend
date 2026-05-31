@@ -114,10 +114,6 @@ class ReportListActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
-        binding.itemaddbtn.setOnClickListener {
-            addReportLauncher.launch(Intent(this, ReportAddActivity::class.java))
-        }
-
         binding.sortfastbtn.setOnClickListener {
             currentSortType = "FAST"
             applyFilterAndSort()

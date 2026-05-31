@@ -278,7 +278,7 @@ class MainMapActivity : AppCompatActivity() {
         val now = System.currentTimeMillis()
         val twentyFourH = 86_400_000L
         val topHotIds =
-            allMarkerItems.sortedByDescending { it.empathyCount }.take(2).map { it.complaintId }
+            allMarkerItems.sortedByDescending { it.empathyCount }.take(3).map { it.complaintId }
 
         items.forEach { report ->
             val isHot = report.complaintId in topHotIds
@@ -297,6 +297,7 @@ class MainMapActivity : AppCompatActivity() {
                 isNew -> "${report.categoryId}_new"
                 else -> report.categoryId.toString()
             }
+
 
             val styles = cachedStyles[styleKey] ?: cachedStyles["4"] ?: return@forEach
             layer.addLabel(
